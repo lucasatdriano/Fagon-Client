@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 
-interface BasicInputProps {
-    type?: 'text' | 'email';
+interface InputProps {
+    type?: 'text' | 'email' | 'password';
     label: string;
     icon: React.ReactElement;
     value: string;
@@ -14,28 +15,32 @@ interface BasicInputProps {
     required?: boolean;
 }
 
-export default function CustomFormInput({
+export default function CustomAuthInput({
     type = 'text',
     label,
     icon,
     value,
     onChange,
-    colorBg = 'bg-background',
-    textColor = 'text-foreground',
+    colorBg = 'bg-primary',
+    textColor = 'text-white',
     error,
     required,
-}: BasicInputProps) {
+}: InputProps) {
     const [isFocused, setIsFocused] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+
+    const isPassword = type === 'password';
+    const inputType = isPassword && !showPassword ? 'password' : 'text';
 
     return (
         <div className="relative w-full pt-2">
             <div
-                className={`flex items-center border border-black px-4 py-3 rounded-2xl transition-all duration-200 ${colorBg}`}
+                className={`flex items-center border-b-2 border-background px-2 py-3 rounded transition-all duration-200 ${colorBg}`}
             >
-                <div className={`mr-3 ${textColor}`}>{icon}</div>
-                <div className="w-full">
+                <div className="w-full flex">
+                    <div className={`mr-2 ${textColor}`}>{icon}</div>
                     <input
-                        type={type}
+                        type={inputType}
                         value={value}
                         onChange={onChange}
                         onFocus={() => setIsFocused(true)}
@@ -49,14 +54,27 @@ export default function CustomFormInput({
                             absolute left-0 transition-all duration-200 pointer-events-none ${textColor}
                             ${
                                 isFocused || value !== ''
-                                    ? 'ms-12 top-1/4 opacity-0'
-                                    : 'ms-12 top-1/2 -translate-y-1/3 text-base text-gray-300'
+                                    ? 'ms-8 top-0 text-sm text-white'
+                                    : 'ms-12  top-1/2 -translate-y-1/3 text-base text-gray-300'
                             }
                         `}
                     >
                         {label}
                     </label>
                 </div>
+                {isPassword && (
+                    <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className={`ml-2 focus:outline-none ${textColor}`}
+                    >
+                        {showPassword ? (
+                            <EyeOff size={20} />
+                        ) : (
+                            <Eye size={20} />
+                        )}
+                    </button>
+                )}
             </div>
             {error && (
                 <span className="text-red-500 text-sm mt-1 block transition-all duration-200">

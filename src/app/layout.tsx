@@ -1,17 +1,21 @@
 import type { Metadata } from 'next';
-import { Open_Sans, Montserrat } from 'next/font/google';
+import { Open_Sans, Montserrat, Poppins } from 'next/font/google';
 import '../styles/globals.css';
 
 const openSans = Open_Sans({
-    variable: '--font-open-sans',
     weight: ['400', '500', '700'],
     subsets: ['latin'],
     display: 'swap',
 });
 
 const montserrat = Montserrat({
-    variable: '--font-montserrat',
     weight: ['400', '600', '700'],
+    subsets: ['latin'],
+    display: 'swap',
+});
+
+const poppins = Poppins({
+    weight: ['400', '500', '600', '700'],
     subsets: ['latin'],
     display: 'swap',
 });
@@ -30,7 +34,7 @@ export default function RootLayout({
     return (
         <html lang="pt-br">
             <body
-                className={`${openSans.variable} ${montserrat.variable} font-sans antialiased flex `}
+                className={`${openSans.className} ${montserrat.className} ${poppins.className} font-sans antialiased flex`}
             >
                 {children}
             </body>

@@ -5,6 +5,7 @@ export default {
         './src/app/**/*.{js,ts,jsx,tsx,mdx}',
         './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     ],
+    important: true,
     theme: {
         extend: {
             colors: {
@@ -16,17 +17,22 @@ export default {
                 hover: 'var(--hover)',
             },
             fontFamily: {
-                sans: ['var(--font-open-sans)', 'sans-serif'],
-                montserrat: ['var(--font-montserrat)', 'sans-serif'],
+                sans: ['Open Sans', 'sans-serif'],
+                montserrat: ['Montserrat', 'sans-serif'],
+                poppins: ['Poppins', 'sans-serif'],
             },
             borderRadius: {
                 '4xl': '2rem',
                 '5xl': '2.5rem',
+            },
+            borderWidth: {
+                '1': '1px',
             },
             transitionProperty: {
                 'rounded-and-color': 'border-radius, border-color',
             },
         },
     },
+    safelist: [],
     plugins: [],
 } satisfies Config;
