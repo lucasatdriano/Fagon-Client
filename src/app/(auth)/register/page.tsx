@@ -24,7 +24,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="h-screen w-full flex flex-col gap-16 items-center justify-start pt-36">
+        <div className="h-screen w-full flex flex-col gap-10 md:gap-16 items-center justify-start pt-6 md:pt-32">
             <Image
                 width={200}
                 height={200}
@@ -34,9 +34,9 @@ export default function LoginPage() {
             />
             <form
                 onSubmit={handleLogin}
-                className="space-y-4 bg-primary grid place-items-center shadow-md p-6 rounded-lg w-full max-w-sm"
+                className="space-y-4 bg-primary grid place-items-center shadow-md p-6 rounded-lg w-full max-w-sm md:max-w-md"
             >
-                <h1 className="text-3xl text-white mb-4 text-center font-sans">
+                <h1 className="text-2xl text-white mb-4 text-center font-sans">
                     Faça Cadastro
                 </h1>
                 <div className="w-full grid place-items-center gap-8">
@@ -76,7 +76,7 @@ export default function LoginPage() {
                     <CustomButton
                         type="submit"
                         fontSize="text-lg"
-                        className="w-48"
+                        className="w-48 hover:bg-secondary-hover"
                     >
                         Cadastrar
                     </CustomButton>

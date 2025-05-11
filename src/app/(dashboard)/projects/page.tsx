@@ -1,3 +1,5 @@
+import ProjectCard from '@/components/cards/ProjectCard';
+import FabButton from '@/components/layout/FabButton';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
@@ -10,9 +12,24 @@ export default async function DashboardPage() {
     }
 
     return (
-        <main className="h-screen flex flex-col items-center justify-center">
-            <h1 className="text-3xl font-bold">Bem-vindo ao Dashboard</h1>
-            <p className="text-gray-600 mt-2">Você está autenticado.</p>
-        </main>
+        <div className="h-svh flex flex-col items-center pt-20 px-6">
+            <div className="w-full relative flex justify-center py-3">
+                <h2 className="text-3xl font-sans bg-background px-2">
+                    Projetos
+                </h2>
+                <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
+            </div>
+            <ProjectCard
+                agencyNumber="0334"
+                upeCode={205034}
+                projectType="Laudo CMAR"
+                city="Salvador"
+                district="Pituba"
+                status="finalizado"
+                inspectorName="Maria Souza"
+                inspectorDate="03/06/2025"
+            />
+            <FabButton title="Adicionar novo projeto" href="create-project" />
+        </div>
     );
 }

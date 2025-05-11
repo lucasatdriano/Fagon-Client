@@ -8,13 +8,18 @@ export default {
     important: true,
     theme: {
         extend: {
+            inset: {
+                '1/5': '20%',
+                '22': '5.5rem',
+            },
             colors: {
                 background: 'var(--background)',
                 foreground: 'var(--foreground)',
                 primary: 'var(--primary)',
                 secondary: 'var(--secondary)',
                 accent: 'var(--accent)',
-                hover: 'var(--hover)',
+                'primary-hover': 'var(--primary-hover)',
+                'secondary-hover': 'var(--secondary-hover)',
             },
             fontFamily: {
                 sans: ['Open Sans', 'sans-serif'],

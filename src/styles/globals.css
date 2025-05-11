@@ -8,7 +8,8 @@
     --primary: #ff6d33;
     --secondary: #263735;
     --accent: #f68355;
-    --hover: #f5723d;
+    --primary-hover: #f57745;
+    --secondary-hover: #2e4240;
 }
 
 body {

@@ -39,7 +39,7 @@ export function CustomButton({
   `;
 
     const variantClasses = ghost
-        ? `bg-transparent ${textColor} underline border border-transparent hover:border-current hover:bg-opacity-10`
+        ? `bg-transparent ${textColor} underline border border-transparent hover:border-current`
         : `${color} ${textColor} border border-transparent hover:opacity-90`;
 
     return (

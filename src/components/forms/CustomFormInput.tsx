@@ -28,9 +28,9 @@ export default function CustomFormInput({
     const [isFocused, setIsFocused] = useState(false);
 
     return (
-        <div className="relative w-full pt-2">
+        <div className="relative w-full">
             <div
-                className={`flex items-center border border-black px-4 py-3 rounded-2xl transition-all duration-200 ${colorBg}`}
+                className={`flex items-center border-2 border-foreground px-4 py-2 md:py-3 rounded-2xl transition-all duration-200 ${colorBg}`}
             >
                 <div className={`mr-3 ${textColor}`}>{icon}</div>
                 <div className="w-full">
@@ -40,7 +40,7 @@ export default function CustomFormInput({
                         onChange={onChange}
                         onFocus={() => setIsFocused(true)}
                         onBlur={() => setIsFocused(value !== '')}
-                        className={`w-full bg-transparent outline-none placeholder-transparent ${textColor}`}
+                        className={`w-full md:text-lg bg-transparent outline-none placeholder-transparent ${textColor}`}
                         placeholder={label}
                         required={required}
                     />
@@ -49,8 +49,8 @@ export default function CustomFormInput({
                             absolute left-0 transition-all duration-200 pointer-events-none ${textColor}
                             ${
                                 isFocused || value !== ''
-                                    ? 'ms-12 top-1/4 opacity-0'
-                                    : 'ms-12 top-1/2 -translate-y-1/3 text-base text-gray-300'
+                                    ? 'ms-12 top-1/5 opacity-0'
+                                    : 'ms-12 top-1/2 -translate-y-1/2 text-base text-gray-300'
                             }
                         `}
                     >
