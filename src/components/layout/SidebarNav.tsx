@@ -48,7 +48,7 @@ export default function SidebarNav() {
                                 isActive && 'border-l-4 border-background',
                             )}
                         >
-                            <Icon className="w-6 h-6" />
+                            <Icon className="w-8 h-8" />
                             <span className="text-sm">{item.label}</span>
                         </Link>
                     );

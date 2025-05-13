@@ -2,87 +2,89 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { CustomButton } from '@/components/forms/CustomButton';
-import CustomAuthInput from '@/components/forms/CustomAuthInput';
-import { LockIcon, MailIcon } from 'lucide-react';
+import { SearchCardList } from '@/components/forms/SearchCardList';
+import { CustomDropdownInput } from '@/components/forms/CustomDropdownInput';
+import { CustomRadioGroup } from '@/components/forms/CustomRadioGroup';
+import CustomFormInput from '@/components/forms/CustomFormInput';
+import { HashIcon } from 'lucide-react';
+import { projectType } from '@/constants/projectType';
 
-export default function LoginPage() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+export default function CreateProjectPage() {
     const router = useRouter();
+    const [selectedOption, setSelectedOption] = useState<string | null>(null);
+    const [selectedPerson, setSelectedPerson] = useState('');
+    const [upeCode, setUpeCode] = useState('');
+
+    const peopleOptions = [
+        { id: 'cinara', label: 'Cinara Aparecida Batista Goncalves' },
+        { id: 'barbara', label: 'Bárbara Gonçalves' },
+    ];
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (email === 'admin@teste.com' && password === '123456') {
-            document.cookie = `token=fake-token; path=/;`;
-            router.push('/projects');
-        } else {
-            alert('Credenciais inválidas');
-        }
+        document.cookie = `token=fake-token; path=/;`;
+        router.push('/projects');
     };
 
     return (
-        <div className="h-screen w-full flex flex-col gap-10 md:gap-16 items-center justify-start pt-6 md:pt-32">
-            <Image
-                width={200}
-                height={200}
-                src="/images/logo-vertical.svg"
-                alt="Logo Fagon"
-                priority
-            />
+        <div className="h-screen w-full flex items-center justify-center">
             <form
                 onSubmit={handleLogin}
-                className="space-y-4 bg-primary grid place-items-center shadow-md p-6 rounded-lg w-full max-w-sm md:max-w-md"
+                className="space-y-4 bg-primary grid place-items-center shadow-md p-6 rounded-lg w-full max-w-sm md:max-w-4xl"
             >
                 <h1 className="text-2xl text-white mb-4 text-center font-sans">
-                    Faça Login
+                    Adicionar Novo Projeto
                 </h1>
 
                 <div className="w-full grid place-items-center gap-8">
-                    <CustomAuthInput
-                        type="email"
-                        icon={<MailIcon />}
-                        label="Email*"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                    ></CustomAuthInput>
-                    <div className="w-full grid gap-0 place-items-end">
-                        <CustomAuthInput
-                            type="password"
-                            icon={<LockIcon />}
-                            label="Senha*"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                    <div className="grid grid-cols-2 w-full gap-6">
+                        <CustomDropdownInput
+                            options={projectType}
+                            selectedOptionValue={selectedOption}
+                            onOptionSelected={setSelectedOption}
+                            placeholder="Selecione o Tipo do projeto*"
+                        />
+                        <CustomRadioGroup
+                            name="people"
+                            options={peopleOptions}
+                            selectedValue={selectedPerson}
+                            onChange={setSelectedPerson}
+                            className="p-4 border rounded-lg row-span-2"
+                            orientation="vertical"
+                        />
+                        <CustomFormInput
+                            icon={<HashIcon />}
+                            label="UPE do projeto*"
+                            onChange={(e) => setUpeCode(e.target.value)}
+                            value={upeCode}
+                            type="text"
                             required
-                        ></CustomAuthInput>
-                        <CustomButton
-                            type="button"
-                            ghost
-                            fontSize="text-sm"
-                            className="hover:border-transparent no-underline hover:underline font-poppins"
-                        >
-                            Esqueceu sua senha?
-                        </CustomButton>
+                        />
+                    </div>
+                    <div className="w-full grid gap-0 place-items-start">
+                        <SearchCardList
+                            onSelectAgency={(agency) =>
+                                console.log('Agência selecionada:', agency)
+                            }
+                            searchAgencies={async (query) => {
+                                const response = await fetch(
+                                    `/api/agencies?q=${query}`,
+                                );
+                                return response.json();
+                            }}
+                        />
+                        <p className="font-poppins">Selecione uma Agência*</p>
                     </div>
                 </div>
                 <div className="grid gap-4 pt-4">
                     <CustomButton
                         type="submit"
                         fontSize="text-lg"
-                        className="w-36 hover:bg-secondary-hover"
+                        className="hover:bg-secondary-hover"
                     >
-                        Entrar
-                    </CustomButton>
-                    <CustomButton
-                        type="button"
-                        ghost
-                        fontSize="text-lg"
-                        className="w-36"
-                    >
-                        Cadastre-se
+                        Adicionar Projeto
                     </CustomButton>
                 </div>
             </form>

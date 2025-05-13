@@ -7,12 +7,12 @@ import { CustomButton } from '@/components/forms/CustomButton';
 import CustomAuthInput from '@/components/forms/CustomAuthInput';
 import { LockIcon, MailIcon, UserIcon } from 'lucide-react';
 
-export default function LoginPage() {
+export default function RegisterPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const router = useRouter();
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (email === 'admin@teste.com' && password === '123456') {
@@ -23,8 +23,12 @@ export default function LoginPage() {
         }
     };
 
+    const handleNavegation = () => {
+        router.push('/login');
+    };
+
     return (
-        <div className="h-screen w-full flex flex-col gap-10 md:gap-16 items-center justify-start pt-6 md:pt-32">
+        <div className="h-screen w-full flex flex-col gap-10 items-center justify-start pt-6 md:pt-12">
             <Image
                 width={200}
                 height={200}
@@ -33,7 +37,7 @@ export default function LoginPage() {
                 priority
             />
             <form
-                onSubmit={handleLogin}
+                onSubmit={handleRegister}
                 className="space-y-4 bg-primary grid place-items-center shadow-md p-6 rounded-lg w-full max-w-sm md:max-w-md"
             >
                 <h1 className="text-2xl text-white mb-4 text-center font-sans">
@@ -61,6 +65,7 @@ export default function LoginPage() {
                         label="Senha*"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        maxLength={14}
                         required
                     ></CustomAuthInput>
                     <CustomAuthInput
@@ -69,6 +74,7 @@ export default function LoginPage() {
                         label="Confirme sua senha*"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        maxLength={14}
                         required
                     ></CustomAuthInput>
                 </div>
@@ -82,6 +88,7 @@ export default function LoginPage() {
                     </CustomButton>
                     <CustomButton
                         type="button"
+                        onClick={handleNavegation}
                         ghost
                         fontSize="text-lg"
                         className="w-48"

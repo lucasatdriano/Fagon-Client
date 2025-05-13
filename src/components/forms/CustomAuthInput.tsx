@@ -13,6 +13,8 @@ interface InputProps {
     textColor?: string;
     error?: string;
     required?: boolean;
+    maxLength?: number; // ← novo
+    minLength?: number; // ← novo
 }
 
 export default function CustomAuthInput({
@@ -25,6 +27,8 @@ export default function CustomAuthInput({
     textColor = 'text-white',
     error,
     required,
+    maxLength,
+    minLength,
 }: InputProps) {
     const [isFocused, setIsFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
@@ -48,6 +52,8 @@ export default function CustomAuthInput({
                         className={`w-full bg-transparent outline-none placeholder-transparent ${textColor}`}
                         placeholder={label}
                         required={required}
+                        maxLength={maxLength} // ← aplicado aqui
+                        minLength={minLength} // ← e aqui
                     />
                     <label
                         className={`

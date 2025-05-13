@@ -7,7 +7,7 @@ import { CustomButton } from '@/components/forms/CustomButton';
 import { KeyRoundIcon } from 'lucide-react';
 import CustomFormInput from '@/components/forms/CustomFormInput';
 
-export default function LoginPage() {
+export default function AccessKeyPage() {
     const [accessKey, setAccessKey] = useState('');
     const router = useRouter();
 

@@ -3,15 +3,20 @@
 import { useState } from 'react';
 
 interface BasicInputProps {
-    type?: 'text' | 'email';
+    type?: 'text' | 'email' | 'number';
     label: string;
     icon: React.ReactElement;
     value: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
     colorBg?: string;
     textColor?: string;
+    borderColor?: string;
     error?: string;
+    disabled?: boolean;
     required?: boolean;
+    maxLength?: number;
+    minLength?: number;
 }
 
 export default function CustomFormInput({
@@ -20,42 +25,62 @@ export default function CustomFormInput({
     icon,
     value,
     onChange,
-    colorBg = 'bg-background',
+    onBlur,
+    colorBg = 'bg-white',
     textColor = 'text-foreground',
+    borderColor,
     error,
+    disabled,
     required,
+    maxLength,
+    minLength,
 }: BasicInputProps) {
     const [isFocused, setIsFocused] = useState(false);
 
+    const containerClasses = `
+        flex items-center border-2 ${borderColor} px-4 py-2 md:py-3 rounded-lg transition-all duration-200 
+        ${colorBg} 
+        ${disabled ? 'bg-gray-200/90 border-gray-100 cursor-not-allowed' : ''}
+    `;
+
+    const inputClasses = `
+        w-full bg-transparent outline-none placeholder-transparent 
+        ${textColor}
+        ${disabled ? 'cursor-not-allowed' : ''}
+    `;
+
+    const labelClasses = `
+        absolute left-0 transition-all duration-200 pointer-events-none 
+        ${textColor} 
+        ${
+            isFocused || value !== ''
+                ? '-top-1/4 opacity-0'
+                : 'top-1/2 -translate-y-1/2 text-base text-gray-400'
+        }
+    `;
+
     return (
-        <div className="relative w-full">
-            <div
-                className={`flex items-center border-2 border-foreground px-4 py-2 md:py-3 rounded-2xl transition-all duration-200 ${colorBg}`}
-            >
+        <div className="w-full">
+            <div className={containerClasses}>
                 <div className={`mr-3 ${textColor}`}>{icon}</div>
-                <div className="w-full">
+                <div className="w-full relative">
                     <input
                         type={type}
                         value={value}
                         onChange={onChange}
                         onFocus={() => setIsFocused(true)}
-                        onBlur={() => setIsFocused(value !== '')}
-                        className={`w-full md:text-lg bg-transparent outline-none placeholder-transparent ${textColor}`}
+                        onBlur={(e) => {
+                            setIsFocused(value !== '');
+                            onBlur?.(e);
+                        }}
+                        className={inputClasses}
                         placeholder={label}
+                        disabled={disabled}
                         required={required}
+                        maxLength={maxLength}
+                        minLength={minLength}
                     />
-                    <label
-                        className={`
-                            absolute left-0 transition-all duration-200 pointer-events-none ${textColor}
-                            ${
-                                isFocused || value !== ''
-                                    ? 'ms-12 top-1/5 opacity-0'
-                                    : 'ms-12 top-1/2 -translate-y-1/2 text-base text-gray-300'
-                            }
-                        `}
-                    >
-                        {label}
-                    </label>
+                    <label className={labelClasses}>{label}</label>
                 </div>
             </div>
             {error && (

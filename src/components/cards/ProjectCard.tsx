@@ -1,43 +1,6 @@
 import { FileTextIcon } from 'lucide-react';
-
-interface ProjectCardProps {
-    agencyNumber: string;
-    upeCode: number;
-    projectType: string;
-    city: string;
-    district: string;
-    status:
-        | 'aguardando_vistoria'
-        | 'aguardando_geração_de_pdfs'
-        | 'aguardando_assinatura_de_pdfs'
-        | 'finalizado'
-        | 'cancelado';
-    inspectorName?: string;
-    inspectorDate?: string;
-}
-
-const statusColors = {
-    aguardando_vistoria: {
-        bg: 'bg-blue-100',
-        text: 'text-blue-800',
-    },
-    aguardando_geração_de_pdfs: {
-        bg: 'bg-yellow-100',
-        text: 'text-yellow-800',
-    },
-    aguardando_assinatura_de_pdfs: {
-        bg: 'bg-purple-100',
-        text: 'text-purple-800',
-    },
-    finalizado: {
-        bg: 'bg-green-100',
-        text: 'text-green-800',
-    },
-    cancelado: {
-        bg: 'bg-red-100',
-        text: 'text-red-800',
-    },
-};
+import { projectStatus } from '@/constants/projectStatus';
+import { ProjectProps } from '@/interfaces/project';
 
 export default function ProjectCard({
     agencyNumber,
@@ -48,11 +11,13 @@ export default function ProjectCard({
     status,
     inspectorName,
     inspectorDate,
-}: ProjectCardProps) {
-    const { bg, text } = statusColors[status];
+}: ProjectProps) {
+    const statusData = projectStatus.find((s) => s.value === status);
+
+    if (!statusData) return null;
 
     return (
-        <div className="w-full p-4 border rounded-lg shadow-sm bg-white">
+        <div className="w-full cursor-pointer p-4 border rounded-lg shadow-sm hover:shadow-md bg-white transition-shadow duration-200">
             <div className="flex items-center gap-2 mb-3">
                 <FileTextIcon className="w-8 h-8 text-primary" />
                 <span className="font-semibold text-foreground">
@@ -70,19 +35,13 @@ export default function ProjectCard({
                 </p>
             )}
 
-            <div className="flex gap-2 mt-2 flex-wrap">
+            <div className="flex mt-2">
                 <span
-                    className={`${bg} ${text} px-3 py-1 rounded-full font-medium`}
+                    className={`${statusData.bg} ${statusData.text} px-3 py-1 rounded-full font-medium`}
                 >
-                    {formatStatusText(status)}
+                    {statusData.label}
                 </span>
             </div>
         </div>
     );
-}
-
-function formatStatusText(status: string) {
-    return status
-        .replace(/_/g, ' ')
-        .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
 }

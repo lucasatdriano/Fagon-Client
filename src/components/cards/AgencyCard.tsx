@@ -1,16 +1,6 @@
+import { agencyProps } from '@/interfaces/agency';
+import { formatCNPJ } from '@/utils/formatters/formatCNPJ';
 import { LandmarkIcon } from 'lucide-react';
-
-interface AgencyCardProps {
-    agencyNumber: number;
-    name: string;
-    cnpj?: string;
-    cep: string;
-    state: string;
-    city: string;
-    district: string;
-    street: string;
-    number: number;
-}
 
 export default function AgencyCard({
     agencyNumber,
@@ -20,9 +10,9 @@ export default function AgencyCard({
     district,
     street,
     number,
-}: AgencyCardProps) {
+}: agencyProps) {
     return (
-        <div className="w-full p-4 border rounded-lg shadow-sm bg-white">
+        <div className="w-full cursor-pointer p-4 border rounded-lg shadow-sm hover:shadow-md bg-white transition-shadow duration-200">
             <div className="flex items-center gap-2 mb-3">
                 <LandmarkIcon className="w-8 h-8 text-primary" />
                 <span className="font-semibold text-foreground">
@@ -40,10 +30,3 @@ export default function AgencyCard({
         </div>
     );
 }
-
-const formatCNPJ = (cnpj: string) => {
-    return cnpj.replace(
-        /(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,
-        '$1.$2.$3/$4-$5',
-    );
-};

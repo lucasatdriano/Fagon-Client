@@ -6,16 +6,20 @@ import Image from 'next/image';
 import { CustomButton } from '@/components/forms/CustomButton';
 import CustomAuthInput from '@/components/forms/CustomAuthInput';
 import { LockIcon, MailIcon } from 'lucide-react';
+import { LoginForm } from '@/interfaces/login';
 
 export default function LoginPage() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
+    const [form, setForm] = useState<LoginForm>({
+        email: '',
+        password: '',
+    });
+
     const router = useRouter();
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (email === 'admin@teste.com' && password === '123456') {
+        if (form.email === 'admin@teste.com' && form.password === '123456') {
             document.cookie = `token=fake-token; path=/;`;
             router.push('/projects');
         } else {
@@ -23,8 +27,18 @@ export default function LoginPage() {
         }
     };
 
+    const handleChange =
+        (field: keyof LoginForm) =>
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            setForm((prev) => ({ ...prev, [field]: e.target.value }));
+        };
+
+    const handleNavegation = () => {
+        router.push('/register');
+    };
+
     return (
-        <div className="h-screen w-full flex flex-col gap-10 md:gap-16 items-center justify-start pt-6 md:pt-32">
+        <div className="h-screen w-full flex flex-col gap-10 items-center justify-start pt-6 md:pt-20">
             <Image
                 width={200}
                 height={200}
@@ -45,19 +59,20 @@ export default function LoginPage() {
                         type="email"
                         icon={<MailIcon />}
                         label="Email*"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        value={form.email}
+                        onChange={handleChange('email')}
                         required
-                    ></CustomAuthInput>
+                    />
                     <div className="w-full grid gap-0 place-items-end">
                         <CustomAuthInput
                             type="password"
                             icon={<LockIcon />}
                             label="Senha*"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            value={form.password}
+                            onChange={handleChange('password')}
+                            maxLength={14}
                             required
-                        ></CustomAuthInput>
+                        />
                         <CustomButton
                             type="button"
                             ghost
@@ -78,6 +93,7 @@ export default function LoginPage() {
                     </CustomButton>
                     <CustomButton
                         type="button"
+                        onClick={handleNavegation}
                         ghost
                         fontSize="text-lg"
                         className="w-36"
