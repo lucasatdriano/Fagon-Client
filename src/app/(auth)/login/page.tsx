@@ -2,38 +2,65 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import Image from 'next/image';
 import { CustomButton } from '@/components/forms/CustomButton';
-import CustomAuthInput from '@/components/forms/CustomAuthInput';
+import { CustomAuthInput } from '@/components/forms/CustomAuthInput';
 import { LockIcon, MailIcon } from 'lucide-react';
-import { LoginForm } from '@/interfaces/login';
+import { LoginFormData, loginSchema } from '@/validations';
 
 export default function LoginPage() {
-    const [form, setForm] = useState<LoginForm>({
-        email: '',
-        password: '',
+    const router = useRouter();
+    const [loading, setLoading] = useState(false);
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        setError,
+    } = useForm<LoginFormData>({
+        resolver: zodResolver(loginSchema),
+        mode: 'onTouched',
     });
 
-    const router = useRouter();
+    const onSubmit = async (data: LoginFormData) => {
+        setLoading(true);
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
 
-        if (form.email === 'admin@teste.com' && form.password === '123456') {
-            document.cookie = `token=fake-token; path=/;`;
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Erro no login');
+            }
+
+            document.cookie = `token=${(await response.json()).token}; path=/;`;
             router.push('/projects');
-        } else {
-            alert('Credenciais inválidas');
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                setError('root', {
+                    type: 'manual',
+                    message: error.message,
+                });
+            } else {
+                setError('root', {
+                    type: 'manual',
+                    message: 'Erro desconhecido',
+                });
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleChange =
-        (field: keyof LoginForm) =>
-        (e: React.ChangeEvent<HTMLInputElement>) => {
-            setForm((prev) => ({ ...prev, [field]: e.target.value }));
-        };
-
-    const handleNavegation = () => {
+    const handleNavigation = () => {
         router.push('/register');
     };
 
@@ -47,7 +74,7 @@ export default function LoginPage() {
                 priority
             />
             <form
-                onSubmit={handleLogin}
+                onSubmit={handleSubmit(onSubmit)}
                 className="space-y-4 bg-primary grid place-items-center shadow-md p-6 rounded-lg w-full max-w-sm md:max-w-md"
             >
                 <h1 className="text-2xl text-white mb-4 text-center font-sans">
@@ -59,19 +86,17 @@ export default function LoginPage() {
                         type="email"
                         icon={<MailIcon />}
                         label="Email*"
-                        value={form.email}
-                        onChange={handleChange('email')}
-                        required
+                        registration={register('email')}
+                        error={errors.email?.message}
                     />
+
                     <div className="w-full grid gap-0 place-items-end">
                         <CustomAuthInput
                             type="password"
                             icon={<LockIcon />}
                             label="Senha*"
-                            value={form.password}
-                            onChange={handleChange('password')}
-                            maxLength={14}
-                            required
+                            registration={register('password')}
+                            error={errors.password?.message}
                         />
                         <CustomButton
                             type="button"
@@ -83,17 +108,25 @@ export default function LoginPage() {
                         </CustomButton>
                     </div>
                 </div>
+
+                {errors.root && (
+                    <p className="text-error text-sm mt-2 text-center">
+                        {errors.root.message}
+                    </p>
+                )}
+
                 <div className="grid gap-4 pt-4">
                     <CustomButton
                         type="submit"
                         fontSize="text-lg"
                         className="w-36 hover:bg-secondary-hover"
+                        disabled={loading}
                     >
-                        Entrar
+                        {loading ? 'Carregando...' : 'Entrar'}
                     </CustomButton>
                     <CustomButton
                         type="button"
-                        onClick={handleNavegation}
+                        onClick={handleNavigation}
                         ghost
                         fontSize="text-lg"
                         className="w-36"

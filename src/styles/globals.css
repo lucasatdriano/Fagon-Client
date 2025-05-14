@@ -10,10 +10,21 @@
     --accent: #f68355;
     --primary-hover: #f57745;
     --secondary-hover: #2e4240;
+    --error: #6d0005;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: var(--accent);
+    border-radius: 10px;
+}
+
+*::-webkit-scrollbar {
+    width: 0.5em;
 }
 
 body {
     box-sizing: content-box;
     background: var(--background);
     color: var(--foreground);
+    overflow-x: hidden;
 }

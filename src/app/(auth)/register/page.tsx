@@ -2,28 +2,64 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import Image from 'next/image';
 import { CustomButton } from '@/components/forms/CustomButton';
-import CustomAuthInput from '@/components/forms/CustomAuthInput';
+import { CustomAuthInput } from '@/components/forms/CustomAuthInput';
 import { LockIcon, MailIcon, UserIcon } from 'lucide-react';
+import { RegisterFormData, registerSchema } from '@/validations';
 
 export default function RegisterPage() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
 
-    const handleRegister = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        setError,
+    } = useForm<RegisterFormData>({
+        resolver: zodResolver(registerSchema),
+        mode: 'onBlur',
+    });
 
-        if (email === 'admin@teste.com' && password === '123456') {
-            document.cookie = `token=fake-token; path=/;`;
-            router.push('/projects');
-        } else {
-            alert('Credenciais inválidas');
+    const onSubmit = async (data: RegisterFormData) => {
+        setLoading(true);
+
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Erro no registro');
+            }
+
+            router.push('/login');
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                setError('root', {
+                    type: 'manual',
+                    message: error.message,
+                });
+            } else {
+                setError('root', {
+                    type: 'manual',
+                    message: 'Erro desconhecido',
+                });
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handleNavegation = () => {
+    const handleNavigation = () => {
         router.push('/login');
     };
 
@@ -37,58 +73,69 @@ export default function RegisterPage() {
                 priority
             />
             <form
-                onSubmit={handleRegister}
+                onSubmit={handleSubmit(onSubmit)}
                 className="space-y-4 bg-primary grid place-items-center shadow-md p-6 rounded-lg w-full max-w-sm md:max-w-md"
             >
                 <h1 className="text-2xl text-white mb-4 text-center font-sans">
                     Faça Cadastro
                 </h1>
+
                 <div className="w-full grid place-items-center gap-8">
                     <CustomAuthInput
                         icon={<UserIcon />}
                         label="Nome*"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        registration={register('name')}
+                        error={errors.name?.message}
                         required
-                    ></CustomAuthInput>
+                    />
+
                     <CustomAuthInput
                         type="email"
                         icon={<MailIcon />}
                         label="Email*"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        registration={register('email')}
+                        error={errors.email?.message}
                         required
-                    ></CustomAuthInput>
+                    />
+
                     <CustomAuthInput
                         type="password"
                         icon={<LockIcon />}
                         label="Senha*"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        maxLength={14}
+                        registration={register('password')}
+                        error={errors.password?.message}
                         required
-                    ></CustomAuthInput>
+                    />
+
                     <CustomAuthInput
                         type="password"
                         icon={<LockIcon />}
                         label="Confirme sua senha*"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        maxLength={14}
+                        registration={register('confirmPassword')}
+                        error={errors.confirmPassword?.message}
                         required
-                    ></CustomAuthInput>
+                    />
                 </div>
+
+                {errors.root && (
+                    <p className="text-error text-sm mt-2 text-center">
+                        {errors.root.message}
+                    </p>
+                )}
+
                 <div className="grid gap-4 pt-8">
                     <CustomButton
                         type="submit"
                         fontSize="text-lg"
                         className="w-48 hover:bg-secondary-hover"
+                        disabled={loading}
                     >
-                        Cadastrar
+                        {loading ? 'Carregando...' : 'Cadastrar'}
                     </CustomButton>
+
                     <CustomButton
                         type="button"
-                        onClick={handleNavegation}
+                        onClick={handleNavigation}
                         ghost
                         fontSize="text-lg"
                         className="w-48"

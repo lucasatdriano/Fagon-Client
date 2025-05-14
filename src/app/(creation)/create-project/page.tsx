@@ -6,7 +6,7 @@ import { CustomButton } from '@/components/forms/CustomButton';
 import { SearchCardList } from '@/components/forms/SearchCardList';
 import { CustomDropdownInput } from '@/components/forms/CustomDropdownInput';
 import { CustomRadioGroup } from '@/components/forms/CustomRadioGroup';
-import CustomFormInput from '@/components/forms/CustomFormInput';
+import { CustomFormInput } from '@/components/forms/CustomFormInput';
 import { HashIcon } from 'lucide-react';
 import { projectType } from '@/constants/projectType';
 

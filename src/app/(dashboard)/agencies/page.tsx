@@ -14,9 +14,9 @@ export default async function DashboardAgenciesPage() {
     return (
         <div className="h-svh flex flex-col items-center pt-20 px-6">
             <div className="w-full relative flex justify-center py-3">
-                <h2 className="text-3xl font-sans bg-background px-2">
+                <h1 className="text-3xl font-sans bg-background px-2">
                     Agências
-                </h2>
+                </h1>
                 <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
             </div>
             <AgencyCard

@@ -1,10 +1,10 @@
 'use client';
 
-import { PDFGenerator } from '@/components/cards/PdfCard';
 import { pdfType } from '@/constants';
 import { PdfType } from '@/interfaces/pdf';
 import { supabase } from '@/lib/supabase';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
+import { PdfCard } from '../cards/PdfCard';
 
 interface Props {
     projectId: string;
@@ -12,7 +12,7 @@ interface Props {
 
 export default function PDFGeneratorWrapper({ projectId }: Props) {
     return (
-        <PDFGenerator
+        <PdfCard
             projectId={projectId}
             initialPDFs={pdfType.map((type) => ({
                 type: type.value as PdfType,
@@ -37,7 +37,6 @@ export default function PDFGeneratorWrapper({ projectId }: Props) {
             }}
             onPreview={(type) => {
                 toast.info(`Abrindo pré-visualização para ${type}`);
-                // Aqui você pode abrir um modal ou redirecionar para uma página de visualização
             }}
             onMenuAction={(type, action) => {
                 if (action === 'open-menu') {

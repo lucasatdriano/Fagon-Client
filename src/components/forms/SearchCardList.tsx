@@ -1,7 +1,7 @@
 import { useSearch } from '@/hooks/useSearch';
 import { debounce } from '@/utils/helpers/debounce';
 import { LandmarkIcon, SearchIcon } from 'lucide-react';
-import CustomFormInput from './CustomFormInput';
+import { CustomFormInput } from './CustomFormInput';
 import { useState } from 'react';
 import { agencyProps } from '@/interfaces/agency';
 

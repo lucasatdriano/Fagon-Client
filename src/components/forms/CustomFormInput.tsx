@@ -1,31 +1,23 @@
 'use client';
 
 import { useState } from 'react';
+import { UseFormRegisterReturn } from 'react-hook-form';
 
-interface BasicInputProps {
-    type?: 'text' | 'email' | 'number';
+interface BasicInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
     icon: React.ReactElement;
-    value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+    registration?: UseFormRegisterReturn;
     colorBg?: string;
     textColor?: string;
     borderColor?: string;
     error?: string;
-    disabled?: boolean;
-    required?: boolean;
-    maxLength?: number;
-    minLength?: number;
 }
 
-export default function CustomFormInput({
+export function CustomFormInput({
     type = 'text',
     label,
     icon,
-    value,
-    onChange,
-    onBlur,
+    registration,
     colorBg = 'bg-white',
     textColor = 'text-foreground',
     borderColor,
@@ -34,8 +26,14 @@ export default function CustomFormInput({
     required,
     maxLength,
     minLength,
+    ...props
 }: BasicInputProps) {
     const [isFocused, setIsFocused] = useState(false);
+    const [hasValue, setHasValue] = useState(false);
+
+    const inputProps = registration
+        ? { ...registration, ...props }
+        : { ...props };
 
     const containerClasses = `
         flex items-center border-2 ${borderColor} px-4 py-2 md:py-3 rounded-lg transition-all duration-200 
@@ -53,7 +51,7 @@ export default function CustomFormInput({
         absolute left-0 transition-all duration-200 pointer-events-none 
         ${textColor} 
         ${
-            isFocused || value !== ''
+            isFocused || hasValue
                 ? '-top-1/4 opacity-0'
                 : 'top-1/2 -translate-y-1/2 text-base text-gray-400'
         }
@@ -65,13 +63,18 @@ export default function CustomFormInput({
                 <div className={`mr-3 ${textColor}`}>{icon}</div>
                 <div className="w-full relative">
                     <input
+                        {...inputProps}
                         type={type}
-                        value={value}
-                        onChange={onChange}
                         onFocus={() => setIsFocused(true)}
                         onBlur={(e) => {
-                            setIsFocused(value !== '');
-                            onBlur?.(e);
+                            setIsFocused(false);
+                            setHasValue(!!e.target.value);
+                            registration?.onBlur?.(e);
+                        }}
+                        onChange={(e) => {
+                            setHasValue(!!e.target.value);
+                            registration?.onChange?.(e);
+                            props.onChange?.(e);
                         }}
                         className={inputClasses}
                         placeholder={label}
@@ -84,7 +87,7 @@ export default function CustomFormInput({
                 </div>
             </div>
             {error && (
-                <span className="text-red-500 text-sm mt-1 block transition-all duration-200">
+                <span className="text-error text-sm mt-1 block transition-all duration-200">
                     {error}
                 </span>
             )}

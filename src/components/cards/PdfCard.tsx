@@ -25,7 +25,7 @@ interface PDFGeneratorProps {
     onMenuAction: (type: PdfType, action: string) => void;
 }
 
-export function PDFGenerator({
+export function PdfCard({
     projectId,
     initialPDFs,
     onGenerate,

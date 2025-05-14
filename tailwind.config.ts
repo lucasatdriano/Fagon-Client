@@ -7,6 +7,14 @@ export default {
     ],
     important: true,
     theme: {
+        screens: {
+            xs: '400px',
+            sm: '660px',
+            md: '768px',
+            lg: '1024px',
+            xl: '1280px',
+            '2xl': '1536px',
+        },
         extend: {
             inset: {
                 '1/5': '20%',
@@ -20,6 +28,7 @@ export default {
                 accent: 'var(--accent)',
                 'primary-hover': 'var(--primary-hover)',
                 'secondary-hover': 'var(--secondary-hover)',
+                error: 'var(--error)',
             },
             fontFamily: {
                 sans: ['Open Sans', 'sans-serif'],

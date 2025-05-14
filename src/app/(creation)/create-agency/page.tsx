@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CustomButton } from '@/components/forms/CustomButton';
-import CustomFormInput from '@/components/forms/CustomFormInput';
+import { CustomFormInput } from '@/components/forms/CustomFormInput';
 import {
     Building2Icon,
     FileTextIcon,

@@ -2,7 +2,7 @@
 
 import { ArrowLeftIcon, MoreVerticalIcon, SearchIcon } from 'lucide-react';
 import Image from 'next/image';
-import CustomFormInput from '../forms/CustomFormInput';
+import { CustomFormInput } from '../forms/CustomFormInput';
 import { ReactNode, useState } from 'react';
 import { DropdownMenu } from './DropdownMenu';
 
@@ -34,7 +34,7 @@ export default function Header({
         <header
             className={`fixed z-40 top-0 w-full ${
                 hasSidebar ? 'md:w-[calc(100%-8rem)]' : 'md:w-full'
-            } bg-white px-16 py-3 shadow flex items-center justify-between gap-4 rounded-b-2xl`}
+            } bg-white px-8 md:px-16 py-3 shadow flex items-center justify-between gap-4 rounded-b-2xl`}
         >
             {(type === 'back' || type === 'backMenu') && (
                 <button

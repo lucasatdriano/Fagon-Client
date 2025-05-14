@@ -1,8 +1,10 @@
 import { FileTextIcon } from 'lucide-react';
 import { projectStatus } from '@/constants/projectStatus';
 import { ProjectProps } from '@/interfaces/project';
+import Link from 'next/link';
 
 export default function ProjectCard({
+    id,
     agencyNumber,
     upeCode,
     projectType,
@@ -17,7 +19,11 @@ export default function ProjectCard({
     if (!statusData) return null;
 
     return (
-        <div className="w-full cursor-pointer p-4 border rounded-lg shadow-sm hover:shadow-md bg-white transition-shadow duration-200">
+        <Link
+            href={`/projects/${id}`}
+            passHref
+            className="block w-full p-4 border rounded-lg shadow-sm hover:shadow-md bg-white transition-shadow duration-200"
+        >
             <div className="flex items-center gap-2 mb-3">
                 <FileTextIcon className="w-8 h-8 text-primary" />
                 <span className="font-semibold text-foreground">
@@ -42,6 +48,6 @@ export default function ProjectCard({
                     {statusData.label}
                 </span>
             </div>
-        </div>
+        </Link>
     );
 }

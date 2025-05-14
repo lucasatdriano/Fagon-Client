@@ -1,10 +1,10 @@
 export const floorOptions = [
-    { value: 'ceramico', label: 'Cerâmico' },
-    { value: 'porcelanato', label: 'Porcelanato' },
-    { value: 'vinilico', label: 'Vinílico' },
-    { value: 'cimentado', label: 'Cimentado' },
-    { value: 'carpete', label: 'Carpete' },
-    { value: 'granito', label: 'Granito' },
-    { value: 'ardosia', label: 'Ardósia' },
-    { value: 'outro', label: 'Outro' },
+    { id: '1', value: 'ceramico', label: 'Cerâmico' },
+    { id: '2', value: 'porcelanato', label: 'Porcelanato' },
+    { id: '3', value: 'vinilico', label: 'Vinílico' },
+    { id: '4', value: 'cimentado', label: 'Cimentado' },
+    { id: '5', value: 'carpete', label: 'Carpete' },
+    { id: '6', value: 'granito', label: 'Granito' },
+    { id: '7', value: 'ardosia', label: 'Ardósia' },
+    { id: '8', value: 'outro', label: 'Outro', isOtherOption: true },
 ];

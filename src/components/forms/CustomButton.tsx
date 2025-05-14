@@ -33,7 +33,9 @@ export function CustomButton({
     ${fontSize}
     ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
     transition-all 
-    font-medium 
+    font-medium
+    gap-2
+    items-center 
     flex justify-center
     ${className}
   `;
@@ -47,7 +49,7 @@ export function CustomButton({
             type={type}
             onClick={onClick}
             disabled={disabled}
-            className={`${baseClasses} text- ${variantClasses}`}
+            className={`${baseClasses} ${variantClasses}`}
         >
             {icon && <span>{icon}</span>}
             {children}

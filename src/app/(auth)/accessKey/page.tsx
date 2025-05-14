@@ -2,23 +2,63 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import Image from 'next/image';
 import { CustomButton } from '@/components/forms/CustomButton';
 import { KeyRoundIcon } from 'lucide-react';
-import CustomFormInput from '@/components/forms/CustomFormInput';
+import { CustomFormInput } from '@/components/forms/CustomFormInput';
+import { accessKeySchema, AccessKeyFormData } from '@/validations';
 
 export default function AccessKeyPage() {
-    const [accessKey, setAccessKey] = useState('');
     const router = useRouter();
+    const [loading, setLoading] = useState(false);
 
-    const handleLogin = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        setError,
+    } = useForm<AccessKeyFormData>({
+        resolver: zodResolver(accessKeySchema),
+        mode: 'onBlur',
+    });
 
-        if (accessKey === 'admin@teste.com') {
-            document.cookie = `token=fake-token; path=/;`;
+    const onSubmit = async (data: AccessKeyFormData) => {
+        setLoading(true);
+
+        try {
+            const response = await fetch('/api/auth/access-key', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ accessKey: data.accessKey }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(
+                    errorData.message || 'Chave de acesso inválida',
+                );
+            }
+
+            document.cookie = `token=${(await response.json()).token}; path=/;`;
             router.push('/projects');
-        } else {
-            alert('Credenciais inválidas');
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                setError('root', {
+                    type: 'manual',
+                    message: error.message,
+                });
+            } else {
+                setError('root', {
+                    type: 'manual',
+                    message: 'Erro desconhecido',
+                });
+            }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -32,7 +72,7 @@ export default function AccessKeyPage() {
                 priority
             />
             <form
-                onSubmit={handleLogin}
+                onSubmit={handleSubmit(onSubmit)}
                 className="space-y-4 bg-primary grid place-items-center shadow-md p-6 rounded-lg w-full max-w-sm md:max-w-md"
             >
                 <h1 className="text-2xl text-white mb-4 text-center font-sans">
@@ -43,18 +83,26 @@ export default function AccessKeyPage() {
                     <CustomFormInput
                         icon={<KeyRoundIcon />}
                         label="Chave de Acesso*"
-                        value={accessKey}
-                        onChange={(e) => setAccessKey(e.target.value)}
+                        registration={register('accessKey')}
+                        error={errors.accessKey?.message}
                         required
-                    ></CustomFormInput>
+                    />
                 </div>
+
+                {errors.root && (
+                    <p className="text-red-500 text-sm mt-2 text-center">
+                        {errors.root.message}
+                    </p>
+                )}
+
                 <div className="pt-6">
                     <CustomButton
                         type="submit"
                         fontSize="text-lg"
                         className="w-36 hover:bg-secondary-hover"
+                        disabled={loading}
                     >
-                        Entrar
+                        {loading ? 'Carregando...' : 'Entrar'}
                     </CustomButton>
                 </div>
             </form>
