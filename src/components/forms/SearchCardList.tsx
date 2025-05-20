@@ -42,14 +42,13 @@ export function SearchCardList({
     };
 
     return (
-        <div className="w-full mx-auto font-sans p-4 bg-white rounded-md">
+        <div className="w-full mx-auto font-sans p-4 border-2 rounded-md">
             <div className="relative mb-4">
                 <CustomFormInput
                     icon={<SearchIcon className="w-5 h-5" />}
                     label="Pesquisar agência..."
                     value={localQuery}
                     onChange={handleChange}
-                    borderColor="border-foreground"
                 />
                 {isLoading && (
                     <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-600 text-sm">
@@ -65,7 +64,7 @@ export function SearchCardList({
                     {results.map((agency) => (
                         <li
                             key={agency.id}
-                            className={`bg-white px-4 py-3 rounded-md cursor-pointer border shadow-sm transition-all duration-100 ${
+                            className={`bg-background px-4 py-3 rounded-md cursor-pointer border shadow-sm transition-all duration-100 ${
                                 selectedAgencyId === agency.id
                                     ? 'border-primary bg-orange-300/20'
                                     : 'border-transparent hover:border-primary hover:bg-gray-100/60'

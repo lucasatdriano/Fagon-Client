@@ -2,7 +2,6 @@
 
 import { pdfType } from '@/constants';
 import { PdfType } from '@/interfaces/pdf';
-import { supabase } from '@/lib/supabase';
 import { toast } from 'react-toastify';
 import { PdfCard } from '../cards/PdfCard';
 
@@ -18,22 +17,18 @@ export default function PDFGeneratorWrapper({ projectId }: Props) {
                 type: type.value as PdfType,
                 generated: false,
                 signed: false,
+                deleting: false,
             }))}
             onGenerate={async (type) => {
-                const response = await fetch('/api/generate-pdf', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        projectId,
-                        pdfType: type,
-                    }),
-                });
-                return response.json();
+                // Simula geração com caminho fixo
+                await new Promise((res) => setTimeout(res, 1000)); // simula delay
+                toast.success(`PDF "${type}" gerado com sucesso!`);
+                return { path: `mock/path/${type}.pdf` };
             }}
             onView={(path) => {
-                const {
-                    data: { publicUrl },
-                } = supabase.storage.from('pdfs').getPublicUrl(path);
-                window.open(publicUrl, '_blank');
+                // Abre uma URL simulada
+                toast.info(`Abrindo PDF em ${path}`);
+                window.open(`https://example.com/${path}`, '_blank');
             }}
             onPreview={(type) => {
                 toast.info(`Abrindo pré-visualização para ${type}`);
@@ -41,9 +36,13 @@ export default function PDFGeneratorWrapper({ projectId }: Props) {
             onMenuAction={(type, action) => {
                 if (action === 'open-menu') {
                     toast.info(`Abrindo menu de opções para ${type}`);
-                    // Aqui você pode abrir um popover ou dropdown com ações como:
-                    // "Baixar", "Enviar PDF assinado", "Excluir", etc.
+                    // Aqui poderá abrir o dropdown futuramente
                 }
+            }}
+            onGenerateSigned={async (type) => {
+                await new Promise((res) => setTimeout(res, 1000));
+                toast.success(`PDF "${type}" assinado com sucesso!`);
+                return { path: `mock/path/${type}.pdf` };
             }}
         />
     );

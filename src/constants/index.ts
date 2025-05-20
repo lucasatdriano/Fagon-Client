@@ -7,3 +7,4 @@ export * from './floorOptions';
 export * from './wallOptions';
 export * from './ceilingOptions';
 export * from './locationType';
+export * from './locationsOptions';

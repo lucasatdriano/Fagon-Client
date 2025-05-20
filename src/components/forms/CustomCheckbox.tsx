@@ -12,6 +12,7 @@ interface CheckboxOption {
 interface CheckboxGroupProps {
     options: CheckboxOption[];
     onChange?: (selectedOptions: string[]) => void;
+    placeholder?: string;
     className?: string;
     gridCols?: number | 'full';
     color?: string;
@@ -20,6 +21,7 @@ interface CheckboxGroupProps {
 export function CustomCheckboxGroup({
     options = [],
     onChange,
+    placeholder,
     className = '',
     gridCols = 1,
     color = 'primary',
@@ -129,7 +131,7 @@ export function CustomCheckboxGroup({
                     {option.isOtherOption && checkedItems[option.id] && (
                         <div className="space-y-1 w-full">
                             <CustomFormInput
-                                label="Digite o valor"
+                                label={placeholder}
                                 value={otherValue}
                                 onChange={(e) =>
                                     handleOtherValueChange(e.target.value)

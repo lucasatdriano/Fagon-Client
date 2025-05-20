@@ -1,6 +1,6 @@
 'use client';
 
-import Header from '@/components/layout/Header';
+import { Header } from '@/components/layout/Header';
 import { useRouter } from 'next/navigation';
 
 export default function CreationLayout({

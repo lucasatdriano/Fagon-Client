@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { UseFormRegisterReturn } from 'react-hook-form';
 
 interface BasicInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-    label: string;
+    label: string | undefined;
     icon: React.ReactElement;
     registration?: UseFormRegisterReturn;
     colorBg?: string;
@@ -17,6 +17,8 @@ export function CustomFormInput({
     type = 'text',
     label,
     icon,
+    defaultValue,
+    value,
     registration,
     colorBg = 'bg-white',
     textColor = 'text-foreground',
@@ -30,6 +32,14 @@ export function CustomFormInput({
 }: BasicInputProps) {
     const [isFocused, setIsFocused] = useState(false);
     const [hasValue, setHasValue] = useState(false);
+
+    useEffect(() => {
+        if (value !== undefined) {
+            setHasValue(!!value);
+        } else if (defaultValue !== undefined) {
+            setHasValue(!!defaultValue);
+        }
+    }, [value, defaultValue]);
 
     const inputProps = registration
         ? { ...registration, ...props }

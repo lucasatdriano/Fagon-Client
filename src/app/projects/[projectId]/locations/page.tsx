@@ -1,16 +1,13 @@
+'use client';
+
 import { LocationCard } from '@/components/cards/LocationCard';
 import { NavigationCard } from '@/components/cards/NavegationCard';
 import { AlertTriangleIcon, MapPinPlusIcon } from 'lucide-react';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import LocationModal from '@/components/modals/LocationModal';
+import { useState } from 'react';
 
-export default async function DashboardProjectPage() {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('token')?.value;
-
-    if (!token) {
-        redirect('/login');
-    }
+export default function DashboardInspectorPage() {
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
         <div className="h-svh flex flex-col items-center pt-20 px-6">
@@ -111,7 +108,7 @@ export default async function DashboardProjectPage() {
                         hasPhotosSelected={true}
                     />
                     <NavigationCard
-                        href="../pathologies/create-pathology"
+                        href="pathologies/create-pathology"
                         title="Verificar/Adicionar Nova Patologia"
                         icon={
                             <AlertTriangleIcon className="mx-auto text-primary" />
@@ -121,13 +118,17 @@ export default async function DashboardProjectPage() {
 
                 <div className="fixed bottom-4 left-0 right-0 px-6">
                     <NavigationCard
-                        href="/create-location"
-                        relative={true}
                         title="Adicionar Novo Local"
+                        onClick={() => setIsModalOpen(true)}
                         icon={
                             <MapPinPlusIcon className="mx-auto text-primary" />
                         }
                         cardClassName="border-primary"
+                    />
+
+                    <LocationModal
+                        isOpen={isModalOpen}
+                        onClose={() => setIsModalOpen(false)}
                     />
                 </div>
             </div>

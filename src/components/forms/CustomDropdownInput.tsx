@@ -12,6 +12,8 @@ interface CustomDropdownInputProps {
     onOptionSelected?: (optionId: string | null) => void;
     placeholder?: string;
     className?: string;
+    icon?: React.ReactElement;
+    error?: string;
 }
 
 export function CustomDropdownInput({
@@ -20,6 +22,8 @@ export function CustomDropdownInput({
     onOptionSelected,
     placeholder = 'Selecione uma opção',
     className = '',
+    icon,
+    error,
 }: CustomDropdownInputProps) {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -37,14 +41,15 @@ export function CustomDropdownInput({
     );
 
     return (
-        <div className={`w-full max-w-md mx-auto ${className}`}>
+        <div className={`w-full mx-auto ${className}`}>
             <div className="relative">
                 <button
                     type="button"
                     onClick={toggleDropdown}
-                    className="w-full px-4 py-3 text-left border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary flex justify-between items-center"
+                    className="w-full px-4 py-3 text-left border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none flex justify-between items-center"
                 >
-                    <span className="text-gray-700">
+                    <span className="text-gray-700 flex items-center gap-2">
+                        {icon && <span>{icon}</span>}
                         {selectedOption ? selectedOption.label : placeholder}
                     </span>
                     {isOpen ? (
@@ -72,6 +77,11 @@ export function CustomDropdownInput({
                     </div>
                 )}
             </div>
+            {error && (
+                <span className="text-error text-sm mt-1 block transition-all duration-200">
+                    {error}
+                </span>
+            )}
         </div>
     );
 }

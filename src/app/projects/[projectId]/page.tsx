@@ -22,12 +22,13 @@ export default async function DashboardProjectPage() {
             </div>
             <div className="w-full flex flex-col gap-2">
                 <NavigationCard
-                    href="/notFound"
+                    href="/project"
                     title="Ver Informações do Projeto"
                     icon={<InfoIcon className="mx-auto text-primary" />}
+                    relative={true}
                 />
                 <NavigationCard
-                    href="locations"
+                    href="/locations"
                     title="Ver Dados da Vistoria"
                     icon={
                         <ClipboardEditIcon className="mx-auto text-primary" />

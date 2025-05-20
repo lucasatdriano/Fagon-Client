@@ -2,7 +2,7 @@
 
 import SidebarNav from '@/components/layout/SidebarNav';
 import BottomNav from '@/components/layout/BottomNav';
-import Header from '@/components/layout/Header';
+import { Header } from '@/components/layout/Header';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;

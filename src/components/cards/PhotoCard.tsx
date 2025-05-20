@@ -2,23 +2,20 @@
 
 import { useState } from 'react';
 import { CheckIcon, ImageIcon } from 'lucide-react';
+import { Photo } from '@/interfaces/photo';
 
 interface PhotoCardProps {
-    photo: {
-        id: string;
-        file_path: string;
-        selected_for_pdf: boolean;
-    };
+    photo: Photo;
     onSelect: (id: string) => Promise<void>;
     onView: (filePath: string) => void;
 }
 
 export function PhotoCard({ photo, onSelect, onView }: PhotoCardProps) {
     const [isLoading, setIsLoading] = useState(false);
-    const [isSelected, setIsSelected] = useState(photo.selected_for_pdf);
+    const [isSelected, setIsSelected] = useState(photo.selectedForPdf);
 
     const handleClick = async () => {
-        onView(photo.file_path);
+        onView(photo.filePath);
     };
 
     const handleDoubleClick = async () => {
@@ -43,7 +40,9 @@ export function PhotoCard({ photo, onSelect, onView }: PhotoCardProps) {
         >
             <div className="bg-white flex items-center justify-center py-4 gap-2">
                 <ImageIcon className="h-6 w-6" />
-                {photo.file_path.split('/').pop()}
+                {photo.filePath
+                    ? photo.filePath.split('/').pop()
+                    : `Foto${photo.id}.png`}
             </div>
 
             {isSelected && (

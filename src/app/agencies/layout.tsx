@@ -3,11 +3,7 @@
 import { Header } from '@/components/layout/Header';
 import { useRouter } from 'next/navigation';
 
-export default function CreationLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+export default function Layout({ children }: { children: React.ReactNode }) {
     const router = useRouter();
 
     const handleBack = () => {

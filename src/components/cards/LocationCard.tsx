@@ -30,7 +30,7 @@ export function LocationCard({
                         <span
                             className={`text-sm ${locationTypeData.bg} ${locationTypeData.text} px-2 py-1 rounded`}
                         >
-                            Local {locationTypeData.label}
+                            {locationTypeData.label}
                         </span>
 
                         {height && (

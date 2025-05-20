@@ -88,7 +88,6 @@ export default function RegisterPage() {
                         error={errors.name?.message}
                         required
                     />
-
                     <CustomAuthInput
                         type="email"
                         icon={<MailIcon />}
@@ -97,7 +96,6 @@ export default function RegisterPage() {
                         error={errors.email?.message}
                         required
                     />
-
                     <CustomAuthInput
                         type="password"
                         icon={<LockIcon />}
@@ -106,7 +104,6 @@ export default function RegisterPage() {
                         error={errors.password?.message}
                         required
                     />
-
                     <CustomAuthInput
                         type="password"
                         icon={<LockIcon />}

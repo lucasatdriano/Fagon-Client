@@ -7,15 +7,7 @@ import { CustomFormInput } from '@/components/forms/CustomFormInput';
 import { CustomCheckboxGroup } from '@/components/forms/CustomCheckbox';
 import { ceilingOptions, floorOptions, wallOptions } from '@/constants';
 import { PhotoCard } from '@/components/cards/PhotoCard';
-
-interface Photo {
-    id: string;
-    file_path: string;
-    name: string;
-    date: string;
-    selected_for_pdf: boolean;
-    size: string;
-}
+import { Photo } from '@/interfaces/photo';
 
 export default function CreateLocation() {
     // const [selectedFloor, setSelectedFloor] = useState('');
@@ -26,46 +18,31 @@ export default function CreateLocation() {
     const [photos, setPhotos] = useState<Photo[]>([
         {
             id: '1',
-            file_path: '/images/sample-photo-1.jpg',
-            name: 'Fachada Principal',
-            date: '2023-05-15',
-            selected_for_pdf: true,
-            size: '2.4 MB',
+            filePath: '/images/sample-photo-1.jpg',
+            selectedForPdf: true,
         },
         {
             id: '2',
-            file_path: '/images/sample-photo-2.jpg',
-            name: 'Detalhe da Entrada',
-            date: '2023-05-15',
-            selected_for_pdf: false,
-            size: '1.8 MB',
+            filePath: '/images/sample-photo-2.jpg',
+            selectedForPdf: false,
         },
         {
             id: '3',
-            file_path: '/images/sample-photo-3.jpg',
-            name: 'Vista Lateral',
-            date: '2023-05-16',
-            selected_for_pdf: true,
-            size: '3.2 MB',
+            filePath: '/images/sample-photo-3.jpg',
+            selectedForPdf: true,
         },
         {
             id: '4',
-            file_path: '/images/sample-photo-4.jpg',
-            name: 'Detalhe de Acabamento',
-            date: '2023-05-17',
-            selected_for_pdf: false,
-            size: '2.1 MB',
+            filePath: '/images/sample-photo-4.jpg',
+            selectedForPdf: false,
         },
     ]);
 
     const handleAddPhoto = () => {
         const newPhoto: Photo = {
             id: (photos.length + 1).toString(),
-            file_path: `/images/sample-photo-${photos.length + 1}.jpg`,
-            name: `Nova Foto ${photos.length + 1}`,
-            date: new Date().toISOString().split('T')[0],
-            selected_for_pdf: false,
-            size: `${(Math.random() * 2 + 1).toFixed(1)} MB`,
+            filePath: `/images/sample-photo-${photos.length + 1}.jpg`,
+            selectedForPdf: false,
         };
         setPhotos([...photos, newPhoto]);
     };
@@ -74,7 +51,7 @@ export default function CreateLocation() {
         setPhotos(
             photos.map((photo) =>
                 photo.id === photoId
-                    ? { ...photo, selected_for_pdf: !photo.selected_for_pdf }
+                    ? { ...photo, selectedForPdf: !photo.selectedForPdf }
                     : photo,
             ),
         );
@@ -119,7 +96,7 @@ export default function CreateLocation() {
                                 key={index}
                                 photo={photo}
                                 onSelect={() => handleSelect(photo.id)}
-                                onView={() => handleView(photo.file_path)}
+                                onView={() => handleView(photo.filePath)}
                             />
                         ))}
                     </div>

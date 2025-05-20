@@ -1,35 +1,29 @@
 'use client';
 
-import { ArrowLeftIcon, MoreVerticalIcon, SearchIcon } from 'lucide-react';
+import { ArrowLeftIcon, SearchIcon } from 'lucide-react';
 import Image from 'next/image';
 import { CustomFormInput } from '../forms/CustomFormInput';
-import { ReactNode, useState } from 'react';
-import { DropdownMenu } from './DropdownMenu';
+import { ReactNode } from 'react';
 
 type HeaderType = 'default' | 'back' | 'backMenu' | 'search';
-
-interface DropdownItem {
-    label: string;
-    action: () => void;
-    icon?: ReactNode;
-    className?: string;
-}
 
 interface HeaderProps {
     type: HeaderType;
     onBack?: () => void;
-    dropdownItems?: DropdownItem[];
+    dropdownMenu?: ReactNode;
     hasSidebar?: boolean;
+    searchValue?: string;
+    onSearchChange?: (value: string) => void;
 }
 
-export default function Header({
+export function Header({
     type,
     onBack,
-    dropdownItems = [],
+    dropdownMenu,
     hasSidebar = false,
+    searchValue = '',
+    onSearchChange,
 }: HeaderProps) {
-    const [search, setSearch] = useState('');
-
     return (
         <header
             className={`fixed z-40 top-0 w-full ${
@@ -43,9 +37,10 @@ export default function Header({
                     onClick={onBack}
                     className="hover:bg-gray-500/10 p-2 rounded-full transition-all duration-200"
                 >
-                    <ArrowLeftIcon className="w-8 h-8" />
+                    <ArrowLeftIcon className="w-7 h-7" />
                 </button>
             )}
+
             {type !== 'search' && (
                 <div className="flex items-center self-center">
                     <Image
@@ -53,10 +48,13 @@ export default function Header({
                         alt="Logo Fagon"
                         width={150}
                         height={150}
+                        priority
                     />
                 </div>
             )}
+
             {type === 'back' && <span></span>}
+
             {type === 'search' && (
                 <div className="flex items-center justify-center gap-8 w-full px-4 md:px-16">
                     <Image
@@ -65,35 +63,19 @@ export default function Header({
                         width={50}
                         height={50}
                         className="md:hidden"
+                        priority
                     />
                     <CustomFormInput
                         icon={<SearchIcon />}
                         label="Pesquisar..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        value={searchValue}
+                        onChange={(e) => onSearchChange?.(e.target.value)}
                         borderColor="border-foreground"
                     />
                 </div>
             )}
-            {type === 'backMenu' && (
-                <DropdownMenu
-                    trigger={
-                        <button
-                            title="Menu de opções"
-                            aria-label="Menu de opções"
-                            className="hover:bg-gray-500/10 p-1 rounded-full"
-                        >
-                            <MoreVerticalIcon className="w-6 h-6" />
-                        </button>
-                    }
-                    items={dropdownItems}
-                    side="bottom"
-                    bg="bg-white"
-                    textColor="text-gray-800"
-                    hoverBg="hover:bg-gray-100"
-                    zIndex="z-50"
-                />
-            )}
+
+            {type === 'backMenu' && dropdownMenu}
         </header>
     );
 }

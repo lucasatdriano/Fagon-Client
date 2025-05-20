@@ -7,8 +7,9 @@ import { useForm } from 'react-hook-form';
 import Image from 'next/image';
 import { CustomButton } from '@/components/forms/CustomButton';
 import { CustomAuthInput } from '@/components/forms/CustomAuthInput';
-import { LockIcon, MailIcon } from 'lucide-react';
+import { EditIcon, LockIcon, MailIcon } from 'lucide-react';
 import { LoginFormData, loginSchema } from '@/validations';
+import { CustomEditInput } from '@/components/forms/CustomEditInput';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -22,6 +23,9 @@ export default function LoginPage() {
     } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
         mode: 'onTouched',
+        defaultValues: {
+            email: 'João Silva',
+        },
     });
 
     const onSubmit = async (data: LoginFormData) => {
@@ -42,6 +46,7 @@ export default function LoginPage() {
             }
 
             document.cookie = `token=${(await response.json()).token}; path=/;`;
+            document.cookie = `role=${(await response.json()).role}; path=/;`;
             router.push('/projects');
         } catch (error: unknown) {
             if (error instanceof Error) {
@@ -89,7 +94,14 @@ export default function LoginPage() {
                         registration={register('email')}
                         error={errors.email?.message}
                     />
-
+                    <CustomEditInput
+                        label="Nome completo"
+                        icon={<EditIcon />}
+                        defaultValue="usuario@exemplo.com"
+                        registration={register('email')}
+                        className="mt-4"
+                        required
+                    />
                     <div className="w-full grid gap-0 place-items-end">
                         <CustomAuthInput
                             type="password"
