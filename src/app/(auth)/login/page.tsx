@@ -7,9 +7,9 @@ import { useForm } from 'react-hook-form';
 import Image from 'next/image';
 import { CustomButton } from '@/components/forms/CustomButton';
 import { CustomAuthInput } from '@/components/forms/CustomAuthInput';
-import { EditIcon, LockIcon, MailIcon } from 'lucide-react';
+import { LockIcon, MailIcon } from 'lucide-react';
 import { LoginFormData, loginSchema } from '@/validations';
-import { CustomEditInput } from '@/components/forms/CustomEditInput';
+import { AuthService } from '@/services/domains/authService';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -23,43 +23,27 @@ export default function LoginPage() {
     } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
         mode: 'onTouched',
-        defaultValues: {
-            email: 'João Silva',
-        },
     });
 
     const onSubmit = async (data: LoginFormData) => {
         setLoading(true);
 
         try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
+            const response = await AuthService.login({
+                ...data,
+                accessKeyToken: undefined,
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Erro no login');
-            }
-
-            document.cookie = `token=${(await response.json()).token}; path=/;`;
-            document.cookie = `role=${(await response.json()).role}; path=/;`;
+            document.cookie = `token=${response.data.access_token}; path=/;`;
+            document.cookie = `role=${response.data.user.role}; path=/;`;
             router.push('/projects');
         } catch (error: unknown) {
-            if (error instanceof Error) {
-                setError('root', {
-                    type: 'manual',
-                    message: error.message,
-                });
-            } else {
-                setError('root', {
-                    type: 'manual',
-                    message: 'Erro desconhecido',
-                });
-            }
+            const message =
+                error instanceof Error ? error.message : 'Erro desconhecido';
+            setError('root', {
+                type: 'manual',
+                message,
+            });
         } finally {
             setLoading(false);
         }
@@ -94,14 +78,7 @@ export default function LoginPage() {
                         registration={register('email')}
                         error={errors.email?.message}
                     />
-                    <CustomEditInput
-                        label="Nome completo"
-                        icon={<EditIcon />}
-                        defaultValue="usuario@exemplo.com"
-                        registration={register('email')}
-                        className="mt-4"
-                        required
-                    />
+
                     <div className="w-full grid gap-0 place-items-end">
                         <CustomAuthInput
                             type="password"
@@ -110,6 +87,7 @@ export default function LoginPage() {
                             registration={register('password')}
                             error={errors.password?.message}
                         />
+
                         <CustomButton
                             type="button"
                             ghost

@@ -9,6 +9,7 @@ import { CustomButton } from '@/components/forms/CustomButton';
 import { CustomAuthInput } from '@/components/forms/CustomAuthInput';
 import { LockIcon, MailIcon, UserIcon } from 'lucide-react';
 import { RegisterFormData, registerSchema } from '@/validations';
+import { AuthService } from '@/services/domains/authService';
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -28,18 +29,11 @@ export default function RegisterPage() {
         setLoading(true);
 
         try {
-            const response = await fetch('/api/auth/register', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
+            await AuthService.register({
+                name: data.name,
+                email: data.email,
+                password: data.password,
             });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Erro no registro');
-            }
 
             router.push('/login');
         } catch (error: unknown) {
@@ -66,11 +60,12 @@ export default function RegisterPage() {
     return (
         <div className="h-screen w-full flex flex-col gap-10 items-center justify-start pt-6 md:pt-12">
             <Image
-                width={200}
-                height={200}
+                width={0}
+                height={0}
                 src="/images/logo-vertical.svg"
                 alt="Logo Fagon"
                 priority
+                className="w-44 h-44 md:w-56 md:h-56"
             />
             <form
                 onSubmit={handleSubmit(onSubmit)}
@@ -88,6 +83,7 @@ export default function RegisterPage() {
                         error={errors.name?.message}
                         required
                     />
+
                     <CustomAuthInput
                         type="email"
                         icon={<MailIcon />}
@@ -96,6 +92,7 @@ export default function RegisterPage() {
                         error={errors.email?.message}
                         required
                     />
+
                     <CustomAuthInput
                         type="password"
                         icon={<LockIcon />}
@@ -104,6 +101,7 @@ export default function RegisterPage() {
                         error={errors.password?.message}
                         required
                     />
+
                     <CustomAuthInput
                         type="password"
                         icon={<LockIcon />}

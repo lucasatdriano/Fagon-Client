@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createAgencySchema, CreateAgencyFormValues } from '@/validations'; // Importe seu schema Zod
+import { toast } from 'sonner';
+import { createAgencySchema, CreateAgencyFormValues } from '@/validations';
 import { CustomButton } from '@/components/forms/CustomButton';
 import { CustomFormInput } from '@/components/forms/CustomFormInput';
 import {
@@ -20,9 +21,11 @@ import {
 import { fetchAddressByCep } from '@/utils/viacep';
 import { cnpjMask } from '@/utils/masks/maskCNPJ';
 import { cepMask } from '@/utils/masks/maskCEP';
+import { AgencyService } from '@/services/domains/agencyService';
 
 export default function CreateAgencyPage() {
     const router = useRouter();
+    const [isLoading, setIsLoading] = useState(false);
 
     const {
         register,
@@ -67,13 +70,34 @@ export default function CreateAgencyPage() {
         setValue(field, value, { shouldValidate: true });
     }
 
-    async function onSubmit(data: CreateAgencyFormValues) {
-        console.log('Dados enviados:', data);
+    const onSubmit: SubmitHandler<CreateAgencyFormValues> = async (data) => {
+        setIsLoading(true);
+        try {
+            const payload = {
+                name: data.name,
+                agencyNumber: Number(data.agencyNumber),
+                cnpj: data.cnpj ? data.cnpj.replace(/\D/g, '') : '',
+                cep: data.cep.replace(/\D/g, ''),
+                state: data.state,
+                city: data.city,
+                district: data.district,
+                street: data.street,
+                number: Number(data.number),
+            };
 
-        // Simular login/fake token
-        document.cookie = `token=fake-token; path=/;`;
-        router.push('/projects');
-    }
+            await AgencyService.create(payload);
+
+            toast.success('Agência criada com sucesso!');
+            router.push('/agencies');
+        } catch (error: unknown) {
+            toast.error(
+                'Erro ao criar agência. Verifique os dados e tente novamente.',
+            );
+            console.error('Erro ao criar agência:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="h-screen w-full flex items-center justify-center">
@@ -93,12 +117,14 @@ export default function CreateAgencyPage() {
                             registration={register('name')}
                             error={errors.name?.message}
                         />
+
                         <CustomFormInput
                             icon={<HashIcon />}
                             label="Número da Agência*"
                             registration={register('agencyNumber')}
                             error={errors.agencyNumber?.message}
                         />
+
                         <CustomFormInput
                             icon={<FileTextIcon />}
                             label="CNPJ"
@@ -126,8 +152,8 @@ export default function CreateAgencyPage() {
                             onChange={(e) => handleMaskedChange('cep', e)}
                             maxLength={9}
                             error={errors.cep?.message}
-                            required
                         />
+
                         <CustomFormInput
                             icon={<PinIcon />}
                             label="Estado*"
@@ -136,6 +162,7 @@ export default function CreateAgencyPage() {
                             disabled
                             error={errors.state?.message}
                         />
+
                         <CustomFormInput
                             icon={<Building2Icon />}
                             label="Município*"
@@ -144,6 +171,7 @@ export default function CreateAgencyPage() {
                             disabled
                             error={errors.city?.message}
                         />
+
                         <CustomFormInput
                             icon={<MapPinnedIcon />}
                             label="Bairro*"
@@ -152,6 +180,7 @@ export default function CreateAgencyPage() {
                             disabled
                             error={errors.district?.message}
                         />
+
                         <CustomFormInput
                             icon={<Navigation2Icon />}
                             label="Rua*"
@@ -160,12 +189,12 @@ export default function CreateAgencyPage() {
                             disabled
                             error={errors.street?.message}
                         />
+
                         <CustomFormInput
                             icon={<HashIcon />}
                             label="Número*"
                             registration={register('number')}
                             error={errors.number?.message}
-                            required
                         />
                     </div>
                 </div>
@@ -174,9 +203,12 @@ export default function CreateAgencyPage() {
                     <CustomButton
                         type="submit"
                         fontSize="text-lg"
+                        disabled={isLoading}
                         className="hover:bg-secondary-hover"
                     >
-                        Adicionar Agência
+                        {isLoading
+                            ? 'Adicionando Agência...'
+                            : 'Adicionar Agência'}
                     </CustomButton>
                 </div>
             </form>

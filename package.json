@@ -5,7 +5,7 @@
     "scripts": {
         "dev": "next dev --turbopack -p 8080",
         "build": "next build",
-        "start": "next start",
+        "start": "next start -p 8080",
         "lint": "next lint"
     },
     "dependencies": {
@@ -17,6 +17,7 @@
         "@supabase/supabase-js": "^2.49.4",
         "@tanstack/react-query": "^5.75.5",
         "axios": "^1.9.0",
+        "cookies-next": "^5.1.0",
         "fagon-client": "file:",
         "idb": "^8.0.3",
         "lucide-react": "^0.508.0",

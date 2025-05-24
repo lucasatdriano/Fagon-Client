@@ -1,15 +1,16 @@
+'use client';
+
 import { AxiosInstance } from 'axios';
+import { getCookie } from 'cookies-next';
 
 export const setupRequestInterceptor = (api: AxiosInstance) => {
     api.interceptors.request.use(
-        (config) => {
-            // Obtendo o token de autenticação do localStorage
-            const token = localStorage.getItem('authToken');
+        async (config) => {
+            const token = getCookie('token');
 
-            // Se o token existir, adiciona ao cabeçalho Authorization
             if (token) {
-                // Usando o método `set` para adicionar o cabeçalho Authorization corretamente
-                config.headers?.set('Authorization', `Bearer ${token}`);
+                config.headers = config.headers || {};
+                config.headers.Authorization = `Bearer ${token}`;
             }
 
             console.log(

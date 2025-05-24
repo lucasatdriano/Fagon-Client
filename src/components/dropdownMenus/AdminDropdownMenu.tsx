@@ -21,7 +21,7 @@ export function AdminDropdownMenu({
     const [expiresAt, setExpiresAt] = useState<Date | null>(null);
     const [copied, setCopied] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
-    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const setDropdownOpen = () => {};
 
     useEffect(() => {
         const savedKey = localStorage.getItem(`accessKey_${projectId}`);
@@ -77,7 +77,7 @@ export function AdminDropdownMenu({
             setAccessKey(newKey);
             setExpiresAt(expirationDate);
             toast.success('Chave gerada com sucesso!');
-        } catch (error) {
+        } catch {
             toast.error('Erro ao gerar chave');
         } finally {
             setIsGenerating(false);
@@ -112,24 +112,26 @@ export function AdminDropdownMenu({
         ...(!accessKey
             ? [
                   {
-                      type: 'custom',
+                      label: '',
+                      type: 'custom' as const,
                       customContent: (
                           <div className="px-2 py-1">
                               <CustomRadioGroup
                                   options={[
                                       {
                                           id: 'no-camera',
+                                          value: 'no-camera',
                                           label: 'Sem câmera 360°',
                                       },
                                       {
                                           id: 'has-camera',
+                                          value: 'has-camera',
                                           label: 'Com câmera 360°',
                                       },
                                   ]}
                                   selectedValue={cameraOption}
                                   onChange={setCameraOption}
                                   name="camera-options"
-                                  orientation="vertical"
                                   className="space-y-2"
                                   textColor="text-foreground"
                                   borderColor="border-foreground"
@@ -142,7 +144,8 @@ export function AdminDropdownMenu({
             : []),
         accessKey
             ? {
-                  type: 'custom',
+                  label: '',
+                  type: 'custom' as const,
                   customContent: (
                       <div className="px-2 py-1">
                           <div className="text-xs text-gray-500 mb-1">

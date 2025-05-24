@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { HashIcon } from 'lucide-react';
 
 import { CustomButton } from '@/components/forms/CustomButton';
@@ -14,10 +14,16 @@ import { CustomFormInput } from '@/components/forms/CustomFormInput';
 
 import { createProjectSchema, CreateProjectFormValues } from '@/validations';
 import { projectType } from '@/constants';
+import { EngineerService } from '@/services/domains/engineerService';
+import { AgencyService } from '@/services/domains/agencyService';
+import { engineerProps } from '@/interfaces/engineer';
+import { ProjectService } from '@/services/domains/projectService';
 
 export default function CreateProjectPage() {
     const router = useRouter();
-    const [selectedAgencyId, setSelectedAgencyId] = useState<string>('');
+    const [engineers, setEngineers] = useState<
+        { id: string; value: string; label: string }[]
+    >([]);
 
     const {
         register,
@@ -36,22 +42,43 @@ export default function CreateProjectPage() {
     });
 
     const onSubmit = async (data: CreateProjectFormValues) => {
-        console.log('Formulário enviado com sucesso:', data);
-        router.push('/project/123');
+        type ProjectType = (typeof projectType)[number]['value'];
+
+        try {
+            console.log(data);
+
+            const newProject = await ProjectService.create({
+                projectType: data.projectType as ProjectType,
+                upeCode: Number(data.upeCode),
+                agencyId: data.agencyId,
+                engineerId: data.selectedPerson,
+            });
+
+            console.log('Projeto criado com sucesso:', newProject);
+            router.push(`/project/${newProject.id}`);
+        } catch (error) {
+            console.error('Erro ao criar projeto:', error);
+        }
     };
 
-    const peopleOptions = [
-        {
-            id: 'b529f812-9311-4b0d-aeab-78b2e2054c2b',
-            value: 'b529f812-9311-4b0d-aeab-78b2e2054c2b',
-            label: 'Cinara Aparecida Batista Goncalves',
-        },
-        {
-            id: '2c18efaa-67bc-4310-b5d1-d4e6e7b6cc90',
-            value: '2c18efaa-67bc-4310-b5d1-d4e6e7b6cc90',
-            label: 'Bárbara Gonçalves',
-        },
-    ];
+    useEffect(() => {
+        async function fetchEngineers() {
+            try {
+                const result = await EngineerService.listAll();
+                const data = result.data;
+                const formatted = data.map((engineer: engineerProps) => ({
+                    id: engineer.id,
+                    value: engineer.id,
+                    label: engineer.name,
+                }));
+                setEngineers(formatted);
+            } catch (error) {
+                console.error('Erro ao buscar engenheiros:', error);
+            }
+        }
+
+        fetchEngineers();
+    }, []);
 
     return (
         <div className="h-screen w-full flex items-center justify-center">
@@ -68,16 +95,18 @@ export default function CreateProjectPage() {
                         <CustomDropdownInput
                             options={projectType}
                             selectedOptionValue={watch('projectType')}
-                            onOptionSelected={(val) =>
-                                setValue('projectType', val)
-                            }
+                            onOptionSelected={(val) => {
+                                if (val) {
+                                    setValue('projectType', val);
+                                }
+                            }}
                             placeholder="Selecione o Tipo do projeto*"
                             error={errors.projectType?.message}
                         />
 
                         <CustomRadioGroup
                             name="people"
-                            options={peopleOptions}
+                            options={engineers}
                             selectedValue={watch('selectedPerson')}
                             onChange={(val) => setValue('selectedPerson', val)}
                             className="p-4 border-2 rounded-lg row-span-2"
@@ -95,14 +124,30 @@ export default function CreateProjectPage() {
                     <div className="w-full grid gap-0 place-items-start">
                         <SearchCardList
                             onSelectAgency={(agency) => {
-                                setSelectedAgencyId(agency.id);
                                 setValue('agencyId', agency.id);
                             }}
-                            searchAgencies={async (query) => {
-                                const response = await fetch(
-                                    `/api/agencies?q=${query}`,
-                                );
-                                return response.json();
+                            searchAgencies={async (query: string) => {
+                                if (query.length < 1) return [];
+                                if (/^\d+$/.test(query)) {
+                                    const response = await AgencyService.search(
+                                        {
+                                            agencyNumber: query,
+                                        },
+                                    );
+
+                                    return response.data;
+                                }
+
+                                const response = await AgencyService.search({
+                                    state: query,
+                                    city: query,
+                                    district: query,
+                                });
+
+                                return response.data;
+
+                                // console.log('Agências encontradas:', result);
+                                // return result.data;
                             }}
                         />
                         {errors.agencyId && (

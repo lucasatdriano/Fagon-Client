@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CustomEditInput } from '@/components/forms/CustomEditInput';
@@ -38,84 +38,76 @@ export default function ProjectEditPage({
         resolver: zodResolver(updateProjectSchema),
     });
 
-    // useEffect(() => {
-    //     const fetchProjectData = async () => {
-    //         try {
-    //             setIsLoading(true);
-    //             const response = await fetch(`/api/projects/${params.id}`);
-    //             const data = await response.json();
+    useEffect(() => {
+        const fetchProjectData = async () => {
+            try {
+                setIsLoading(true);
+                const response = await fetch(`/api/projects/${params.id}`);
+                const data = await response.json();
 
-    //             if (response.ok) {
-    //                 // Preenche os valores iniciais
-    //                 setValue('projectName', data.name || '');
-    //                 setValue('upe', data.upe || '');
-    //                 setValue('agency', data.agency || '');
-    //                 setValue('mt', data.mt || '');
-    //                 setValue('stateAgency', data.stateAgency || '');
-    //                 setValue('cityAgency', data.cityAgency || '');
-    //                 setValue('districtAgency', data.districtAgency || '');
-    //                 setValue('projectType', data.projectType || '');
-    //                 setValue('projectDate', data.projectDate || '');
-    //                 setValue(
-    //                     'responsibleEngineer',
-    //                     data.responsibleEngineer || '',
-    //                 );
-    //                 setValue('inspectorName', data.inspectorName || '');
-    //                 setValue('validityDate', data.validityDate || '');
-    //                 setValue(
-    //                     'totalArea',
-    //                     data.totalArea ? data.totalArea.replace(' m²', '') : '',
-    //                 );
-    //                 setValue(
-    //                     'nextMeeting',
-    //                     data.nextMeeting
-    //                         ? data.nextMeeting.replace(' m', '')
-    //                         : '',
-    //                 );
-    //                 setValue('status', data.status || '');
+                if (response.ok) {
+                    // Preenche os valores iniciais
+                    setValue('projectName', data.name || '');
+                    setValue('upeCode', data.upe || '');
+                    setValue('agency', data.agency || '');
+                    setValue('numberAgency', data.numberAgency || '');
+                    setValue('stateAgency', data.stateAgency || '');
+                    setValue('cityAgency', data.cityAgency || '');
+                    setValue('districtAgency', data.districtAgency || '');
+                    setValue('projectType', data.projectType || '');
+                    setValue('projectDate', data.projectDate || '');
+                    setValue(
+                        'responsibleEngineer',
+                        data.responsibleEngineer || '',
+                    );
+                    setValue('inspectorName', data.inspectorName || '');
+                    setValue('inspectorDate', data.inspectorDate || '');
+                    setValue(
+                        'totalArea',
+                        data.totalArea ? data.totalArea.replace(' m²', '') : '',
+                    );
+                    setValue(
+                        'height',
+                        data.height ? data.height.replace(' m', '') : '',
+                    );
+                    setValue('status', data.status || '');
 
-    //                 const foundStatus = projectStatus.find(
-    //                     (s) => s.value === data.status,
-    //                 );
-    //                 if (foundStatus) {
-    //                     setStatusData(foundStatus);
-    //                 }
-    //             } else {
-    //                 setApiError('Falha ao carregar dados do projeto');
-    //             }
-    //         } catch (error) {
-    //             setApiError('Erro na conexão com o servidor');
-    //         } finally {
-    //             setIsLoading(false);
-    //         }
-    //     };
+                    const foundStatus = projectStatus.find(
+                        (s) => s.value === data.status,
+                    );
+                    if (foundStatus) {
+                        setStatusData(foundStatus);
+                    }
+                } else {
+                    setApiError('Falha ao carregar dados do projeto');
+                }
+            } catch (error) {
+                setApiError('Erro na conexão com o servidor');
+            } finally {
+                setIsLoading(false);
+            }
+        };
 
-    //     fetchProjectData();
-    // }, [params.id, setValue]);
+        fetchProjectData();
+    }, [params.id, setValue]);
 
     const onSubmit = async (data: UpdateProjectFormValues) => {
-        // try {
-        //     // Formata os valores antes de enviar
-        //     const payload = {
-        //         ...data,
-        //         totalArea: `${data.totalArea} m²`,
-        //         nextMeeting: `${data.nextMeeting} m`,
-        //     };
-        //     const response = await fetch(`/api/projects/${params.id}`, {
-        //         method: 'PUT',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify(payload),
-        //     });
-        //     if (response.ok) {
-        //         alert('Projeto atualizado com sucesso!');
-        //     } else {
-        //         throw new Error('Falha ao atualizar projeto');
-        //     }
-        // } catch (error) {
-        //     setApiError('Erro ao salvar as alterações');
-        // }
+        try {
+            const response = await fetch(`/api/projects/${params.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+            if (response.ok) {
+                alert('Projeto atualizado com sucesso!');
+            } else {
+                throw new Error('Falha ao atualizar projeto');
+            }
+        } catch (error) {
+            setApiError('Erro ao salvar as alterações');
+        }
     };
 
     if (isLoading) {
@@ -170,6 +162,7 @@ export default function ProjectEditPage({
                             textColor="text-foreground"
                             disabled
                         />
+
                         <CustomEditInput
                             label="Número da Agência"
                             registration={register('numberAgency')}
@@ -178,6 +171,7 @@ export default function ProjectEditPage({
                             textColor="text-foreground"
                             disabled
                         />
+
                         <CustomEditInput
                             label="Estado"
                             registration={register('stateAgency')}
@@ -186,6 +180,7 @@ export default function ProjectEditPage({
                             textColor="text-foreground"
                             disabled
                         />
+
                         <CustomEditInput
                             label="Cidade"
                             registration={register('cityAgency')}
@@ -194,6 +189,7 @@ export default function ProjectEditPage({
                             textColor="text-foreground"
                             disabled
                         />
+
                         <CustomEditInput
                             label="Bairro"
                             registration={register('districtAgency')}
@@ -202,6 +198,7 @@ export default function ProjectEditPage({
                             textColor="text-foreground"
                             disabled
                         />
+
                         <CustomEditInput
                             label="Tipo do Projeto"
                             registration={register('projectType')}
@@ -210,6 +207,7 @@ export default function ProjectEditPage({
                             textColor="text-foreground"
                             disabled
                         />
+
                         <CustomEditInput
                             label="Data de Projeto"
                             type="date"
@@ -227,6 +225,7 @@ export default function ProjectEditPage({
                             defaultValue="Cinara Aparecida Batista Gonçalves"
                             textColor="text-foreground"
                         />
+
                         <CustomEditInput
                             label="Nome do Vistoriador"
                             registration={register('inspectorName')}
@@ -234,11 +233,12 @@ export default function ProjectEditPage({
                             defaultValue="Guilherme dos Santos"
                             textColor="text-foreground"
                         />
+
                         <CustomEditInput
                             label="Data da Vistoria"
                             type="date"
-                            registration={register('validityDate')}
-                            error={errors.validityDate?.message}
+                            registration={register('inspectionDate')}
+                            error={errors.inspectionDate?.message}
                             defaultValue="2025-04-07"
                             textColor="text-foreground"
                         />
@@ -251,6 +251,7 @@ export default function ProjectEditPage({
                                 textColor="text-foreground"
                                 defaultValue="174,5"
                                 className="flex-1"
+                                disabled
                             />
                             <span>m²</span>
                         </div>
@@ -258,10 +259,11 @@ export default function ProjectEditPage({
                             <CustomEditInput
                                 label="Altura Máxima do Pé Direito"
                                 registration={register('height')}
-                                error={errors.nextMeeting?.message}
+                                error={errors.height?.message}
                                 textColor="text-foreground"
                                 defaultValue="5,98"
                                 className="flex-1"
+                                disabled
                             />
                             <span>m</span>
                         </div>

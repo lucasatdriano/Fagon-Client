@@ -9,6 +9,7 @@ import { KeyRoundIcon } from 'lucide-react';
 import { CustomFormInput } from '@/components/forms/CustomFormInput';
 import { accessKeySchema, AccessKeyFormData } from '@/validations';
 import InspectorModal from '@/components/modals/InspectorModal';
+import { AuthService } from '@/services/domains/authService';
 
 export default function AccessKeyPage() {
     const [loading, setLoading] = useState(false);
@@ -28,26 +29,13 @@ export default function AccessKeyPage() {
         setLoading(true);
 
         try {
-            const response = await fetch('/api/auth/access-key', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ accessKey: data.accessKey }),
+            const responseData = await AuthService.login({
+                accessKeyToken: data.accessKey,
             });
-
-            const responseData = await response.json();
-
-            if (!response.ok) {
-                throw new Error(
-                    responseData.message || 'Chave de acesso inválida',
-                );
-            }
 
             document.cookie = `token=${responseData.token}; path=/;`;
             document.cookie = `role=${responseData.role}; path=/;`;
 
-            // Em vez de push, abrimos o modal
             setIsModalOpen(true);
         } catch (error: unknown) {
             if (error instanceof Error) {

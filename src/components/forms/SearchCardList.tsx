@@ -34,7 +34,6 @@ export function SearchCardList({
 
     const handleSelectAgency = (agencyId: string) => {
         setSelectedAgencyId(agencyId);
-
         const selectedAgency = results.find((agency) => agency.id === agencyId);
         if (selectedAgency) {
             onSelectAgency(selectedAgency);
@@ -42,7 +41,7 @@ export function SearchCardList({
     };
 
     return (
-        <div className="w-full mx-auto font-sans p-4 border-2 rounded-md">
+        <div className="w-full mx-auto font-sans px-4 py-2 border-2 rounded-md">
             <div className="relative mb-4">
                 <CustomFormInput
                     icon={<SearchIcon className="w-5 h-5" />}
@@ -60,26 +59,33 @@ export function SearchCardList({
             {error && <div className="text-red-600 mb-4">{error}</div>}
 
             {results.length > 0 ? (
-                <ul className="space-y-1 p-1">
-                    {results.map((agency) => (
-                        <li
-                            key={agency.id}
-                            className={`bg-background px-4 py-3 rounded-md cursor-pointer border shadow-sm transition-all duration-100 ${
-                                selectedAgencyId === agency.id
-                                    ? 'border-primary bg-orange-300/20'
-                                    : 'border-transparent hover:border-primary hover:bg-gray-100/60'
-                            }`}
-                            onClick={() => handleSelectAgency(agency.id)}
-                        >
-                            <div className="flex items-center">
-                                <LandmarkIcon className="w-6 h-6 text-primary" />
-                                <span className="ml-2 text-gray-600">
-                                    {agency.name} - AG. {agency.agencyNumber} —{' '}
-                                    {agency.city} - {agency.district}
-                                </span>
-                            </div>
-                        </li>
-                    ))}
+                <ul className="space-y-2 pt-0 p-1">
+                    {results.map((agency) => {
+                        const formattedAgencyNumber = agency.agencyNumber
+                            .toString()
+                            .padStart(4, '0');
+
+                        return (
+                            <li
+                                key={agency.id}
+                                className={`bg-background px-4 py-3 rounded-md cursor-pointer border shadow-sm transition-all duration-100 ${
+                                    selectedAgencyId === agency.id
+                                        ? 'border-primary bg-orange-300/20'
+                                        : 'border-transparent hover:border-primary hover:bg-gray-100/60'
+                                }`}
+                                onClick={() => handleSelectAgency(agency.id)}
+                            >
+                                <div className="flex items-center">
+                                    <LandmarkIcon className="w-6 h-6 text-primary" />
+                                    <span className="ml-2 text-gray-600">
+                                        {agency.name} - AG.{' '}
+                                        {formattedAgencyNumber} - {agency.city}{' '}
+                                        - {agency.district}
+                                    </span>
+                                </div>
+                            </li>
+                        );
+                    })}
                 </ul>
             ) : query.length >= 3 && !isLoading ? (
                 <div className="p-4 text-gray-600 text-center">

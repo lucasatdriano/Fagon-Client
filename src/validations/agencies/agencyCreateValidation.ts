@@ -6,10 +6,15 @@ export const createAgencySchema = z.object({
         .min(1, 'Nome da agência é obrigatório')
         .max(100, 'Máximo 100 caracteres'),
 
-    agencyNumber: z
-        .string()
-        .min(1, 'Número da agência é obrigatório')
-        .regex(/^\d+$/, 'Deve conter apenas números'),
+    agencyNumber: z.preprocess(
+        (val) =>
+            typeof val === 'string' || typeof val === 'number'
+                ? Number(val)
+                : undefined,
+        z
+            .number({ invalid_type_error: 'Número é obrigatório' })
+            .int('Deve ser um número inteiro'),
+    ),
 
     cnpj: z
         .string()
@@ -43,10 +48,15 @@ export const createAgencySchema = z.object({
         .min(1, 'Rua é obrigatória')
         .max(200, 'Máximo 200 caracteres'),
 
-    number: z
-        .string()
-        .min(1, 'Número é obrigatório')
-        .regex(/^\d+$/, 'Deve conter apenas números'),
+    number: z.preprocess(
+        (val) =>
+            typeof val === 'string' || typeof val === 'number'
+                ? Number(val)
+                : undefined,
+        z
+            .number({ invalid_type_error: 'Número é obrigatório' })
+            .int('Deve ser um número inteiro'),
+    ),
 });
 
 export type CreateAgencyFormValues = z.infer<typeof createAgencySchema>;
