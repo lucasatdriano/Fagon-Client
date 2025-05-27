@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -14,6 +14,18 @@ import { AuthService } from '@/services/domains/authService';
 export default function LoginPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const token = document.cookie
+            .split('; ')
+            .find((row) => row.startsWith('token='))
+            ?.split('=')[1];
+
+        if (token) {
+            router.push('/projects');
+            return;
+        }
+    });
 
     const {
         register,
@@ -112,7 +124,7 @@ export default function LoginPage() {
                         className="w-36 hover:bg-secondary-hover"
                         disabled={loading}
                     >
-                        {loading ? 'Carregando...' : 'Entrar'}
+                        {loading ? 'Entrando...' : 'Entrar'}
                     </CustomButton>
                     <CustomButton
                         type="button"

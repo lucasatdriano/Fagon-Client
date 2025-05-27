@@ -18,6 +18,8 @@ import { EngineerService } from '@/services/domains/engineerService';
 import { AgencyService } from '@/services/domains/agencyService';
 import { engineerProps } from '@/interfaces/engineer';
 import { ProjectService } from '@/services/domains/projectService';
+import { toast } from 'sonner';
+import { ProjectType } from '@/types/project';
 
 export default function CreateProjectPage() {
     const router = useRouter();
@@ -42,8 +44,6 @@ export default function CreateProjectPage() {
     });
 
     const onSubmit = async (data: CreateProjectFormValues) => {
-        type ProjectType = (typeof projectType)[number]['value'];
-
         try {
             console.log(data);
 
@@ -54,9 +54,9 @@ export default function CreateProjectPage() {
                 engineerId: data.selectedPerson,
             });
 
-            console.log('Projeto criado com sucesso:', newProject);
-            router.push(`/project/${newProject.id}`);
-        } catch (error) {
+            toast.success('Projeto criado com sucesso');
+            router.push(`/projects/${newProject.data.id}`);
+        } catch (error: unknown) {
             console.error('Erro ao criar projeto:', error);
         }
     };
@@ -118,6 +118,8 @@ export default function CreateProjectPage() {
                             label="UPE do projeto*"
                             {...register('upeCode')}
                             error={errors.upeCode?.message}
+                            maxLength={6}
+                            minLength={6}
                         />
                     </div>
 
@@ -145,9 +147,6 @@ export default function CreateProjectPage() {
                                 });
 
                                 return response.data;
-
-                                // console.log('Agências encontradas:', result);
-                                // return result.data;
                             }}
                         />
                         {errors.agencyId && (

@@ -4,6 +4,7 @@ import { LandmarkIcon, SearchIcon } from 'lucide-react';
 import { CustomFormInput } from './CustomFormInput';
 import { useState } from 'react';
 import { agencyProps } from '@/interfaces/agency';
+import { formatNumberAgency } from '@/utils/formatters/formatNumberAgency';
 
 interface SearchCardListProps {
     onSelectAgency: (agency: agencyProps) => void;
@@ -61,10 +62,6 @@ export function SearchCardList({
             {results.length > 0 ? (
                 <ul className="space-y-2 pt-0 p-1">
                     {results.map((agency) => {
-                        const formattedAgencyNumber = agency.agencyNumber
-                            .toString()
-                            .padStart(4, '0');
-
                         return (
                             <li
                                 key={agency.id}
@@ -79,8 +76,10 @@ export function SearchCardList({
                                     <LandmarkIcon className="w-6 h-6 text-primary" />
                                     <span className="ml-2 text-gray-600">
                                         {agency.name} - AG.{' '}
-                                        {formattedAgencyNumber} - {agency.city}{' '}
-                                        - {agency.district}
+                                        {formatNumberAgency(
+                                            agency.agencyNumber,
+                                        )}{' '}
+                                        - {agency.city} - {agency.district}
                                     </span>
                                 </div>
                             </li>

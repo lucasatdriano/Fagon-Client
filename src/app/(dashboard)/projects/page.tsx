@@ -6,12 +6,11 @@ import { toast } from 'sonner';
 
 import ProjectCard from '@/components/cards/ProjectCard';
 import FabButton from '@/components/layout/FabButton';
-import { ProjectService } from '@/services/domains/projectService';
+import { Project, ProjectService } from '@/services/domains/projectService';
 import { LoaderCircleIcon, SearchXIcon } from 'lucide-react';
-import { ProjectProps } from '@/interfaces/project';
 
 export default function DashboardProjectsPage() {
-    const [projects, setProjects] = useState<ProjectProps[]>([]);
+    const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
@@ -28,8 +27,7 @@ export default function DashboardProjectsPage() {
 
         ProjectService.listAll()
             .then((res) => {
-                setProjects(res);
-                console.log(res);
+                setProjects(res.data);
             })
             .catch((err) => {
                 toast.error('Erro ao carregar projetos');
@@ -59,18 +57,21 @@ export default function DashboardProjectsPage() {
                         Nenhum projeto encontrado.
                     </p>
                 ) : (
-                    projects.map((project: any) => (
+                    projects.map((project: Project) => (
                         <ProjectCard
                             key={project.id}
-                            id={project.id}
-                            agencyNumber={project.agency.agencyNumber}
-                            upeCode={project.upeCode}
-                            projectType={project.projectType}
-                            city={project.agency.city}
-                            district={project.agency.district}
-                            status={project.status}
-                            inspectorName={project.inspectorName}
-                            inspectorDate={project.inspectionDate}
+                            id={project.id || ''}
+                            agencyNumber={
+                                project.agency.agencyNumber.toString() || ''
+                            }
+                            upeCode={project.upeCode.toString() || ''}
+                            projectType={project.projectType || ''}
+                            city={project.agency.city.toString() || ''}
+                            district={project.agency.district.toString() || ''}
+                            engineer={project.engineer.name.toString() || ''}
+                            status={project.status || ''}
+                            inspectorName={project.inspectorName || ''}
+                            inspectionDate={project.inspectionDate || ''}
                         />
                     ))
                 )}

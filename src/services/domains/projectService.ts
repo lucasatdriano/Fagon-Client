@@ -1,25 +1,39 @@
-import { agencyProps } from '@/interfaces/agency';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
-import { engineerProps } from '@/interfaces/engineer';
 import { Pavement } from '@/interfaces/pavement';
 import { PathologyProps } from '@/interfaces/pathology';
-import { projectStatus, projectType } from '@/constants';
+import { ApiResponse } from '@/types/api';
+import { ProjectType, ProjectStatus } from '@/types/project';
 
-type ProjectStatus = (typeof projectStatus)[number]['value'];
-type ProjectType = (typeof projectType)[number]['value'];
-
-interface Project {
+export interface Project {
     id: string;
-    projectType: ProjectType;
+    name: string;
     upeCode: number;
+    projectType: ProjectType;
+    projectDate: string;
     status: string;
     structureType: string;
     inspectorName: string;
     inspectionDate: string;
+    totalArea: string;
+    maxHeight: string;
     createdAt: string;
-    agency: Record<string, agencyProps>;
-    engineer: Record<string, engineerProps>;
+    agency: {
+        id: string;
+        name: string;
+        agencyNumber: string;
+        cnpj: string;
+        cep: string;
+        state: string;
+        city: string;
+        district: string;
+        street: string;
+        number: string;
+    };
+    engineer: {
+        id: string;
+        name: string;
+    };
 }
 
 interface CreateProjectData {
@@ -39,7 +53,7 @@ interface ListProjectsParams {
 }
 
 export const ProjectService = {
-    async create(data: CreateProjectData): Promise<Project> {
+    async create(data: CreateProjectData): Promise<ApiResponse<Project>> {
         try {
             const response = await api.post(API_ROUTES.PROJECTS.CREATE, data);
             return response.data;
@@ -48,7 +62,9 @@ export const ProjectService = {
         }
     },
 
-    async listAll(params?: ListProjectsParams): Promise<Project[]> {
+    async listAll(
+        params?: ListProjectsParams,
+    ): Promise<ApiResponse<Project[]>> {
         try {
             const response = await api.get(API_ROUTES.PROJECTS.BASE, {
                 params,
@@ -59,7 +75,7 @@ export const ProjectService = {
         }
     },
 
-    async getById(id: string): Promise<Project> {
+    async getById(id: string): Promise<ApiResponse<Project>> {
         try {
             const response = await api.get(API_ROUTES.PROJECTS.BY_ID({ id }));
             return response.data;

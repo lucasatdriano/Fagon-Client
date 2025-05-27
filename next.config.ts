@@ -1,12 +1,17 @@
 import type { NextConfig } from 'next';
 import withPWA from 'next-pwa';
 
-const nextConfig: NextConfig = {
-    reactStrictMode: true,
-};
-
-export default withPWA({
+const pwaConfig = withPWA({
     dest: 'public',
     register: true,
     skipWaiting: true,
-})(nextConfig);
+});
+
+const nextConfig: NextConfig = {
+    reactStrictMode: true,
+    // experimental: {
+    //     turbopack: true,
+    // },
+};
+
+export default pwaConfig(nextConfig);

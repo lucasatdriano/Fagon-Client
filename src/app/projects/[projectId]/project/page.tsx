@@ -7,6 +7,8 @@ import { CustomEditInput } from '@/components/forms/CustomEditInput';
 import { CustomButton } from '@/components/forms/CustomButton';
 import { projectStatus } from '@/constants';
 import { UpdateProjectFormValues, updateProjectSchema } from '@/validations';
+import { Project, ProjectService } from '@/services/domains/projectService';
+import { useParams } from 'next/navigation';
 
 type StatusItem = {
     value: string;
@@ -15,19 +17,12 @@ type StatusItem = {
     text: string;
 };
 
-export default function ProjectEditPage({
-    params,
-}: {
-    params: { id: string };
-}) {
+export default function ProjectEditPage() {
+    const { projectId } = useParams();
+    const id = projectId as string;
+    const [project, setProject] = useState<Project | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [apiError, setApiError] = useState('');
-    const [statusData, setStatusData] = useState<StatusItem>({
-        value: 'finalizado',
-        label: 'Finalizado',
-        bg: 'bg-green-100',
-        text: 'text-green-700',
-    });
+    const [statusData, setStatusData] = useState<StatusItem>();
 
     const {
         register,
@@ -42,71 +37,75 @@ export default function ProjectEditPage({
         const fetchProjectData = async () => {
             try {
                 setIsLoading(true);
-                const response = await fetch(`/api/projects/${params.id}`);
-                const data = await response.json();
+                const response = await ProjectService.getById(id);
+                const data = response.data;
+                setProject(data);
 
-                if (response.ok) {
-                    // Preenche os valores iniciais
-                    setValue('projectName', data.name || '');
-                    setValue('upeCode', data.upe || '');
-                    setValue('agency', data.agency || '');
-                    setValue('numberAgency', data.numberAgency || '');
-                    setValue('stateAgency', data.stateAgency || '');
-                    setValue('cityAgency', data.cityAgency || '');
-                    setValue('districtAgency', data.districtAgency || '');
-                    setValue('projectType', data.projectType || '');
-                    setValue('projectDate', data.projectDate || '');
-                    setValue(
-                        'responsibleEngineer',
-                        data.responsibleEngineer || '',
-                    );
-                    setValue('inspectorName', data.inspectorName || '');
-                    setValue('inspectorDate', data.inspectorDate || '');
-                    setValue(
-                        'totalArea',
-                        data.totalArea ? data.totalArea.replace(' m²', '') : '',
-                    );
-                    setValue(
-                        'height',
-                        data.height ? data.height.replace(' m', '') : '',
-                    );
-                    setValue('status', data.status || '');
+                setValue('name', data.name || '');
+                setValue('upeCode', data.upeCode.toString() || '');
+                setValue('agency', data.agency || '');
+                setValue('agency.agencyNumber', data.agency.agencyNumber || '');
+                setValue('agency.state', data.agency.state || '');
+                setValue('agency.city', data.agency.city || '');
+                setValue('agency.district', data.agency.district || '');
+                setValue('projectType', data.projectType || '');
+                setValue('projectDate', data.projectDate || '');
+                setValue('engineer.name', data.engineer.name || '');
+                setValue('inspectorName', data.inspectorName || '');
+                setValue('inspectionDate', data.inspectionDate || '');
+                setValue('totalArea', data.totalArea || '');
+                setValue('maxHeight', data.maxHeight || '');
+                setValue('status', data.status || '');
 
-                    const foundStatus = projectStatus.find(
-                        (s) => s.value === data.status,
-                    );
-                    if (foundStatus) {
-                        setStatusData(foundStatus);
-                    }
-                } else {
-                    setApiError('Falha ao carregar dados do projeto');
+                const foundStatus = projectStatus.find(
+                    (s) => s.value === data.status,
+                );
+                if (foundStatus) {
+                    setStatusData(foundStatus);
                 }
             } catch (error) {
-                setApiError('Erro na conexão com o servidor');
+                console.error(error);
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchProjectData();
-    }, [params.id, setValue]);
+    }, [id, setValue]);
 
-    const onSubmit = async (data: UpdateProjectFormValues) => {
+    const onSubmit = async (formData: UpdateProjectFormValues) => {
         try {
-            const response = await fetch(`/api/projects/${params.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
+            setIsLoading(true);
+
+            const updateData = {
+                inspectorName: formData.inspectorName,
+                inspectionDate: formData.inspectionDate,
+                structureType: formData.structureType,
+                totalArea: formData.totalArea,
+                height: formData.maxHeight,
+            };
+
+            const response = await ProjectService.update(id, {
+                updateData,
             });
-            if (response.ok) {
+
+            if (response) {
                 alert('Projeto atualizado com sucesso!');
-            } else {
-                throw new Error('Falha ao atualizar projeto');
+                if (
+                    statusData &&
+                    formData.status &&
+                    formData.status !== statusData.value
+                ) {
+                    const foundStatus = projectStatus.find(
+                        (s) => s.value === formData.status,
+                    );
+                    if (foundStatus) setStatusData(foundStatus);
+                }
             }
         } catch (error) {
-            setApiError('Erro ao salvar as alterações');
+            console.error(error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -123,7 +122,8 @@ export default function ProjectEditPage({
             <div className="w-3/5 bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="flex items-center justify-center py-4 px-12">
                     <h1 className="text-2xl font-bold">
-                        Projeto - Salvador - Pituba
+                        Projeto - {project?.agency.city} -{' '}
+                        {project?.agency.district}
                     </h1>
                 </div>
                 <div className="flex items-center justify-center">
@@ -134,15 +134,9 @@ export default function ProjectEditPage({
                     onSubmit={handleSubmit(onSubmit)}
                     className="py-4 px-8 space-y-6"
                 >
-                    {apiError && (
-                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                            {apiError}
-                        </div>
-                    )}
-
                     <div className="flex justify-between pb-4">
                         <h2 className="text-xl font-semibold text-gray-800">
-                            UPE 205034
+                            UPE {project?.upeCode}
                         </h2>
                         {statusData && (
                             <h2
@@ -156,45 +150,45 @@ export default function ProjectEditPage({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                         <CustomEditInput
                             label="Agência"
-                            registration={register('agency')}
-                            error={errors.agency?.message}
-                            defaultValue="Itaú Unibanco S/A"
+                            registration={register('agency.name')}
+                            error={errors.agency?.name?.message}
+                            defaultValue={project?.agency.name}
                             textColor="text-foreground"
                             disabled
                         />
 
                         <CustomEditInput
                             label="Número da Agência"
-                            registration={register('numberAgency')}
-                            error={errors.numberAgency?.message}
-                            defaultValue="0334"
+                            registration={register('agency.agencyNumber')}
+                            error={errors.agency?.agencyNumber?.message}
+                            defaultValue={project?.agency.agencyNumber}
                             textColor="text-foreground"
                             disabled
                         />
 
                         <CustomEditInput
                             label="Estado"
-                            registration={register('stateAgency')}
-                            error={errors.stateAgency?.message}
-                            defaultValue="Bahia"
+                            registration={register('agency.state')}
+                            error={errors.agency?.state?.message}
+                            defaultValue={project?.agency.state}
                             textColor="text-foreground"
                             disabled
                         />
 
                         <CustomEditInput
                             label="Cidade"
-                            registration={register('cityAgency')}
-                            error={errors.cityAgency?.message}
-                            defaultValue="Salvador"
+                            registration={register('agency.city')}
+                            error={errors.agency?.city?.message}
+                            defaultValue={project?.agency.city}
                             textColor="text-foreground"
                             disabled
                         />
 
                         <CustomEditInput
                             label="Bairro"
-                            registration={register('districtAgency')}
-                            error={errors.districtAgency?.message}
-                            defaultValue="Pituba"
+                            registration={register('agency.district')}
+                            error={errors.agency?.district?.message}
+                            defaultValue={project?.agency.district}
                             textColor="text-foreground"
                             disabled
                         />
@@ -203,34 +197,35 @@ export default function ProjectEditPage({
                             label="Tipo do Projeto"
                             registration={register('projectType')}
                             error={errors.projectType?.message}
-                            defaultValue="Laudo CMAR"
+                            defaultValue={project?.projectType}
                             textColor="text-foreground"
                             disabled
                         />
 
                         <CustomEditInput
-                            label="Data de Projeto"
+                            label="Data do Projeto"
                             type="date"
                             registration={register('projectDate')}
                             error={errors.projectDate?.message}
-                            defaultValue="2022-04-01"
+                            defaultValue={project?.projectDate?.toString()}
                             textColor="text-foreground"
                             disabled
                         />
 
                         <CustomEditInput
                             label="Engenheiro(a) Responsável"
-                            registration={register('responsibleEngineer')}
-                            error={errors.responsibleEngineer?.message}
-                            defaultValue="Cinara Aparecida Batista Gonçalves"
+                            registration={register('engineer.name')}
+                            error={errors.engineer?.name?.message}
+                            defaultValue={project?.engineer.name}
                             textColor="text-foreground"
+                            disabled
                         />
 
                         <CustomEditInput
                             label="Nome do Vistoriador"
                             registration={register('inspectorName')}
                             error={errors.inspectorName?.message}
-                            defaultValue="Guilherme dos Santos"
+                            defaultValue={project?.inspectorName}
                             textColor="text-foreground"
                         />
 
@@ -239,7 +234,15 @@ export default function ProjectEditPage({
                             type="date"
                             registration={register('inspectionDate')}
                             error={errors.inspectionDate?.message}
-                            defaultValue="2025-04-07"
+                            defaultValue={project?.inspectionDate?.toString()}
+                            textColor="text-foreground"
+                        />
+
+                        <CustomEditInput
+                            label="Tipo da estrutura"
+                            registration={register('structureType')}
+                            error={errors.structureType?.message}
+                            defaultValue={project?.structureType}
                             textColor="text-foreground"
                         />
 
@@ -248,30 +251,28 @@ export default function ProjectEditPage({
                                 label="Área Total da Agência"
                                 registration={register('totalArea')}
                                 error={errors.totalArea?.message}
+                                defaultValue={project?.totalArea}
                                 textColor="text-foreground"
-                                defaultValue="174,5"
                                 className="flex-1"
-                                disabled
                             />
                             <span>m²</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <CustomEditInput
                                 label="Altura Máxima do Pé Direito"
-                                registration={register('height')}
-                                error={errors.height?.message}
+                                registration={register('maxHeight')}
+                                error={errors.maxHeight?.message}
+                                defaultValue={project?.maxHeight}
                                 textColor="text-foreground"
-                                defaultValue="5,98"
                                 className="flex-1"
-                                disabled
                             />
                             <span>m</span>
                         </div>
                     </div>
 
                     <div className="flex justify-center pt-4">
-                        <CustomButton type="submit">
-                            Salvar Informações
+                        <CustomButton type="submit" disabled={isLoading}>
+                            {isLoading ? 'Salvando...' : 'Salvar Informações'}
                         </CustomButton>
                     </div>
                 </form>

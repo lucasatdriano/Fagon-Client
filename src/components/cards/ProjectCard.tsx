@@ -2,6 +2,8 @@ import { FileTextIcon } from 'lucide-react';
 import { projectStatus } from '@/constants/projectStatus';
 import { ProjectProps } from '@/interfaces/project';
 import Link from 'next/link';
+import { getProjectTypeLabel } from '@/constants';
+import { formatNumberAgency } from '@/utils/formatters/formatNumberAgency';
 
 export default function ProjectCard({
     id,
@@ -10,9 +12,10 @@ export default function ProjectCard({
     projectType,
     city,
     district,
+    engineer,
     status,
     inspectorName,
-    inspectorDate,
+    inspectionDate,
 }: ProjectProps) {
     const statusData = projectStatus.find((s) => s.value === status);
 
@@ -22,28 +25,34 @@ export default function ProjectCard({
         <Link
             href={`/projects/${id}`}
             passHref
-            className="block w-full p-4 border rounded-lg shadow-sm hover:shadow-md bg-white transition-shadow duration-200"
+            className="flex justify-between w-full p-4 border rounded-lg shadow-sm hover:shadow-md bg-white transition-shadow duration-200"
         >
-            <div className="flex items-center gap-2 mb-3">
-                <FileTextIcon className="w-8 h-8 text-primary" />
-                <span className="font-semibold text-foreground">
-                    UPE {upeCode} — {projectType}
-                </span>
+            <div>
+                <div className="flex items-center gap-2 mb-3">
+                    <FileTextIcon className="w-8 h-8 text-primary" />
+                    <span className="font-semibold text-foreground">
+                        UPE {upeCode} — {getProjectTypeLabel(projectType)}
+                    </span>
+                </div>
+
+                <h3 className="font-bold text-lg">
+                    AG. {formatNumberAgency(agencyNumber)} — {city} - {district}
+                </h3>
+
+                <p className="text-foreground mt-2">
+                    Engenheiro(a) Responsável: {engineer}
+                </p>
+
+                {inspectorName && inspectionDate && (
+                    <p className="text-foreground mt-2">
+                        Vistoriador(a): {inspectorName} - {inspectionDate}
+                    </p>
+                )}
             </div>
 
-            <h3 className="font-bold text-lg">
-                AG. {agencyNumber} — {city} - {district}
-            </h3>
-
-            {inspectorName && inspectorDate && (
-                <p className="text-foreground mt-2">
-                    Vistoriador(a): {inspectorName} - {inspectorDate}
-                </p>
-            )}
-
-            <div className="flex mt-2">
+            <div className="my-auto">
                 <span
-                    className={`${statusData.bg} ${statusData.text} px-3 py-1 rounded-full font-medium`}
+                    className={`${statusData.bg} ${statusData.text} bg-orange-200 px-4 py-2 rounded-full font-medium`}
                 >
                     {statusData.label}
                 </span>

@@ -19,9 +19,8 @@ import {
     PinIcon,
 } from 'lucide-react';
 import { fetchAddressByCep } from '@/utils/viacep';
-import { cnpjMask } from '@/utils/masks/maskCNPJ';
-import { cepMask } from '@/utils/masks/maskCEP';
 import { AgencyService } from '@/services/domains/agencyService';
+import { handleMaskedChange } from '@/utils/helpers/handleMaskedInput';
 
 export default function CreateAgencyPage() {
     const router = useRouter();
@@ -55,34 +54,19 @@ export default function CreateAgencyPage() {
         fetchAddress();
     }, [cepValue, setValue]);
 
-    function handleMaskedChange(
-        field: keyof CreateAgencyFormValues,
-        e: React.ChangeEvent<HTMLInputElement>,
-    ) {
-        let value = e.target.value;
-
-        if (field === 'cnpj') {
-            value = cnpjMask(value);
-        } else if (field === 'cep') {
-            value = cepMask(value);
-        }
-
-        setValue(field, value, { shouldValidate: true });
-    }
-
     const onSubmit: SubmitHandler<CreateAgencyFormValues> = async (data) => {
         setIsLoading(true);
         try {
             const payload = {
                 name: data.name,
-                agencyNumber: Number(data.agencyNumber),
-                cnpj: data.cnpj ? data.cnpj.replace(/\D/g, '') : '',
+                agencyNumber: data.agencyNumber,
+                cnpj: data.cnpj?.replace(/\D/g, '') || '',
                 cep: data.cep.replace(/\D/g, ''),
                 state: data.state,
                 city: data.city,
                 district: data.district,
                 street: data.street,
-                number: Number(data.number),
+                number: data.number,
             };
 
             await AgencyService.create(payload);
@@ -130,7 +114,9 @@ export default function CreateAgencyPage() {
                             label="CNPJ"
                             registration={register('cnpj')}
                             value={watch('cnpj')}
-                            onChange={(e) => handleMaskedChange('cnpj', e)}
+                            onChange={(e) =>
+                                handleMaskedChange('cnpj', e, setValue)
+                            }
                             maxLength={18}
                             error={errors.cnpj?.message}
                         />
@@ -149,7 +135,9 @@ export default function CreateAgencyPage() {
                             label="CEP*"
                             registration={register('cep')}
                             value={watch('cep')}
-                            onChange={(e) => handleMaskedChange('cep', e)}
+                            onChange={(e) =>
+                                handleMaskedChange('cep', e, setValue)
+                            }
                             maxLength={9}
                             error={errors.cep?.message}
                         />

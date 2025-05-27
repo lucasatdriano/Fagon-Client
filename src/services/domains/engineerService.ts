@@ -1,6 +1,7 @@
 import { engineerProps } from '@/interfaces/engineer';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
+import { ApiResponse } from '@/types/api';
 
 interface CreateEngineerData {
     name: string;
@@ -33,7 +34,9 @@ export const EngineerService = {
         }
     },
 
-    async listAll(params?: ListEngineersParams): Promise<engineerProps[]> {
+    async listAll(
+        params?: ListEngineersParams,
+    ): Promise<ApiResponse<engineerProps[]>> {
         try {
             const response = await api.get(API_ROUTES.ENGINEERS.BASE, {
                 params: params,

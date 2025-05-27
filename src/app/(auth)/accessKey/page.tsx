@@ -95,7 +95,7 @@ export default function AccessKeyPage() {
                             className="w-36 hover:bg-secondary-hover"
                             disabled={loading}
                         >
-                            {loading ? 'Carregando...' : 'Entrar'}
+                            {loading ? 'Entrando...' : 'Entrar'}
                         </CustomButton>
                     </div>
                 </form>

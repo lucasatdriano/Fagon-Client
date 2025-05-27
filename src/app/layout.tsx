@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Open_Sans, Montserrat, Poppins } from 'next/font/google';
 import '../styles/globals.css';
+import { Toaster } from 'sonner';
 
 const openSans = Open_Sans({
     weight: ['400', '500', '700'],
@@ -37,6 +38,7 @@ export default function RootLayout({
                 className={`${openSans.className} ${montserrat.className} ${poppins.className} font-sans antialiased flex`}
             >
                 {children}
+                <Toaster richColors position="top-right" />
             </body>
         </html>
     );

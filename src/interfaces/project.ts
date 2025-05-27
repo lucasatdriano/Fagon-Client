@@ -1,18 +1,15 @@
-import { projectStatus } from '@/constants/projectStatus';
-import { projectType } from '@/constants/projectType';
-
-type ProjectStatus = (typeof projectStatus)[number]['value'];
-type ProjectType = (typeof projectType)[number]['value'];
+import { ProjectType, ProjectStatus } from '@/types/project';
 
 export interface ProjectProps {
     id: string;
     agencyNumber: string;
-    upeCode: number;
+    upeCode: string;
     projectType: ProjectType;
     city: string;
     district: string;
+    engineer: string;
     status: ProjectStatus;
     structureType?: string;
     inspectorName?: string;
-    inspectorDate?: string;
+    inspectionDate?: string;
 }

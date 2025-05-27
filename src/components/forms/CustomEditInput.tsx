@@ -7,11 +7,10 @@ interface CustomEditInputProps
     extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
     icon?: React.ReactElement;
-    registration?: UseFormRegisterReturn;
+    registration?: Partial<UseFormRegisterReturn>; // Alterado para Partial
     error?: string;
     className?: string;
     textColor?: string;
-    defaultHasValue?: boolean;
 }
 
 export function CustomEditInput({
@@ -21,22 +20,17 @@ export function CustomEditInput({
     registration,
     error,
     className = '',
-    defaultValue = '',
     textColor = 'text-white',
-    defaultHasValue = false,
     ...props
 }: CustomEditInputProps) {
     const [isFocused, setIsFocused] = useState(false);
-    const [hasValue, setHasValue] = useState(!!defaultValue || defaultHasValue);
+    const [hasValue, setHasValue] = useState(false);
+
+    const { defaultValue, ...inputProps } = props;
 
     useEffect(() => {
-        if (registration?.name && registration?.ref) {
-            const input = registration.ref as unknown as HTMLInputElement;
-            setHasValue(!!input?.value || !!defaultValue);
-        } else {
-            setHasValue(!!defaultValue);
-        }
-    }, [defaultValue, registration]);
+        setHasValue(!!defaultValue || !!props.value);
+    }, [defaultValue, props.value]);
 
     return (
         <div className={`relative w-full ${className}`}>
@@ -49,10 +43,9 @@ export function CustomEditInput({
 
                 <div className="relative w-full pt-2">
                     <input
-                        {...registration}
-                        {...props}
                         type={type}
-                        defaultValue={defaultValue}
+                        {...inputProps}
+                        {...registration}
                         onFocus={() => setIsFocused(true)}
                         onBlur={(e) => {
                             setIsFocused(false);
@@ -61,6 +54,7 @@ export function CustomEditInput({
                         onChange={(e) => {
                             setHasValue(!!e.target.value);
                             registration?.onChange?.(e);
+                            props.onChange?.(e);
                         }}
                         className={`w-full bg-transparent outline-none placeholder-transparent pb-2 ${textColor}`}
                         placeholder={label}
