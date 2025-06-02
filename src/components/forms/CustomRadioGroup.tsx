@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CustomFormInput } from './CustomFormInput';
 import { SquarePenIcon } from 'lucide-react';
 
@@ -44,20 +44,37 @@ export function CustomRadioGroup({
 }: CustomRadioGroupProps) {
     const [internalValue, setInternalValue] = useState(selectedValue);
     const [otherValue, setOtherValue] = useState('');
+    const otherOption = options.find((opt) => opt.isOtherOption);
 
-    const handleChange = (optionId: string) => {
-        const newValue = optionId;
-        setInternalValue(newValue);
+    useEffect(() => {
+        if (selectedValue) {
+            const matchingOption = options.find(
+                (opt) => opt.value === selectedValue,
+            );
+            if (matchingOption) {
+                setInternalValue(matchingOption.id);
+                setOtherValue('');
+            } else if (otherOption) {
+                setInternalValue(otherOption.id);
+                setOtherValue(selectedValue);
+            }
+        }
+    }, [selectedValue, options, otherOption]);
 
-        const isOther = options.find(
-            (opt) => opt.id === optionId,
-        )?.isOtherOption;
-        onChange?.(isOther ? otherValue : newValue);
+    const handleOptionChange = (optionId: string) => {
+        const option = options.find((opt) => opt.id === optionId);
+        setInternalValue(optionId);
+
+        if (option?.isOtherOption) {
+            onChange?.(otherValue);
+        } else {
+            onChange?.(option?.value || '');
+        }
     };
 
-    const handleOtherValueChange = (value: string) => {
+    const handleOtherInputChange = (value: string) => {
         setOtherValue(value);
-        if (internalValue === options.find((opt) => opt.isOtherOption)?.id) {
+        if (internalValue === otherOption?.id) {
             onChange?.(value);
         }
     };
@@ -66,19 +83,8 @@ export function CustomRadioGroup({
         if (gridCols === 'full') {
             return `grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 ${className}`;
         }
-
-        return `grid grid-cols-1 gap-4 ${className} ${
-            gridCols === 2
-                ? 'grid-cols-2'
-                : gridCols === 3
-                ? 'grid-cols-3'
-                : gridCols === 4
-                ? 'grid-cols-4'
-                : ''
-        }`;
+        return `grid grid-cols-${gridCols} gap-4 ${className}`;
     };
-
-    const selected = selectedValue || internalValue;
 
     return (
         <div className={getGridClasses()}>
@@ -97,8 +103,8 @@ export function CustomRadioGroup({
                                 type="radio"
                                 name={name}
                                 value={option.id}
-                                checked={selected === option.id}
-                                onChange={() => handleChange(option.id)}
+                                checked={internalValue === option.id}
+                                onChange={() => handleOptionChange(option.id)}
                                 className={`peer appearance-none h-4 w-4 rounded-full border ${borderColor} checked:${checkedBorderColor} bg-transparent checked:${checkedBgColor} cursor-pointer transition-all duration-150`}
                             />
                             <span
@@ -108,13 +114,13 @@ export function CustomRadioGroup({
                         <span className={textColor}>{option.label}</span>
                     </label>
 
-                    {option.isOtherOption && selected === option.id && (
-                        <div className="space-y-1 w-full">
+                    {option.isOtherOption && internalValue === option.id && (
+                        <div className="space-y-1 w-full mt-2">
                             <CustomFormInput
                                 label={placeholder}
                                 value={otherValue}
                                 onChange={(e) =>
-                                    handleOtherValueChange(e.target.value)
+                                    handleOtherInputChange(e.target.value)
                                 }
                                 icon={<SquarePenIcon />}
                                 borderColor="border-gray-300"

@@ -41,7 +41,7 @@ export const MaterialFinishingService = {
     ): Promise<ApiResponse<MaterialFinishing[]>> {
         try {
             const response = await api.get(
-                API_ROUTES.MATERIAL_FINISHINGS.BY_LOCATION(locationId),
+                API_ROUTES.MATERIAL_FINISHINGS.BY_LOCATION({ locationId }),
             );
             return response.data;
         } catch (error) {

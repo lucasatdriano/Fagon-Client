@@ -7,7 +7,6 @@ export interface Photo {
     locationId: string;
     filePath: string;
     selectedForPdf: boolean;
-    url: string;
     location: {
         id: string;
         // Add other location properties as needed
@@ -32,7 +31,7 @@ export const PhotoService = {
             });
 
             const response = await api.post(
-                API_ROUTES.PHOTOS.UPLOAD(locationId),
+                API_ROUTES.PHOTOS.UPLOAD({ locationId }),
                 formData,
                 {
                     headers: {
@@ -49,7 +48,7 @@ export const PhotoService = {
     async listByLocation(locationId: string): Promise<ApiResponse<Photo[]>> {
         try {
             const response = await api.get(
-                API_ROUTES.PHOTOS.BY_LOCATION(locationId),
+                API_ROUTES.PHOTOS.BY_LOCATION({ locationId }),
             );
             return response.data;
         } catch (error) {

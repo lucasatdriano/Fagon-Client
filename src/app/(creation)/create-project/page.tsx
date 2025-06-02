@@ -150,7 +150,7 @@ export default function CreateProjectPage() {
                             }}
                         />
                         {errors.agencyId && (
-                            <p className="text-sm text-red-500 font-poppins">
+                            <p className="text-sm text-error font-poppins">
                                 {errors.agencyId.message}
                             </p>
                         )}

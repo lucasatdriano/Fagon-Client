@@ -1,42 +1,50 @@
+import { LocationType, SurfaceType } from '@/types/location';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
 import { ApiResponse } from '@/types/api';
 
-type LocationType = 'externo' | 'interno' | string; // Add other possible types
-
 export interface Location {
     id: string;
     projectId: string;
-    pavementId: string;
+    pavementId?: string;
     name: string;
     locationType: LocationType;
-    height: number;
-    createdAt: string;
-    updatedAt: string;
-}
-
-export interface CreateLocationData {
-    projectId: string;
-    pavementId: string;
-    name: string;
-    locationType: LocationType;
-    height: number;
-}
-
-export interface UpdateLocationData {
-    photos?: string[];
-    pavement?: {
-        projectId: string;
-        pavement: string;
-        height: number;
-        area: number;
+    height?: number;
+    pavement: {
+        id: string;
+        name: string;
     };
-    materialFinishings?: Array<{
-        locationId: string;
-        surface: string;
+    photos: Array<{
+        id: string;
+        filePath: string;
+        selectedForPdf: boolean;
+    }>;
+    materialFinishing: Array<{
+        id: string;
+        surface: SurfaceType;
         materialFinishing: string;
     }>;
 }
+
+interface CreateLocationData {
+    projectId: string;
+    name: string;
+    locationType: LocationType;
+    height?: number;
+    photos?: File[];
+    pavement?: {
+        pavement: string;
+        height: number;
+        area: number;
+        projectId: string;
+    };
+    materialFinishings?: Array<{
+        surface: SurfaceType;
+        materialFinishing: string;
+    }>;
+}
+
+// interface UpdateLocationData extends Partial<CreateLocationData> {}
 
 export const LocationService = {
     async create(data: CreateLocationData): Promise<ApiResponse<Location>> {
@@ -48,21 +56,10 @@ export const LocationService = {
         }
     },
 
-    async getByProject(projectId: string): Promise<ApiResponse<Location[]>> {
+    async listAll(projectId: string): Promise<ApiResponse<Location[]>> {
         try {
             const response = await api.get(
-                API_ROUTES.LOCATIONS.BY_PROJECT(projectId),
-            );
-            return response.data;
-        } catch (error) {
-            throw new Error(extractAxiosError(error));
-        }
-    },
-
-    async getByPavement(pavementId: string): Promise<ApiResponse<Location[]>> {
-        try {
-            const response = await api.get(
-                API_ROUTES.LOCATIONS.BY_PAVEMENT(pavementId),
+                API_ROUTES.LOCATIONS.BY_PROJECT({ projectId }),
             );
             return response.data;
         } catch (error) {
@@ -81,7 +78,7 @@ export const LocationService = {
 
     async update(
         id: string,
-        data: UpdateLocationData,
+        data: Partial<CreateLocationData>,
     ): Promise<ApiResponse<Location>> {
         try {
             const response = await api.patch(

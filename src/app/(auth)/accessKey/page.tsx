@@ -83,7 +83,7 @@ export default function AccessKeyPage() {
                     </div>
 
                     {errors.root && (
-                        <p className="text-red-500 text-sm mt-2 text-center">
+                        <p className="text-error text-sm mt-2 text-center">
                             {errors.root.message}
                         </p>
                     )}

@@ -1,53 +1,67 @@
 'use client';
 
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, useState } from 'react';
+import { Fragment } from 'react';
 import { CustomButton } from '../forms/CustomButton';
 import { CustomRadioGroup } from '../forms/CustomRadioGroup';
 import { locationOptions, locationType } from '@/constants';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { CreateLocationFormValues, createLocationSchema } from '@/validations';
+import {
+    CreateLocationData,
+    LocationService,
+} from '@/services/domains/locationService';
 
 type LocationModalProps = {
     isOpen: boolean;
     onClose: () => void;
+    projectId: string;
+    onSuccess?: () => void;
 };
 
-export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
-    const [tipoLocal, setTipoLocal] = useState('');
-    const [recurso, setRecurso] = useState('');
+export default function LocationModal({
+    isOpen,
+    onClose,
+    projectId,
+    onSuccess,
+}: LocationModalProps) {
+    const {
+        handleSubmit,
+        setValue,
+        watch,
+        reset,
+        formState: { errors, isSubmitting },
+    } = useForm<CreateLocationFormValues>({
+        resolver: zodResolver(createLocationSchema),
+        defaultValues: {
+            locationType: undefined,
+            name: undefined,
+        },
+    });
 
-    // const tiposLocais = ['Local Externo', 'Local Interno'];
-    // const recursos = [
-    //     'Auto-Ascrutamento',
-    //     'Egora-Ascrutamento',
-    //     'Aventamento',
-    //     'SMS Online',
-    //     'Gerencia',
-    //     'Capa',
-    //     'Outro',
-    // ];
+    const onSubmit = async (data: CreateLocationFormValues) => {
+        try {
+            console.log(data);
+            const createData: CreateLocationData = {
+                projectId,
+                locationType: data.locationType,
+                name: data.name,
+            };
 
-    function resetForm() {
-        setTipoLocal('');
-        setRecurso('');
-    }
+            await LocationService.create(createData);
+            reset();
+            onClose();
+            onSuccess?.();
+        } catch (error) {
+            console.error('Erro ao criar local:', error);
+        }
+    };
 
-    // function handleRecursoChange(value: string) {
-    //     setRecurso(value);
-    //     setShowOutroRecurso(value === 'Outro');
-    //     if (value !== 'Outro') setOutroRecurso('');
-    // }
-
-    function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-
-        console.log({
-            tipoLocal,
-            recurso,
-        });
-
-        resetForm();
-        onClose();
-    }
+    const mappedLocationTypeOptions = locationType.map((option) => ({
+        ...option,
+        value: option.value as 'externo' | 'interno',
+    }));
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
@@ -61,7 +75,7 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
                     leaveFrom="opacity-100"
                     leaveTo="opacity-0"
                 >
-                    <div className="fixed inset-0 bg-black bg-opacity-25" />
+                    <div className="fixed inset-0 bg-foreground bg-opacity-25" />
                 </Transition.Child>
 
                 <div className="fixed inset-0 overflow-y-auto">
@@ -78,102 +92,79 @@ export default function LocationModal({ isOpen, onClose }: LocationModalProps) {
                             <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                                 <Dialog.Title
                                     as="h2"
-                                    className="text-xl font-bold leading-6 text-gray-900 border-b pb-2"
+                                    className="text-xl text-center font-bold leading-6 border-b pb-2"
                                 >
                                     Adicionar Local
                                 </Dialog.Title>
 
                                 <form
-                                    onSubmit={handleSubmit}
+                                    onSubmit={handleSubmit(onSubmit)}
                                     className="mt-4 space-y-6"
                                 >
                                     <div>
                                         <p className="text-sm font-medium text-gray-700 mb-2">
                                             Tipo do local
                                         </p>
-                                        <div className="space-y-2">
-                                            {/* {tiposLocais.map((tipo) => (
-                                                <div
-                                                    key={tipo}
-                                                    className="flex items-center"
-                                                >
-                                                    <input
-                                                        id={`tipo-${tipo}`}
-                                                        name="tipo-local"
-                                                        type="radio"
-                                                        checked={
-                                                            tipoLocal === tipo
-                                                        }
-                                                        onChange={() =>
-                                                            setTipoLocal(tipo)
-                                                        }
-                                                        className="h-4 w-4 text-green-600"
-                                                    />
-                                                    <label
-                                                        htmlFor={`tipo-${tipo}`}
-                                                        className="ml-2 text-sm text-gray-700"
-                                                    >
-                                                        {tipo}
-                                                    </label>
-                                                </div>
-                                            ))} */}
-                                            <CustomRadioGroup
-                                                name="location type"
-                                                options={locationType}
-                                                gridCols={2}
-                                                borderColor="border-foreground"
-                                                textColor="text-foreground"
-                                            />
-                                        </div>
+                                        <CustomRadioGroup
+                                            name="locationType"
+                                            options={mappedLocationTypeOptions}
+                                            selectedValue={watch(
+                                                'locationType',
+                                            )}
+                                            onChange={(val) =>
+                                                setValue(
+                                                    'locationType',
+                                                    val as
+                                                        | 'externo'
+                                                        | 'interno',
+                                                )
+                                            }
+                                            gridCols={2}
+                                            borderColor="border-foreground"
+                                            textColor="text-foreground"
+                                            className="text-sm"
+                                        />
+                                        {errors.locationType && (
+                                            <p className="mt-1 text-sm text-error">
+                                                {errors.locationType.message}
+                                            </p>
+                                        )}
                                     </div>
 
                                     <div>
                                         <p className="text-sm font-medium text-gray-700 mb-2">
                                             Local
                                         </p>
-                                        <div className="space-y-2">
-                                            {/* {recursos.map((item) => (
-                                                <div
-                                                    key={item}
-                                                    className="flex items-center"
-                                                >
-                                                    <input
-                                                        id={`recurso-${item}`}
-                                                        name="recurso"
-                                                        type="radio"
-                                                        checked={
-                                                            recurso === item
-                                                        }
-                                                        onChange={() =>
-                                                            handleRecursoChange(
-                                                                item,
-                                                            )
-                                                        }
-                                                        className="h-4 w-4 text-green-600"
-                                                    />
-                                                    <label
-                                                        htmlFor={`recurso-${item}`}
-                                                        className="ml-2 text-sm text-gray-700"
-                                                    >
-                                                        {item}
-                                                    </label>
-                                                </div>
-                                            ))} */}
-                                            <CustomRadioGroup
-                                                name="location"
-                                                placeholder="Digite o Local"
-                                                options={locationOptions}
-                                                gridCols={2}
-                                                borderColor="border-foreground"
-                                                textColor="text-foreground"
-                                                className="text-sm"
-                                            />
-                                        </div>
+                                        <CustomRadioGroup
+                                            name="name"
+                                            options={locationOptions}
+                                            selectedValue={watch('name')}
+                                            onChange={(val) =>
+                                                setValue('name', val, {
+                                                    shouldValidate: true,
+                                                })
+                                            }
+                                            placeholder="Digite o nome do local"
+                                            gridCols={2}
+                                            borderColor="border-foreground"
+                                            textColor="text-foreground"
+                                            className="text-sm"
+                                        />
+                                        {errors.name && (
+                                            <p className="mt-1 text-sm text-error">
+                                                {errors.name.message}
+                                            </p>
+                                        )}
                                     </div>
 
                                     <div className="flex justify-center space-x-3 pt-4 border-t">
-                                        <CustomButton type="submit">
-                                            Criar Local
+                                        <CustomButton
+                                            type="submit"
+                                            disabled={isSubmitting}
+                                        >
+                                            {isSubmitting
+                                                ? 'Criando...'
+                                                : 'Criar Local'}
                                         </CustomButton>
                                     </div>
                                 </form>

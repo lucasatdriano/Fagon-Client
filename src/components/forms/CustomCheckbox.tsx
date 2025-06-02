@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { CustomFormInput } from './CustomFormInput';
 import { SquarePenIcon } from 'lucide-react';
+import { UseFormRegisterReturn } from 'react-hook-form';
 
 interface CheckboxOption {
     id: string;
@@ -16,6 +17,9 @@ interface CheckboxGroupProps {
     className?: string;
     gridCols?: number | 'full';
     color?: string;
+    registration?: UseFormRegisterReturn;
+    name: string;
+    error?: string;
 }
 
 export function CustomCheckboxGroup({
@@ -25,6 +29,9 @@ export function CustomCheckboxGroup({
     className = '',
     gridCols = 1,
     color = 'primary',
+    registration,
+    name,
+    error,
 }: CheckboxGroupProps) {
     const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>(
         options.reduce(
@@ -33,6 +40,32 @@ export function CustomCheckboxGroup({
         ),
     );
     const [otherValue, setOtherValue] = useState('');
+    const groupId = useId();
+
+    const updateSelectedOptions = (
+        items: Record<string, boolean>,
+        value: string,
+    ) => {
+        const selected = Object.keys(items)
+            .filter((key) => items[key])
+            .map((key) => {
+                const option = options.find((o) => o.id === key);
+                return option?.isOtherOption ? value : key;
+            })
+            .filter(Boolean);
+
+        onChange?.(selected);
+
+        if (registration?.onChange) {
+            const event = {
+                target: {
+                    name,
+                    value: selected,
+                },
+            };
+            registration.onChange(event);
+        }
+    };
 
     const handleChange = (optionId: string) => {
         const newCheckedItems = {
@@ -40,33 +73,14 @@ export function CustomCheckboxGroup({
             [optionId]: !checkedItems[optionId],
         };
         setCheckedItems(newCheckedItems);
-
-        const selected = Object.keys(newCheckedItems)
-            .filter((key) => newCheckedItems[key])
-            .map((key) => {
-                if (options.find((o) => o.id === key)?.isOtherOption) {
-                    return otherValue;
-                }
-                return key;
-            });
-
-        onChange?.(selected);
+        updateSelectedOptions(newCheckedItems, otherValue);
     };
 
     const handleOtherValueChange = (value: string) => {
         setOtherValue(value);
-
         const otherOption = options.find((o) => o.isOtherOption);
         if (otherOption && checkedItems[otherOption.id]) {
-            const selected = Object.keys(checkedItems)
-                .filter((key) => checkedItems[key])
-                .map((key) => {
-                    if (key === otherOption.id) {
-                        return value;
-                    }
-                    return key;
-                });
-            onChange?.(selected);
+            updateSelectedOptions(checkedItems, value);
         }
     };
 
@@ -74,80 +88,107 @@ export function CustomCheckboxGroup({
         if (gridCols === 'full') {
             return `grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 ${className}`;
         }
-
-        return `grid grid-cols-1 gap-4 ${className} ${
-            gridCols === 2
-                ? 'md:grid-cols-2'
-                : gridCols === 3
-                ? 'md:grid-cols-3'
-                : gridCols === 4
-                ? 'md:grid-cols-4'
-                : ''
-        }`;
+        return `grid grid-cols-${gridCols} gap-4 ${className}`;
     };
 
-    return (
-        <div className={getGridClasses()}>
-            {options.map((option) => (
-                <div
-                    key={option.id}
-                    className={`space-y-2 ${
-                        option.isOtherOption ? 'col-span-full' : ''
-                    }`}
-                >
-                    <label className="flex items-center space-x-3 cursor-pointer">
-                        <div
-                            className={`relative w-5 h-5 rounded border-2 border-${color} flex items-center justify-center transition-colors ${
-                                checkedItems[option.id]
-                                    ? `bg-${color}`
-                                    : 'bg-white'
-                            }`}
-                        >
-                            <input
-                                type="checkbox"
-                                checked={checkedItems[option.id] || false}
-                                onChange={() => handleChange(option.id)}
-                                className="absolute opacity-0 cursor-pointer w-full h-full"
-                            />
-                            {checkedItems[option.id] && (
-                                <svg
-                                    className="w-3 h-3 text-white"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                >
-                                    <path
-                                        fillRule="evenodd"
-                                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                        clipRule="evenodd"
-                                    />
-                                </svg>
-                            )}
-                        </div>
-                        <span className="text-gray-700 select-none">
-                            {option.label}
-                        </span>
-                    </label>
+    useEffect(() => {
+        if (registration?.value) {
+            const initialChecked = options.reduce((acc, option) => {
+                const isChecked =
+                    registration.value.includes(option.id) ||
+                    (option.isOtherOption &&
+                        registration.value.some(
+                            (v: string) => v !== option.id && v !== '',
+                        ));
+                return { ...acc, [option.id]: isChecked };
+            }, {});
 
-                    {option.isOtherOption && checkedItems[option.id] && (
-                        <div className="space-y-1 w-full">
-                            <CustomFormInput
-                                label={placeholder}
-                                value={otherValue}
-                                onChange={(e) =>
-                                    handleOtherValueChange(e.target.value)
-                                }
-                                icon={<SquarePenIcon />}
-                                borderColor="border-gray-300"
-                                required
-                            />
-                            <p className="text-xs text-gray-500">
-                                Se precisar inserir mais de um valor, separe por
-                                vírgula.
-                            </p>
-                        </div>
-                    )}
-                </div>
-            ))}
+            setCheckedItems(initialChecked);
+
+            const otherOption = options.find((o) => o.isOtherOption);
+            if (otherOption) {
+                const otherValue = registration.value.find(
+                    (v: string) => v !== otherOption.id && v !== '',
+                );
+                if (otherValue) setOtherValue(otherValue);
+            }
+        }
+    }, [registration?.value, options]);
+
+    return (
+        <div>
+            <div className={getGridClasses()}>
+                {options.map((option) => (
+                    <div
+                        key={option.id}
+                        className={option.isOtherOption ? 'col-span-full' : ''}
+                    >
+                        <label className="flex items-center space-x-3 cursor-pointer">
+                            <div
+                                className={`relative w-5 h-5 rounded border-2 border-${color} flex items-center justify-center transition-colors ${
+                                    checkedItems[option.id]
+                                        ? `bg-${color}`
+                                        : 'bg-white'
+                                }`}
+                            >
+                                <input
+                                    type="checkbox"
+                                    checked={checkedItems[option.id] || false}
+                                    onChange={() => handleChange(option.id)}
+                                    className="absolute opacity-0 cursor-pointer w-full h-full"
+                                    name={`${name}.${option.id}`}
+                                    id={`${groupId}-${option.id}`}
+                                    ref={registration?.ref}
+                                />
+                                {checkedItems[option.id] && (
+                                    <svg
+                                        className="w-3 h-3 text-white"
+                                        viewBox="0 0 20 20"
+                                        fill="currentColor"
+                                    >
+                                        <path
+                                            fillRule="evenodd"
+                                            d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                            clipRule="evenodd"
+                                        />
+                                    </svg>
+                                )}
+                            </div>
+                            <span className="text-gray-700 select-none">
+                                {option.label}
+                            </span>
+                        </label>
+
+                        {option.isOtherOption && checkedItems[option.id] && (
+                            <div className="space-y-1 w-full mt-2 ml-8">
+                                <CustomFormInput
+                                    label={placeholder}
+                                    value={otherValue}
+                                    onChange={(e) =>
+                                        handleOtherValueChange(e.target.value)
+                                    }
+                                    icon={<SquarePenIcon />}
+                                    borderColor="border-gray-300"
+                                    required
+                                    registration={{
+                                        ...registration,
+                                        name: `${name}.otherValue`,
+                                        onChange: (e) =>
+                                            handleOtherValueChange(
+                                                e.target.value,
+                                            ),
+                                    }}
+                                />
+                                <p className="text-xs text-gray-500">
+                                    Se precisar inserir mais de um valor, separe
+                                    por vírgula.
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                ))}
+            </div>
+            {error && <p className="mt-2 text-sm text-error">{error}</p>}
         </div>
     );
 }

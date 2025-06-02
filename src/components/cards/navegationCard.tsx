@@ -11,7 +11,7 @@ type NavigationCardProps = {
     className?: string;
     cardClassName?: string;
     relative?: boolean;
-    onClick?: () => void; // Aqui!
+    onClick?: () => void;
 };
 
 export function NavigationCard({

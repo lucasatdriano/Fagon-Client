@@ -18,9 +18,12 @@ import { PhotoCard } from '@/components/cards/PhotoCard';
 import { PathologyCard } from '@/components/cards/PathologyCard';
 import { CustomDropdownInput } from '@/components/forms/CustomDropdownInput';
 import { ceilingOptions } from '@/constants';
-import { PathologyService } from '@/services/domains/pathologyService';
-import { CreatePathologyData } from '@/validations/pathologySchemas';
+import {
+    CreatePathologyData,
+    PathologyService,
+} from '@/services/domains/pathologyService';
 import { PathologyPhotosService } from '@/services/domains/pathologyPhotoService';
+import { createPathologySchema } from '@/validations';
 
 interface FormData {
     referenceLocation: string;
@@ -43,7 +46,7 @@ export default function CreatePathology() {
         handleSubmit,
         formState: { errors },
     } = useForm<FormData>({
-        resolver: zodResolver(/* seu schema de validação */),
+        resolver: zodResolver(createPathologySchema),
     });
 
     useEffect(() => {

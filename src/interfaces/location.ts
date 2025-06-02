@@ -1,8 +1,8 @@
-import { locationType } from '@/constants/locationType';
-
-type LocationType = (typeof locationType)[number]['value'];
+import { LocationType } from '@/types/location';
 
 export interface LocationProps {
+    href: string;
+    relative?: boolean;
     id: string;
     name: string;
     locationType: LocationType;

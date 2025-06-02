@@ -1,16 +1,16 @@
 export const locationType = [
     {
-        id: '1',
+        id: 'externo',
         value: 'externo',
         label: 'Local Externo',
         bg: 'bg-blue-100',
         text: 'text-blue-800',
     },
     {
-        id: '2',
+        id: 'interno',
         value: 'interno',
         label: 'Local Interno',
         bg: 'bg-purple-100',
         text: 'text-purple-800',
     },
-];
+] as const;

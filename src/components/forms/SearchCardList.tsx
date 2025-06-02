@@ -57,7 +57,7 @@ export function SearchCardList({
                 )}
             </div>
 
-            {error && <div className="text-red-600 mb-4">{error}</div>}
+            {error && <div className="text-error mb-4">{error}</div>}
 
             {results.length > 0 ? (
                 <ul className="space-y-2 pt-0 p-1">

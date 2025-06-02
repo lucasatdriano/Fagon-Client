@@ -1,36 +1,79 @@
 'use client';
+import { locationOptions } from '@/constants';
 import { locationType as locationTypeOptions } from '@/constants/locationType';
 import { LocationProps } from '@/interfaces/location';
+import { formatLocationValue } from '@/utils/formatters/formatValues';
 import { BadgeCheckIcon, BadgeIcon, MapPinIcon } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
 
 export function LocationCard({
+    href,
+    id,
     name,
     pavement,
     locationType,
     height,
     hasPhotosSelected,
+    relative = false,
 }: LocationProps) {
+    const pathname = usePathname();
+    const router = useRouter();
+
     const locationTypeData = locationTypeOptions.find(
         (type) => type.value === locationType,
     );
 
-    if (!locationTypeData) return null;
+    const locationNameData = locationOptions.find((opt) => opt.value === name);
+
+    const displayName = locationNameData
+        ? locationNameData.label
+        : formatLocationValue(name);
+
+    const displayType = locationTypeData
+        ? locationTypeData.label
+        : formatLocationValue(locationType);
+
+    const finalHref = href
+        ? relative
+            ? `${pathname}/${id}/create-location`.replace('//', '/')
+            : href
+        : '';
+
+    const handleClick = () => {
+        router.push(finalHref);
+    };
 
     return (
-        <div className="bg-white cursor-pointer border w-full rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200">
+        <div
+            onClick={handleClick}
+            className="bg-white cursor-pointer border w-full rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow duration-200"
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter') handleClick();
+            }}
+        >
             <div className="flex justify-between items-start">
                 <div>
                     <div className="flex items-center gap-2 mb-3">
                         <MapPinIcon className="w-8 h-8 text-primary" />
-                        <h3 className="font-bold text-lg">
-                            {pavement} - {name}
-                        </h3>
+                        {pavement ? (
+                            <h3 className="font-bold text-lg">
+                                {pavement} - {displayName}
+                            </h3>
+                        ) : (
+                            <h3 className="font-bold text-lg">{displayName}</h3>
+                        )}
                     </div>
                     <div className="flex gap-2 mt-1">
                         <span
-                            className={`text-sm ${locationTypeData.bg} ${locationTypeData.text} px-2 py-1 rounded`}
+                            className={`text-sm ${
+                                locationTypeData?.bg || 'bg-gray-100'
+                            } ${
+                                locationTypeData?.text || 'text-gray-800'
+                            } px-2 py-1 rounded`}
                         >
-                            {locationTypeData.label}
+                            {displayType}
                         </span>
 
                         {height && (

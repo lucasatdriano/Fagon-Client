@@ -59,7 +59,7 @@ const API_ROUTES = {
     },
 
     LOCATIONS: {
-        // BASE: '/locations',
+        BASE: '/locations',
         CREATE: '/locations',
         BY_PROJECT: ({ projectId }: Params) =>
             `/locations/project/${projectId}`,

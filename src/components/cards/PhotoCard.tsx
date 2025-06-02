@@ -32,13 +32,13 @@ export function PhotoCard({ photo, onSelect, onView }: PhotoCardProps) {
 
     return (
         <div
-            className={`relative border rounded-lg overflow-hidden shadow-sm transition-all duration-200 ${
+            className={`px-4 bg-white relative cursor-pointer border rounded-lg overflow-hidden shadow-sm transition-all duration-200 ${
                 isSelected ? 'ring-2 ring-primary' : 'hover:shadow-md'
             }`}
             onClick={handleClick}
             onDoubleClick={handleDoubleClick}
         >
-            <div className="bg-white flex items-center justify-center py-4 gap-2">
+            <div className="flex items-center justify-center py-4 gap-2">
                 <ImageIcon className="h-6 w-6" />
                 {photo.filePath
                     ? photo.filePath.split('/').pop()

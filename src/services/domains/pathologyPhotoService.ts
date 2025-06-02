@@ -21,7 +21,7 @@ export const PathologyPhotosService = {
             });
 
             const response = await api.post(
-                API_ROUTES.PATHOLOGY_PHOTOS.UPLOAD(pathologyId),
+                API_ROUTES.PATHOLOGY_PHOTOS.UPLOAD({ pathologyId }),
                 formData,
                 {
                     headers: {
@@ -59,7 +59,7 @@ export const PathologyPhotosService = {
     ): Promise<ApiResponse<PathologyPhoto[]>> {
         try {
             const response = await api.get(
-                API_ROUTES.PATHOLOGY_PHOTOS.BY_PATHOLOGY(pathologyId),
+                API_ROUTES.PATHOLOGY_PHOTOS.BY_PATHOLOGY({ pathologyId }),
             );
             return response.data;
         } catch (error) {

@@ -7,7 +7,7 @@ interface CustomEditInputProps
     extends React.InputHTMLAttributes<HTMLInputElement> {
     label: string;
     icon?: React.ReactElement;
-    registration?: Partial<UseFormRegisterReturn>; // Alterado para Partial
+    registration?: Partial<UseFormRegisterReturn>;
     error?: string;
     className?: string;
     textColor?: string;
