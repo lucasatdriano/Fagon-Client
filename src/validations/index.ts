@@ -14,8 +14,6 @@ export * from './locations/locationCreateValidation';
 export * from './locations/locationUpdateValidation';
 export * from './locations/locationFormValidation';
 
-// export * from './pathologies/createPathologyValidation';
-
-// export * from './pavements/pavementCreateValidation';
-export * from './materialFinishings/materialFinishingCreateValidation';
 export * from './photos/photoCreateValidation';
+
+// export * from './pathologies/createPathologyValidation';

@@ -117,6 +117,7 @@ export default function CreateAgencyPage() {
                             onChange={(e) =>
                                 handleMaskedChange('cnpj', e, setValue)
                             }
+                            inputMode="numeric"
                             maxLength={18}
                             error={errors.cnpj?.message}
                         />
@@ -138,6 +139,7 @@ export default function CreateAgencyPage() {
                             onChange={(e) =>
                                 handleMaskedChange('cep', e, setValue)
                             }
+                            inputMode="numeric"
                             maxLength={9}
                             error={errors.cep?.message}
                         />
@@ -182,7 +184,11 @@ export default function CreateAgencyPage() {
                             icon={<HashIcon />}
                             label="Número*"
                             registration={register('number')}
+                            onChange={(e) =>
+                                handleMaskedChange('number', e, setValue)
+                            }
                             error={errors.number?.message}
+                            inputMode="numeric"
                         />
                     </div>
                 </div>

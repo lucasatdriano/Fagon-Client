@@ -2,7 +2,7 @@
 import { locationOptions } from '@/constants';
 import { locationType as locationTypeOptions } from '@/constants/locationType';
 import { LocationProps } from '@/interfaces/location';
-import { formatLocationValue } from '@/utils/formatters/formatValues';
+import { getLocationLabelByValue } from '@/utils/formatters/formatValues';
 import { BadgeCheckIcon, BadgeIcon, MapPinIcon } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 
@@ -27,11 +27,11 @@ export function LocationCard({
 
     const displayName = locationNameData
         ? locationNameData.label
-        : formatLocationValue(name);
+        : getLocationLabelByValue(name);
 
     const displayType = locationTypeData
         ? locationTypeData.label
-        : formatLocationValue(locationType);
+        : getLocationLabelByValue(locationType);
 
     const finalHref = href
         ? relative
@@ -78,7 +78,12 @@ export function LocationCard({
 
                         {height && (
                             <span className="text-sm bg-gray-100 text-gray-800 px-2 py-1 rounded">
-                                Altura: {height}m
+                                Altura:{' '}
+                                {height.toLocaleString('pt-BR', {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                })}{' '}
+                                m
                             </span>
                         )}
                     </div>

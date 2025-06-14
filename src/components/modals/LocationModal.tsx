@@ -4,7 +4,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { CustomButton } from '../forms/CustomButton';
 import { CustomRadioGroup } from '../forms/CustomRadioGroup';
-import { locationOptions, locationType } from '@/constants';
+import { locationOptions, mappedLocationTypeOptions } from '@/constants';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { CreateLocationFormValues, createLocationSchema } from '@/validations';
@@ -12,6 +12,8 @@ import {
     CreateLocationData,
     LocationService,
 } from '@/services/domains/locationService';
+import { toast } from 'react-toastify';
+import { usePathname, useRouter } from 'next/navigation';
 
 type LocationModalProps = {
     isOpen: boolean;
@@ -26,6 +28,9 @@ export default function LocationModal({
     projectId,
     onSuccess,
 }: LocationModalProps) {
+    const router = useRouter();
+    const pathname = usePathname();
+
     const {
         handleSubmit,
         setValue,
@@ -42,26 +47,28 @@ export default function LocationModal({
 
     const onSubmit = async (data: CreateLocationFormValues) => {
         try {
-            console.log(data);
             const createData: CreateLocationData = {
                 projectId,
                 locationType: data.locationType,
                 name: data.name,
             };
 
-            await LocationService.create(createData);
+            const newLocation = await LocationService.create(createData);
             reset();
             onClose();
             onSuccess?.();
+            toast.success('Local criado com sucesso');
+
+            const finalHref =
+                `${pathname}/projects/${newLocation.data.id}`.replace(
+                    '//',
+                    '/',
+                );
+            router.push(finalHref);
         } catch (error) {
             console.error('Erro ao criar local:', error);
         }
     };
-
-    const mappedLocationTypeOptions = locationType.map((option) => ({
-        ...option,
-        value: option.value as 'externo' | 'interno',
-    }));
 
     return (
         <Transition appear show={isOpen} as={Fragment}>

@@ -16,7 +16,7 @@ export function SearchCardList({
     searchAgencies,
 }: SearchCardListProps) {
     const { query, setQuery, results, isLoading, error } =
-        useSearch<agencyProps>(searchAgencies, 3, 300);
+        useSearch<agencyProps>(searchAgencies, 0, 300);
     const [localQuery, setLocalQuery] = useState(query);
     const [selectedAgencyId, setSelectedAgencyId] = useState<string | null>(
         null,
@@ -60,7 +60,7 @@ export function SearchCardList({
             {error && <div className="text-error mb-4">{error}</div>}
 
             {results.length > 0 ? (
-                <ul className="space-y-2 pt-0 p-1">
+                <ul className="space-y-2 pt-0 p-1 h-60 overflow-auto">
                     {results.map((agency) => {
                         return (
                             <li

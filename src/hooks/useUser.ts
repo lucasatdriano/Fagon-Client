@@ -1,10 +1,10 @@
-import { getUserById } from '@/services/domains/user.service';
+import { UserService } from '@/services/domains/userService';
 import { useQuery } from '@tanstack/react-query';
 
 export function useUser(id: string) {
     return useQuery({
         queryKey: ['user', id],
-        queryFn: () => getUserById(id),
+        queryFn: () => UserService.getById(id),
         enabled: !!id,
     });
 }

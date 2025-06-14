@@ -5,7 +5,6 @@ export const photoSchema = z.object({
     locationId: z.string(),
     filePath: z.string(),
     selectedForPdf: z.boolean().default(false),
-    url: z.string().optional(),
 });
 
 export type PhotoSchema = z.infer<typeof photoSchema>;

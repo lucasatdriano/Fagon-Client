@@ -1,15 +1,30 @@
-export function formatLocationValue(value: string): string {
-    let formatted = value.replace(/_/g, ' ');
+import { locationOptions } from '@/constants';
 
+export function getLocationLabelByValue(value: string): string {
+    if (!value) return '';
+
+    const option = locationOptions.find((opt) => opt.value === value);
+    if (option) return option.label;
+
+    let formatted = value.replace(/_/g, ' ');
     formatted = formatted
         .split(' ')
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
-
-    formatted = formatted.replace(/- /g, '-');
-    formatted = formatted.replace(/ Da /g, ' da ');
-    formatted = formatted.replace(/ De /g, ' de ');
-    formatted = formatted.replace(/ E /g, ' e ');
+        .join(' ')
+        .replace(/- /g, '-')
+        .replace(/ Da /g, ' da ')
+        .replace(/ De /g, ' de ')
+        .replace(/ E /g, ' e ');
 
     return formatted;
 }
+
+export function getLocationValueByLabel(label: string): string {
+    const option = locationOptions.find((opt) => opt.label === label);
+    return option ? option.value : label.toLowerCase().replace(/ /g, '_');
+}
+
+// export function getLocationValueByLabel(label: string): string {
+//     const option = locationOptions.find((opt) => opt.label === label);
+//     return option ? option.value : label.toLowerCase().replace(/ /g, '_');
+// }

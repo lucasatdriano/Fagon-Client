@@ -112,7 +112,7 @@ const API_ROUTES = {
         UPLOAD: ({ locationId }: Params) => `/photos/upload/${locationId}`,
         BY_LOCATION: ({ locationId }: Params) =>
             `/photos/location/${locationId}`,
-        // BY_ID: ({ id }: Params) => `/photos/${id}`,
+        SIGNED_URL: ({ id }: Params) => `/photos/${id}/signed-url`,
         UPDATE: ({ id }: Params) => `/photos/${id}`,
         DELETE: ({ id }: Params) => `/photos/${id}`,
     },

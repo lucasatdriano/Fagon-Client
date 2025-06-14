@@ -30,7 +30,7 @@ export function Header({
                 hasSidebar ? 'md:w-[calc(100%-8rem)]' : 'md:w-full'
             } bg-white px-8 md:px-16 py-3 shadow flex items-center justify-between gap-4 rounded-b-2xl`}
         >
-            {(type === 'back' || type === 'backMenu') && (
+            {(type === 'back' || type === 'backMenu') && onBack && (
                 <button
                     title="Botão de voltar para a página anterior"
                     aria-label="Botão de voltar para a página anterior"

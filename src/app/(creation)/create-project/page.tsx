@@ -13,13 +13,15 @@ import { CustomRadioGroup } from '@/components/forms/CustomRadioGroup';
 import { CustomFormInput } from '@/components/forms/CustomFormInput';
 
 import { createProjectSchema, CreateProjectFormValues } from '@/validations';
-import { projectType } from '@/constants';
+import { pavements, projectType } from '@/constants';
 import { EngineerService } from '@/services/domains/engineerService';
 import { AgencyService } from '@/services/domains/agencyService';
 import { engineerProps } from '@/interfaces/engineer';
 import { ProjectService } from '@/services/domains/projectService';
 import { toast } from 'sonner';
 import { ProjectType } from '@/types/project';
+import { CustomCheckboxGroup } from '@/components/forms/CustomCheckbox';
+import { handleMaskedChange } from '@/utils/helpers/handleMaskedInput';
 
 export default function CreateProjectPage() {
     const router = useRouter();
@@ -38,6 +40,7 @@ export default function CreateProjectPage() {
         defaultValues: {
             projectType: '',
             selectedPerson: '',
+            pavements: [],
             upeCode: '',
             agencyId: '',
         },
@@ -45,15 +48,24 @@ export default function CreateProjectPage() {
 
     const onSubmit = async (data: CreateProjectFormValues) => {
         try {
-            console.log(data);
+            const pavementsArray = Array.isArray(data.pavements)
+                ? data.pavements
+                : [];
 
-            const newProject = await ProjectService.create({
+            const payload = {
                 projectType: data.projectType as ProjectType,
                 upeCode: Number(data.upeCode),
+                pavements: pavementsArray.map((p) => ({
+                    pavement:
+                        typeof p === 'string'
+                            ? p
+                            : (p as { pavement: string }).pavement,
+                })),
                 agencyId: data.agencyId,
                 engineerId: data.selectedPerson,
-            });
+            };
 
+            const newProject = await ProjectService.create(payload);
             toast.success('Projeto criado com sucesso');
             router.push(`/projects/${newProject.data.id}`);
         } catch (error: unknown) {
@@ -90,9 +102,10 @@ export default function CreateProjectPage() {
                     Adicionar Novo Projeto
                 </h1>
 
-                <div className="w-full grid place-items-center gap-8">
-                    <div className="grid grid-cols-2 w-full gap-6">
+                <div className="w-full grid place-items-center gap-4">
+                    <div className="grid grid-cols-2 w-full gap-4">
                         <CustomDropdownInput
+                            placeholder="Selecione o Tipo do projeto*"
                             options={projectType}
                             selectedOptionValue={watch('projectType')}
                             onOptionSelected={(val) => {
@@ -100,7 +113,6 @@ export default function CreateProjectPage() {
                                     setValue('projectType', val);
                                 }
                             }}
-                            placeholder="Selecione o Tipo do projeto*"
                             error={errors.projectType?.message}
                         />
 
@@ -117,9 +129,26 @@ export default function CreateProjectPage() {
                             icon={<HashIcon />}
                             label="UPE do projeto*"
                             {...register('upeCode')}
+                            onChange={(e) =>
+                                handleMaskedChange('upeCode', e, setValue)
+                            }
                             error={errors.upeCode?.message}
+                            inputMode="numeric"
                             maxLength={6}
                             minLength={6}
+                        />
+
+                        <CustomCheckboxGroup
+                            name="pavements"
+                            options={pavements.map((p) => ({
+                                value: p.value,
+                                label: p.label,
+                            }))}
+                            selectedValues={watch('pavements') || []}
+                            onChange={(values) => setValue('pavements', values)}
+                            error={errors.pavements?.message}
+                            gridCols={'full'}
+                            className="col-span-2 border-2 rounded-lg p-4"
                         />
                     </div>
 
@@ -129,7 +158,11 @@ export default function CreateProjectPage() {
                                 setValue('agencyId', agency.id);
                             }}
                             searchAgencies={async (query: string) => {
-                                if (query.length < 1) return [];
+                                if (query.length < 1) {
+                                    const response =
+                                        await AgencyService.listAll();
+                                    return response.data;
+                                }
                                 if (/^\d+$/.test(query)) {
                                     const response = await AgencyService.search(
                                         {
@@ -141,9 +174,9 @@ export default function CreateProjectPage() {
                                 }
 
                                 const response = await AgencyService.search({
-                                    state: query,
+                                    // state: query,
                                     city: query,
-                                    district: query,
+                                    // district: query,
                                 });
 
                                 return response.data;

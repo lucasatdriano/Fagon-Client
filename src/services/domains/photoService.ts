@@ -1,18 +1,7 @@
+import { Photo } from '@/interfaces/photo';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
 import { ApiResponse } from '@/types/api';
-
-export interface Photo {
-    id: string;
-    locationId: string;
-    filePath: string;
-    selectedForPdf: boolean;
-    location: {
-        id: string;
-        // Add other location properties as needed
-    };
-}
-
 export interface UpdatePhotoData {
     locationId?: string;
     filePath?: string;
@@ -26,8 +15,11 @@ export const PhotoService = {
     ): Promise<ApiResponse<Photo[]>> {
         try {
             const formData = new FormData();
-            files.forEach((file) => {
-                formData.append('files', file);
+            files.forEach((file, index) => {
+                const newName = `photo-${Date.now()}-${index}.${file.name
+                    .split('.')
+                    .pop()}`;
+                formData.append('files', file, newName);
             });
 
             const response = await api.post(
@@ -45,12 +37,44 @@ export const PhotoService = {
         }
     },
 
-    async listByLocation(locationId: string): Promise<ApiResponse<Photo[]>> {
+    async listByLocation(
+        locationId: string,
+        includeSignedUrls = true,
+    ): Promise<ApiResponse<Photo[]>> {
         try {
             const response = await api.get(
                 API_ROUTES.PHOTOS.BY_LOCATION({ locationId }),
+                {
+                    params: {
+                        signed: includeSignedUrls,
+                    },
+                },
             );
-            return response.data;
+
+            if (!includeSignedUrls) return response.data;
+
+            const photos = response.data.data || response.data;
+
+            const photosWithUrls = await Promise.all(
+                photos.map(async (photo: Photo) => {
+                    if (!photo.signedUrl) {
+                        try {
+                            photo.signedUrl = await this.getSignedUrl(
+                                photo.id || '',
+                            );
+                        } catch (error) {
+                            console.error(
+                                `Error getting signed URL for photo ${photo.id}:`,
+                                error,
+                            );
+                            photo.signedUrl = '/fallback-image.jpg';
+                        }
+                    }
+                    return photo;
+                }),
+            );
+
+            return photosWithUrls;
         } catch (error) {
             throw new Error(extractAxiosError(error));
         }
@@ -68,6 +92,21 @@ export const PhotoService = {
             return response.data;
         } catch (error) {
             throw new Error(extractAxiosError(error));
+        }
+    },
+
+    async getSignedUrl(photoId: string): Promise<string> {
+        try {
+            const response = await api.get(`/photos/${photoId}/signed-url`);
+
+            if (!response.data?.data?.url) {
+                throw new Error('Invalid response format from server');
+            }
+
+            return response.data.data.url;
+        } catch (error) {
+            console.error('Error getting signed URL:', error);
+            throw new Error('Error connecting to server');
         }
     },
 

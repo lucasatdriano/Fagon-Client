@@ -1,7 +1,8 @@
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
 import { useState } from 'react';
 
-interface DropdownOption {
+export interface DropdownOption {
+    id: string;
     value: string;
     label: string;
 }
@@ -62,7 +63,7 @@ export function CustomDropdownInput({
                 {isOpen && (
                     <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-1 ring-1 ring-black ring-opacity-5 focus:outline-none max-h-60 overflow-y-auto">
                         {options.map((option) => (
-                            <div key={option.value}>
+                            <div key={option.id}>
                                 <div
                                     className="px-4 py-3 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer flex justify-between items-center"
                                     onClick={() => handleOptionSelect(option)}

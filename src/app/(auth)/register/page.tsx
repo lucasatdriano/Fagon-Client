@@ -89,19 +89,20 @@ export default function RegisterPage() {
 
                 <div className="w-full grid place-items-center gap-8">
                     <CustomAuthInput
-                        icon={<UserIcon />}
                         label="Nome*"
+                        icon={<UserIcon />}
                         registration={register('name')}
                         error={errors.name?.message}
                         required
                     />
 
                     <CustomAuthInput
+                        label="Email*"
                         type="email"
                         icon={<MailIcon />}
-                        label="Email*"
                         registration={register('email')}
                         error={errors.email?.message}
+                        inputMode="email"
                         required
                     />
 

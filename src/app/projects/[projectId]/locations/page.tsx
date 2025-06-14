@@ -21,8 +21,8 @@ export default function DashboardInspectorPage() {
         const fetchLocations = async () => {
             try {
                 setLoading(true);
-                const response = await LocationService.getByProject(projectId);
-                console.log(response);
+                const response = await LocationService.listAll(projectId);
+
                 setLocations(response.data);
             } catch (err) {
                 setError('Erro ao carregar locais');
@@ -39,7 +39,7 @@ export default function DashboardInspectorPage() {
 
     const handleLocationCreated = async () => {
         try {
-            const response = await LocationService.getByProject(projectId);
+            const response = await LocationService.listAll(projectId);
             setLocations(response.data);
         } catch (err) {
             setError('Erro ao atualizar lista de locais');

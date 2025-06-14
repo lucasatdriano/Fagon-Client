@@ -15,18 +15,37 @@ import { toast } from 'sonner';
 import { CustomButton } from '@/components/forms/CustomButton';
 import { CustomFormInput } from '@/components/forms/CustomFormInput';
 import { CustomCheckboxGroup } from '@/components/forms/CustomCheckbox';
-import { ceilingOptions, floorOptions, wallOptions } from '@/constants';
+import {
+    ceilingOptions,
+    floorOptions,
+    mappedLocationTypeOptions,
+    wallOptions,
+} from '@/constants';
 import { PhotoCard } from '@/components/cards/PhotoCard';
 import { LocationService } from '@/services/domains/locationService';
-import { locationFormSchema, LocationFormSchema } from '@/validations';
+import {
+    locationFormSchema,
+    LocationFormSchema,
+    UpdateLocationFormSchema,
+} from '@/validations';
 import { locationType as locationTypes, surfaceType } from '@/constants';
-
-interface Photo {
-    id: string;
-    filePath: string;
-    selectedForPdf: boolean;
-    file?: File;
-}
+import {
+    CustomDropdownInput,
+    DropdownOption,
+} from '@/components/forms/CustomDropdownInput';
+import { CustomRadioGroup } from '@/components/forms/CustomRadioGroup';
+import {
+    getLocationLabelByValue,
+    getLocationValueByLabel,
+} from '@/utils/formatters/formatValues';
+import { PavementService } from '@/services/domains/pavementService';
+import { pavements as pavementOptions } from '@/constants/pavements';
+import { Pavement } from '@/interfaces/pavement';
+import { handleMaskedChange } from '@/utils/helpers/handleMaskedInput';
+import { Photo } from '@/interfaces/photo';
+import { PhotoService } from '@/services/domains/photoService';
+import { useUserRole } from '@/hooks/useUserRole';
+import { AddPhotoModal } from '@/components/modals/photoModals/AddPhotoModal';
 
 interface LocationData {
     id: string;
@@ -45,10 +64,13 @@ interface LocationData {
 
 export default function CreateLocationPage() {
     const { projectId, locationId } = useParams();
+    const { isVisitor } = useUserRole();
     const [isLoading, setIsLoading] = useState(true);
     const [allPhotos, setAllPhotos] = useState<Photo[]>([]);
+    const [pavements, setPavements] = useState<DropdownOption[]>([]);
     const [location, setLocation] = useState<LocationData | null>(null);
     const [formKey, setFormKey] = useState(0);
+    const [showPhotoOptionsModal, setShowPhotoOptionsModal] = useState(false);
 
     const {
         register,
@@ -67,6 +89,36 @@ export default function CreateLocationPage() {
         formLocationType ===
         locationTypes.find((lt) => lt.value === 'externo')?.value;
 
+    const mapPavementToDropdownOptions = (pavementsFromApi: Pavement[]) => {
+        return pavementsFromApi.map((pavement) => {
+            const matchedOption = pavementOptions.find(
+                (opt) => opt.value === pavement.pavement,
+            );
+
+            return {
+                id: pavement.id,
+                value: pavement.id,
+                label: matchedOption ? matchedOption.label : pavement.pavement,
+            };
+        });
+    };
+
+    const loadPavements = useCallback(async () => {
+        try {
+            const response = await PavementService.getByProject(
+                projectId as string,
+            );
+            console.log(response);
+            console.log(response.data);
+            const mappedPavements = mapPavementToDropdownOptions(response.data);
+
+            setPavements(mappedPavements);
+        } catch (error) {
+            toast.error('Erro ao carregar pavimentos');
+            console.error('Erro detalhado:', error);
+        }
+    }, [projectId]);
+
     const loadLocationData = useCallback(async () => {
         try {
             setIsLoading(true);
@@ -75,13 +127,22 @@ export default function CreateLocationPage() {
             );
             const locationData = response.data;
 
-            setLocation(locationData);
-            setAllPhotos(locationData.photos || []);
+            const mappedPhotos =
+                locationData.photo?.map((photo) => ({
+                    id: photo.id,
+                    filePath: photo.filePath.startsWith('http')
+                        ? photo.filePath
+                        : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/sign/${process.env.NEXT_PUBLIC_SUPABASE_BUCKET_NAME}/${photo.filePath}`,
+                    selectedForPdf: photo.selectedForPdf,
+                })) || [];
 
-            setValue('name', locationData.name);
+            setLocation(locationData);
+            setAllPhotos(mappedPhotos || []);
+
+            setValue('name', getLocationLabelByValue(locationData.name));
             setValue('locationType', locationData.locationType);
+            setValue('pavementId', locationData.pavement?.id || '');
             setValue('height', locationData.height?.toString() || '');
-            setValue('floor', locationData.pavement?.name || '');
 
             const pisoValue = surfaceType.find(
                 (st) => st.label === 'Piso',
@@ -125,22 +186,74 @@ export default function CreateLocationPage() {
 
     useEffect(() => {
         if (locationId) loadLocationData();
-    }, [locationId, loadLocationData]);
+        loadPavements();
+    }, [locationId, loadLocationData, loadPavements]);
 
-    const handleAddPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (!e.target.files) return;
-
-        const newPhotos = Array.from(e.target.files).map((file) => ({
-            id: `new-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+    const handlePhotosAdded = useCallback((files: File[]) => {
+        const newPhotos = files.map((file) => ({
+            file,
             filePath: URL.createObjectURL(file),
             selectedForPdf: false,
-            file,
         }));
 
         setAllPhotos((prev) => [...prev, ...newPhotos]);
-    };
+    }, []);
 
-    const onSubmit = async (data: LocationFormSchema) => {
+    const handleTogglePhotoSelection = useCallback(
+        async (photoId: string) => {
+            if (isVisitor) {
+                toast.error(
+                    'Vistoriadores não podem selecionar fotos para PDF',
+                );
+                return;
+            }
+
+            try {
+                const photoIndex = allPhotos.findIndex(
+                    (photo) => photo.id === photoId,
+                );
+                if (photoIndex === -1) return;
+
+                const updatedPhotos = [...allPhotos];
+                const currentPhoto = updatedPhotos[photoIndex];
+                const newSelectionStatus = !currentPhoto.selectedForPdf;
+
+                await PhotoService.update(photoId, {
+                    selectedForPdf: newSelectionStatus,
+                });
+
+                updatedPhotos[photoIndex] = {
+                    ...currentPhoto,
+                    selectedForPdf: newSelectionStatus,
+                };
+
+                setAllPhotos(updatedPhotos);
+            } catch (error) {
+                console.error('Erro ao atualizar foto:', error);
+                toast.error('Erro ao atualizar seleção da foto');
+                throw error;
+            }
+        },
+        [allPhotos, isVisitor],
+    );
+
+    const handleDeletePhoto = useCallback(async (photoId: string) => {
+        try {
+            setIsLoading(true);
+            await PhotoService.delete(photoId);
+            setAllPhotos((prev) =>
+                prev.filter((photo) => photo.id !== photoId),
+            );
+            toast.success('Foto excluída com sucesso');
+        } catch (error) {
+            console.error('Error deleting photo:', error);
+            toast.error('Erro ao excluir foto');
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
+    const onSubmit = async (data: UpdateLocationFormSchema) => {
         try {
             setIsLoading(true);
 
@@ -150,79 +263,32 @@ export default function CreateLocationPage() {
             }
 
             const formData = new FormData();
-            formData.append('name', data.name);
+            formData.append('name', getLocationValueByLabel(data.name));
             formData.append('locationType', data.locationType);
             if (data.height) formData.append('height', data.height);
+            if (data.pavementId) formData.append('pavementId', data.pavementId);
 
-            // Adiciona fotos
             allPhotos.forEach((photo) => {
-                if (photo.file) formData.append('photos', photo.file);
+                if (photo.file) {
+                    formData.append('photos', photo.file);
+                }
             });
 
-            // Adiciona acabamentos com locationId
-            if (!isExternal && data.floorFinishing) {
-                data.floorFinishing.forEach((finishing, index) => {
-                    formData.append(
-                        `materialFinishings[${index}][surface]`,
-                        'piso',
-                    );
-                    formData.append(
-                        `materialFinishings[${index}][materialFinishing]`,
-                        finishing,
-                    );
-                    formData.append(
-                        `materialFinishings[${index}][locationId]`,
-                        locationId as string,
-                    );
-                });
-            }
+            const finishes = {
+                floor: data.floorFinishing || [],
+                wall: data.wallFinishing || [],
+                ceiling: data.ceilingFinishing || [],
+            };
 
-            if (data.wallFinishing) {
-                const offset = data.floorFinishing?.length || 0;
-                data.wallFinishing.forEach((finishing, index) => {
-                    formData.append(
-                        `materialFinishings[${offset + index}][surface]`,
-                        'parede',
-                    );
-                    formData.append(
-                        `materialFinishings[${
-                            offset + index
-                        }][materialFinishing]`,
-                        finishing,
-                    );
-                    formData.append(
-                        `materialFinishings[${offset + index}][locationId]`,
-                        locationId as string,
-                    );
+            Object.entries(finishes).forEach(([key, values]) => {
+                values.forEach((value, index) => {
+                    formData.append(`finishes[${key}][${index}]`, value);
                 });
-            }
+            });
 
-            if (!isFacade && !isExternal && data.ceilingFinishing) {
-                const offset =
-                    (data.floorFinishing?.length || 0) +
-                    (data.wallFinishing?.length || 0);
-                data.ceilingFinishing.forEach((finishing, index) => {
-                    formData.append(
-                        `materialFinishings[${offset + index}][surface]`,
-                        'forro',
-                    );
-                    formData.append(
-                        `materialFinishings[${
-                            offset + index
-                        }][materialFinishing]`,
-                        finishing,
-                    );
-                    formData.append(
-                        `materialFinishings[${offset + index}][locationId]`,
-                        locationId as string,
-                    );
-                });
-            }
+            console.log(formData);
 
-            const response = await LocationService.update(
-                locationId as string,
-                formData,
-            );
+            await LocationService.update(locationId as string, formData);
             toast.success('Local atualizado com sucesso!');
         } catch (error) {
             console.error('Error:', error);
@@ -246,7 +312,6 @@ export default function CreateLocationPage() {
                 })}
                 className="space-y-6"
             >
-                {/* Seção de nome e tipo de local */}
                 <div className="space-y-4">
                     <CustomFormInput
                         icon={<MapPinIcon />}
@@ -257,42 +322,28 @@ export default function CreateLocationPage() {
                         disabled={isLoading}
                     />
 
-                    <div className="flex space-x-4">
-                        <label className="flex items-center space-x-2">
-                            <input
-                                type="radio"
-                                {...register('locationType')}
-                                value="interno"
-                                defaultChecked={
-                                    location?.locationType === 'interno'
-                                }
-                                className="h-4 w-4"
-                                disabled={isLoading}
-                            />
-                            <span>Local Interno</span>
-                        </label>
-                        <label className="flex items-center space-x-2">
-                            <input
-                                type="radio"
-                                {...register('locationType')}
-                                value="externo"
-                                defaultChecked={
-                                    location?.locationType === 'externo'
-                                }
-                                className="h-4 w-4"
-                                disabled={isLoading}
-                            />
-                            <span>Local Externo</span>
-                        </label>
-                    </div>
+                    <CustomRadioGroup
+                        name="locationType"
+                        options={mappedLocationTypeOptions}
+                        selectedValue={watch('locationType')}
+                        onChange={(val) =>
+                            setValue(
+                                'locationType',
+                                val as 'externo' | 'interno',
+                            )
+                        }
+                        gridCols={2}
+                        borderColor="border-foreground"
+                        textColor="text-foreground"
+                        className="px-5"
+                    />
                     {errors.locationType && (
-                        <p className="text-error text-sm">
+                        <p className="mt-1 text-sm text-error">
                             {errors.locationType.message}
                         </p>
                     )}
                 </div>
 
-                {/* Seção de fotos */}
                 <div>
                     <div className="w-full relative flex justify-start py-3">
                         <h2 className="text-2xl font-sans bg-background px-2 ml-8">
@@ -302,35 +353,31 @@ export default function CreateLocationPage() {
                     </div>
 
                     <div className="grid gap-4 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                        <label
+                        <button
+                            type="button"
                             className={`bg-white flex items-center justify-center gap-2 rounded-md shadow-sm text-primary py-4 px-6 hover:shadow-md cursor-pointer ${
                                 isLoading ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
+                            onClick={() => setShowPhotoOptionsModal(true)}
+                            disabled={isLoading}
                         >
                             <CameraIcon className="w-6 h-6" />
                             <span>Adicionar Foto</span>
-                            <input
-                                type="file"
-                                className="hidden"
-                                accept="image/*"
-                                multiple
-                                onChange={handleAddPhoto}
-                                disabled={isLoading}
-                            />
-                        </label>
+                        </button>
 
-                        {allPhotos.map((photo) => (
+                        {allPhotos.map((photo, index) => (
                             <PhotoCard
-                                key={photo.id}
+                                key={`photo-${photo.id}-${index}`}
                                 photo={{
-                                    id: photo.id,
+                                    id: photo.id || '',
                                     filePath: photo.filePath,
-                                    selectedForPdf: photo.selectedForPdf,
+                                    selectedForPdf:
+                                        photo.selectedForPdf || false,
                                 }}
-                                onSelect={() => {}}
-                                onView={() =>
-                                    window.open(photo.filePath, '_blank')
-                                }
+                                onSelect={handleTogglePhotoSelection}
+                                onDelete={handleDeletePhoto}
+                                index={index}
+                                isVisitor={isVisitor}
                                 disabled={isLoading}
                             />
                         ))}
@@ -342,7 +389,6 @@ export default function CreateLocationPage() {
                     )}
                 </div>
 
-                {/* Seção de pavimento (apenas para locais internos) */}
                 {!isExternal && (
                     <div>
                         <div className="w-full relative flex justify-start py-3">
@@ -351,21 +397,24 @@ export default function CreateLocationPage() {
                             </h2>
                             <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
                         </div>
-                        <CustomFormInput
+                        <CustomDropdownInput
+                            placeholder="Pavimento/Andar*"
+                            options={pavements}
                             icon={<Layers2Icon />}
-                            label="Pavimento/Andar*"
-                            registration={register('floor')}
-                            error={errors.floor?.message}
-                            disabled={isLoading}
+                            selectedOptionValue={watch('pavementId')}
+                            onOptionSelected={(val) => {
+                                setValue('pavementId', val || '');
+                            }}
+                            error={errors.pavementId?.message}
+                            className="text-foreground"
                         />
                     </div>
                 )}
 
-                {/* Seção de altura */}
                 <div>
                     <div className="w-full relative flex justify-start py-3">
                         <h2 className="text-2xl font-sans bg-background px-2 ml-8">
-                            Altura
+                            Altura (m)
                         </h2>
                         <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
                     </div>
@@ -373,12 +422,17 @@ export default function CreateLocationPage() {
                         icon={<RulerIcon />}
                         label="Altura (Pé direito)*"
                         registration={register('height')}
+                        onChange={(e) =>
+                            handleMaskedChange('height', e, setValue)
+                        }
+                        defaultValue={location?.height || ''}
                         error={errors.height?.message}
+                        inputMode="numeric"
                         disabled={isLoading}
+                        maxLength={6}
                     />
                 </div>
 
-                {/* Seção de acabamentos */}
                 <div className="space-y-6">
                     <div className="w-full relative flex justify-start">
                         <h2 className="text-2xl font-sans bg-background px-2 ml-8">
@@ -387,25 +441,40 @@ export default function CreateLocationPage() {
                         <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
                     </div>
 
-                    {!isExternal && (
-                        <div>
-                            <h3 className="text-xl font-sans mb-2">Piso:</h3>
-                            <CustomCheckboxGroup
-                                name="floorFinishing"
-                                options={floorOptions}
-                                registration={register('floorFinishing')}
-                                error={errors.floorFinishing?.message}
-                                gridCols={'full'}
-                            />
-                        </div>
-                    )}
+                    <div>
+                        <h3 className="text-xl font-sans mb-2">Piso:</h3>
+                        <CustomCheckboxGroup
+                            name="floorFinishing"
+                            options={floorOptions.map((f) => ({
+                                value: f.value,
+                                label: f.label,
+                                isOtherOption: f.value === 'outro',
+                            }))}
+                            selectedValues={watch('floorFinishing') || []}
+                            onChange={(values) => {
+                                const filteredValues = values.filter(Boolean);
+                                setValue('floorFinishing', filteredValues, {
+                                    shouldValidate: true,
+                                });
+                            }}
+                            error={errors.floorFinishing?.message}
+                            gridCols={'full'}
+                            placeholder="Especifique o acabamento do piso"
+                        />
+                    </div>
 
                     <div>
                         <h3 className="text-xl font-sans mb-2">Parede:</h3>
                         <CustomCheckboxGroup
                             name="wallFinishing"
-                            options={wallOptions}
-                            registration={register('wallFinishing')}
+                            options={wallOptions.map((f) => ({
+                                value: f.value,
+                                label: f.label,
+                            }))}
+                            selectedValues={watch('wallFinishing') || []}
+                            onChange={(values) =>
+                                setValue('wallFinishing', values)
+                            }
                             error={errors.wallFinishing?.message}
                             gridCols={'full'}
                         />
@@ -416,8 +485,14 @@ export default function CreateLocationPage() {
                             <h3 className="text-xl font-sans mb-2">Forro:</h3>
                             <CustomCheckboxGroup
                                 name="ceilingFinishing"
-                                options={ceilingOptions}
-                                registration={register('ceilingFinishing')}
+                                options={ceilingOptions.map((f) => ({
+                                    value: f.value,
+                                    label: f.label,
+                                }))}
+                                selectedValues={watch('ceilingFinishing') || []}
+                                onChange={(values) =>
+                                    setValue('ceilingFinishing', values)
+                                }
                                 error={errors.ceilingFinishing?.message}
                                 gridCols={'full'}
                             />
@@ -425,7 +500,6 @@ export default function CreateLocationPage() {
                     )}
                 </div>
 
-                {/* Botão de submit */}
                 <div className="flex justify-center mt-8">
                     <CustomButton
                         icon={<SaveIcon />}
@@ -437,6 +511,13 @@ export default function CreateLocationPage() {
                     </CustomButton>
                 </div>
             </form>
+
+            <AddPhotoModal
+                isOpen={showPhotoOptionsModal}
+                onClose={() => setShowPhotoOptionsModal(false)}
+                onPhotosAdded={handlePhotosAdded}
+                isLoading={isLoading}
+            />
         </div>
     );
 }

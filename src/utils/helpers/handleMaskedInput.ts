@@ -1,12 +1,13 @@
-import { cepMask } from '@/utils/masks/maskCEP';
+import { Path, UseFormSetValue, PathValue, FieldValues } from 'react-hook-form';
+import { decimalMask } from '@/utils/masks/maskDecimal';
+import { numberMask } from '@/utils/masks/maskNumber';
 import { cnpjMask } from '@/utils/masks/maskCNPJ';
-import { CreateAgencyFormValues } from '@/validations';
-import { UseFormSetValue } from 'react-hook-form';
+import { cepMask } from '@/utils/masks/maskCEP';
 
-export function handleMaskedChange(
-    field: keyof CreateAgencyFormValues,
+export function handleMaskedChange<T extends FieldValues>(
+    field: Path<T>,
     e: React.ChangeEvent<HTMLInputElement>,
-    setValue: UseFormSetValue<CreateAgencyFormValues>,
+    setValue: UseFormSetValue<T>,
 ) {
     let value = e.target.value;
 
@@ -14,7 +15,11 @@ export function handleMaskedChange(
         value = cnpjMask(value);
     } else if (field === 'cep') {
         value = cepMask(value);
+    } else if (field === 'number' || field === 'upeCode') {
+        value = numberMask(value);
+    } else if (field === 'height') {
+        value = decimalMask(value);
     }
 
-    setValue(field, value as string, { shouldValidate: true });
+    setValue(field, value as PathValue<T, Path<T>>, { shouldValidate: true });
 }

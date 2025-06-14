@@ -14,3 +14,8 @@ export const locationType = [
         text: 'text-purple-800',
     },
 ] as const;
+
+export const mappedLocationTypeOptions = locationType.map((option) => ({
+    ...option,
+    value: option.value as 'externo' | 'interno',
+}));

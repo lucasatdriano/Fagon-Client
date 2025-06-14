@@ -14,19 +14,22 @@ export interface Location {
         id: string;
         name: string;
     };
-    photos: Array<{
+    photo: Array<{
         id: string;
+        locationId: string;
         filePath: string;
         selectedForPdf: boolean;
+        signedUrl: string;
     }>;
     materialFinishing: Array<{
         id: string;
+        locationId: string;
         surface: SurfaceType;
         materialFinishing: string;
     }>;
 }
 
-interface CreateLocationData {
+export interface CreateLocationData {
     projectId: string;
     name: string;
     locationType: LocationType;
@@ -76,14 +79,18 @@ export const LocationService = {
         }
     },
 
-    async update(
-        id: string,
-        data: Partial<CreateLocationData>,
-    ): Promise<ApiResponse<Location>> {
+    async update(id: string, data: FormData): Promise<ApiResponse<Location>> {
         try {
+            const config = {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            };
+
             const response = await api.patch(
                 API_ROUTES.LOCATIONS.UPDATE({ id }),
                 data,
+                config,
             );
             return response.data;
         } catch (error) {

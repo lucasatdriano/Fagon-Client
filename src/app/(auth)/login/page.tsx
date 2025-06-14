@@ -88,6 +88,7 @@ export default function LoginPage() {
                         icon={<MailIcon />}
                         label="Email*"
                         registration={register('email')}
+                        inputMode="email"
                         error={errors.email?.message}
                     />
 

@@ -58,7 +58,7 @@ export function DeletePdfModal({
                                     <button
                                         type="button"
                                         onClick={onConfirm}
-                                        className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2"
+                                        className="inline-flex justify-center rounded-md border border-transparent bg-error px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-error focus-visible:ring-offset-2"
                                     >
                                         Deletar PDF
                                     </button>

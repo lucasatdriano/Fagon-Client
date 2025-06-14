@@ -34,11 +34,20 @@ export interface Project {
         id: string;
         name: string;
     };
+    pavement: {
+        id: string;
+        pavement: string;
+    };
+}
+
+interface PavementItem {
+    pavement: string;
 }
 
 interface CreateProjectData {
-    projectType: ProjectStatus;
+    projectType: ProjectType;
     upeCode: number;
+    pavements?: PavementItem[];
     agencyId: string;
     engineerId: string;
 }

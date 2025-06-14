@@ -8,6 +8,16 @@ const pwaConfig = withPWA({
 });
 
 const nextConfig: NextConfig = {
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'qzlcjbvacfvkxfwiuodo.supabase.co',
+                port: '',
+                pathname: '/storage/v1/object/sign/**',
+            },
+        ],
+    },
     reactStrictMode: true,
     // experimental: {
     //     turbopack: true,

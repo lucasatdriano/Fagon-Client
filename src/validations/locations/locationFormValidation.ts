@@ -3,8 +3,11 @@ import { z } from 'zod';
 export const locationFormSchema = z
     .object({
         name: z.string().min(1, 'O nome do local é obrigatório'),
+
         locationType: z.enum(['interno', 'externo']),
-        floor: z.string().optional(),
+
+        pavementId: z.string().optional(),
+
         height: z
             .string()
             .min(1, 'A altura é obrigatória')
@@ -12,32 +15,26 @@ export const locationFormSchema = z
                 (val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0,
                 'A altura deve ser um número maior que zero',
             ),
-        floorFinishing: z.array(z.string()).optional(),
+
+        floorFinishing: z
+            .array(z.string())
+            .min(1, 'Selecione pelo menos um acabamento do piso'),
+
         wallFinishing: z
             .array(z.string())
             .min(1, 'Selecione pelo menos um acabamento da parede'),
+
         ceilingFinishing: z.array(z.string()).optional(),
     })
     .superRefine((data, ctx) => {
         const isFacade = data.name.toLowerCase().includes('fachada');
         const isExternal = data.locationType === 'externo';
 
-        if (!isExternal && !data.floor) {
+        if (!isExternal && !data.pavementId) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
                 message: 'O pavimento/andar é obrigatório para locais internos',
-                path: ['floor'],
-            });
-        }
-
-        if (
-            !isExternal &&
-            (!data.floorFinishing || data.floorFinishing.length === 0)
-        ) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: 'Selecione pelo menos um acabamento do piso',
-                path: ['floorFinishing'],
+                path: ['pavementId'],
             });
         }
 

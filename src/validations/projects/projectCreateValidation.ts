@@ -14,6 +14,8 @@ export const createProjectSchema = z.object({
         .min(1, 'Responsável é obrigatório')
         .uuid('ID inválido'),
 
+    pavements: z.array(z.string()).min(1, 'Selecione pelo menos um pavimento'),
+
     upeCode: z
         .string()
         .min(1, 'UPE do projeto é obrigatório')
