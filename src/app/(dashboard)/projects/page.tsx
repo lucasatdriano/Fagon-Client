@@ -12,6 +12,7 @@ import { LoaderCircleIcon, SearchXIcon } from 'lucide-react';
 export default function DashboardProjectsPage() {
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
     const router = useRouter();
 
     useEffect(() => {
@@ -25,16 +26,28 @@ export default function DashboardProjectsPage() {
             return;
         }
 
-        ProjectService.listAll()
-            .then((res) => {
-                setProjects(res.data);
-            })
-            .catch((err) => {
-                toast.error('Erro ao carregar projetos');
-                console.error(err);
-            })
-            .finally(() => setLoading(false));
-    }, [router]);
+        if (searchQuery.trim() === '') {
+            ProjectService.listAll()
+                .then((res) => {
+                    setProjects(res.data);
+                })
+                .catch((err) => {
+                    toast.error('Erro ao carregar projetos');
+                    console.error(err);
+                })
+                .finally(() => setLoading(false));
+        } else {
+            ProjectService.listAll({ upeCode: searchQuery })
+                .then((res) => {
+                    setProjects(res.data);
+                })
+                .catch((err) => {
+                    toast.error('Erro ao buscar projetos');
+                    console.error(err);
+                })
+                .finally(() => setLoading(false));
+        }
+    }, [router, searchQuery]);
 
     return (
         <div className="h-svh flex flex-col items-center pt-20 px-6">

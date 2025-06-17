@@ -11,9 +11,16 @@ import { AgencyService } from '@/services/domains/agencyService';
 import { LoaderCircleIcon, SearchXIcon } from 'lucide-react';
 
 export default function DashboardAgenciesPage() {
+    const router = useRouter();
     const [agencies, setAgencies] = useState<agencyProps[]>([]);
     const [loading, setLoading] = useState(true);
-    const router = useRouter();
+    const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedQuery, setDebouncedQuery] = useState('');
+
+    useEffect(() => {
+        const timer = setTimeout(() => setDebouncedQuery(searchQuery), 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
     useEffect(() => {
         const token = document.cookie
@@ -26,16 +33,28 @@ export default function DashboardAgenciesPage() {
             return;
         }
 
-        AgencyService.listAll()
-            .then((res) => {
-                setAgencies(res.data);
-            })
-            .catch((err) => {
-                toast.error('Erro ao carregar agências');
-                console.error(err);
-            })
-            .finally(() => setLoading(false));
-    }, [router]);
+        if (searchQuery.trim() === '') {
+            AgencyService.listAll()
+                .then((res) => {
+                    setAgencies(res.data);
+                })
+                .catch((err) => {
+                    toast.error('Erro ao carregar agências');
+                    console.error(err);
+                })
+                .finally(() => setLoading(false));
+        } else {
+            AgencyService.search({ name: searchQuery })
+                .then((res) => {
+                    setAgencies(res.data);
+                })
+                .catch((err) => {
+                    toast.error('Erro ao buscar agências');
+                    console.error(err);
+                })
+                .finally(() => setLoading(false));
+        }
+    }, [router, searchQuery]);
 
     return (
         <div className="h-svh flex flex-col items-center pt-20 px-6">

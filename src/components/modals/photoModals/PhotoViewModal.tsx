@@ -1,14 +1,14 @@
 'use client';
 
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { Loader2Icon, XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { PhotoService } from '@/services/domains/photoService';
 
 interface PhotoViewModalProps {
-    photoId: string;
-    file: File;
+    photoId?: string;
+    file?: File;
     isOpen: boolean;
     onClose: () => void;
 }
@@ -21,60 +21,45 @@ export function PhotoViewModal({
 }: PhotoViewModalProps) {
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const imageUrlRef = useRef<string | null>(null);
 
     useEffect(() => {
         if (!isOpen) return;
 
-        // let objectUrl: string | null = null;
-
-        // const loadPhoto = async () => {
-        setIsLoading(true);
-
-        //     try {
-        //         if (file instanceof File) {
-        //             objectUrl = URL.createObjectURL(file);
-        //             setImageUrl(objectUrl);
-        //             return;
-        //         }
-
-        //         const timestamp = Date.now();
-        //         const signedUrl = await PhotoService.getSignedUrl(photoId);
-        //         const urlWithTimestamp = signedUrl.includes('?')
-        //             ? `${signedUrl}&t=${timestamp}`
-        //             : `${signedUrl}?t=${timestamp}`;
-
-        //         setImageUrl(urlWithTimestamp);
-        //     } catch (error) {
-        //         console.error('Failed to load photo:', error);
-        //         setImageUrl(null);
-        //     } finally {
-        //         setIsLoading(false);
-        //     }
-        // };
-
-        // loadPhoto();
-        if (file instanceof File) {
-            const url = URL.createObjectURL(file);
-            setImageUrl(url);
-
-            return () => {
-                URL.revokeObjectURL(url);
-            };
-        }
-
-        if (photoId) {
-            const loadPhoto = async () => {
-                setIsLoading(true);
-                try {
-                    const signedUrl = await PhotoService.getSignedUrl(photoId);
-                    setImageUrl(signedUrl);
-                } catch (error) {
-                    console.error('Failed to load photo:', error);
-                    setImageUrl(null);
+        const loadPhoto = async () => {
+            setIsLoading(true);
+            try {
+                if (file instanceof File) {
+                    const url = URL.createObjectURL(file);
+                    setImageUrl(url);
+                    imageUrlRef.current = url;
+                    return;
                 }
-            };
-            loadPhoto();
-        }
+
+                const timestamp = Date.now();
+                const signedUrl = await PhotoService.getSignedUrl(
+                    photoId || '',
+                );
+                const urlWithTimestamp = signedUrl.includes('?')
+                    ? `${signedUrl}&t=${timestamp}`
+                    : `${signedUrl}?t=${timestamp}`;
+
+                setImageUrl(urlWithTimestamp);
+            } catch (error) {
+                console.error('Failed to load photo:', error);
+                setImageUrl(null);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadPhoto();
+
+        return () => {
+            if (file instanceof File && imageUrlRef.current) {
+                URL.revokeObjectURL(imageUrlRef.current);
+            }
+        };
     }, [isOpen, photoId, file]);
 
     return (

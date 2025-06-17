@@ -147,6 +147,7 @@ export function PhotoCard({
                 isOpen={showViewModal}
                 onClose={() => setShowViewModal(false)}
                 photoId={photo.id || ''}
+                file={photo.file || undefined}
             />
         </>
     );

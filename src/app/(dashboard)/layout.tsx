@@ -9,12 +9,21 @@ interface DashboardLayoutProps {
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
+    const handleSearchChange = debounce((value: string) => {
+        setSearchValue(value);
+    }, 500);
+
     return (
         <div className="min-h-screen w-full flex flex-col md:flex-row overflow-x-hidden">
             <SidebarNav />
 
             <div className="flex-1 md:ml-32 md:w-[calc(100%-8rem)]">
-                <Header type="search" hasSidebar={true} />
+                <Header
+                    type="search"
+                    hasSidebar={true}
+                    searchValue={searchValue}
+                    onSearchChange={handleSearchChange}
+                />{' '}
                 {children}
             </div>
 
