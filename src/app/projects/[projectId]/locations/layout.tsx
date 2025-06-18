@@ -32,7 +32,6 @@ export default function CreationLayout({
                     setCanShowBack(false);
                 }
             } catch (error) {
-                // Se falhar, mantém o botão como padrão (mostrando)
                 console.error('Erro ao buscar location:', error);
             }
         };

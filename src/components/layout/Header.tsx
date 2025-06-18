@@ -24,6 +24,19 @@ export function Header({
     searchValue = '',
     onSearchChange,
 }: HeaderProps) {
+    console.log('[Header] Component rendered with props:', {
+        type,
+        searchValue,
+        hasOnChange: !!onSearchChange,
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        console.log('[Header] Input changed:', e.target.value);
+        if (onSearchChange) {
+            onSearchChange(e.target.value);
+        }
+    };
+
     return (
         <header
             className={`fixed z-40 top-0 w-full ${
@@ -69,7 +82,7 @@ export function Header({
                         icon={<SearchIcon />}
                         label="Pesquisar..."
                         value={searchValue}
-                        onChange={(e) => onSearchChange?.(e.target.value)}
+                        onChange={handleChange}
                         borderColor="border-foreground"
                     />
                 </div>

@@ -52,6 +52,17 @@ interface CreateProjectData {
     engineerId: string;
 }
 
+interface SearchProjectsParams {
+    status?: ProjectStatus;
+    projectType?: ProjectType;
+    upeCode?: string;
+    inspectorName?: string;
+    agencyNumber?: number;
+    state?: string;
+    city?: string;
+    engineerName?: string;
+}
+
 interface ListProjectsParams {
     status?: ProjectStatus;
     projectType?: ProjectType;
@@ -77,6 +88,26 @@ export const ProjectService = {
         try {
             const response = await api.get(API_ROUTES.PROJECTS.BASE, {
                 params,
+            });
+            return response.data;
+        } catch (error) {
+            throw new Error(extractAxiosError(error));
+        }
+    },
+
+    async search(
+        params: SearchProjectsParams,
+    ): Promise<ApiResponse<Project[]>> {
+        try {
+            const cleanedParams = Object.fromEntries(
+                Object.entries(params).filter(
+                    ([value]) =>
+                        value !== undefined && value !== null && value !== '',
+                ),
+            );
+
+            const response = await api.get(API_ROUTES.PROJECTS.SEARCH, {
+                params: cleanedParams,
             });
             return response.data;
         } catch (error) {

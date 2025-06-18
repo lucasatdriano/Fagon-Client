@@ -2,10 +2,12 @@
 
 import { ReactNode, useState, useEffect } from 'react';
 import { CopyIcon, KeyIcon, CheckIcon, ShieldPlusIcon } from 'lucide-react';
-import { CustomFormInput } from '../forms/CustomFormInput';
 import { CustomRadioGroup } from '../forms/CustomRadioGroup';
 import { DropdownMenu } from './DropdownMenu';
-import { toast } from 'react-toastify';
+import { toast } from 'sonner';
+import { AuthService } from '@/services/domains/authService';
+import { cameraType } from '@/constants';
+import { CustomReadOnlyFormInput } from '../forms/CustomReadOnlyFormInput';
 
 interface AdminDropdownMenuProps {
     trigger: ReactNode;
@@ -21,9 +23,10 @@ export function AdminDropdownMenu({
     const [expiresAt, setExpiresAt] = useState<Date | null>(null);
     const [copied, setCopied] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
-    const setDropdownOpen = () => {};
 
     useEffect(() => {
+        if (!projectId) return;
+
         const savedKey = localStorage.getItem(`accessKey_${projectId}`);
         if (savedKey) {
             const { key, expiresAt } = JSON.parse(savedKey);
@@ -36,49 +39,43 @@ export function AdminDropdownMenu({
         }
     }, [projectId]);
 
-    const generateRandomKey = () => {
-        const parts = [
-            Math.floor(Math.random() * 10000)
-                .toString()
-                .padStart(4, '0'),
-            Math.floor(Math.random() * 1000000)
-                .toString()
-                .padStart(6, '0'),
-            Math.floor(Math.random() * 100000000)
-                .toString()
-                .padStart(8, '0'),
-        ];
-        return parts.join('-');
-    };
-
     const handleCopyLink = () => {
-        navigator.clipboard.writeText('fagon.com/accessKey');
-        toast.success('Link copiado!');
+        navigator.clipboard.writeText(`http://localhost:8080/accessKey`);
+        toast.success('Link copiado com sucesso!');
     };
 
     const handleGenerateAccessKey = async () => {
-        if (!cameraOption) return;
+        if (!cameraOption || !projectId) return;
 
         setIsGenerating(true);
-        try {
-            await new Promise((resolve) => setTimeout(resolve, 800));
+        const toastId = toast.loading('Gerando chave...');
 
-            const newKey = generateRandomKey();
-            const expirationDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
+        try {
+            const response = await AuthService.generateAccessKey({
+                projectId,
+                cameraType:
+                    cameraOption === 'camera_360' ? 'camera_360' : 'normal',
+            });
+
+            // Garanta que está extraindo corretamente:
+            const { token, expiresAt: expiryDate } = response.data;
+
+            // Atualize desta forma:
+            const newExpiresAt = new Date(expiryDate);
+            setAccessKey(token);
+            setExpiresAt(newExpiresAt);
 
             localStorage.setItem(
                 `accessKey_${projectId}`,
                 JSON.stringify({
-                    key: newKey,
-                    expiresAt: expirationDate.toISOString(),
+                    key: token,
+                    expiresAt: newExpiresAt.toISOString(),
                 }),
             );
 
-            setAccessKey(newKey);
-            setExpiresAt(expirationDate);
-            toast.success('Chave gerada com sucesso!');
-        } catch {
-            toast.error('Erro ao gerar chave');
+            toast.success('Chave gerada!', { id: toastId });
+        } catch (error) {
+            console.error('[ERROR] Falha na geração:', error);
         } finally {
             setIsGenerating(false);
         }
@@ -89,16 +86,23 @@ export function AdminDropdownMenu({
         navigator.clipboard.writeText(accessKey);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-        toast.success('Chave copiada!');
+        toast.success('Chave copiada para a área de transferência!');
     };
 
     const getRemainingTime = () => {
         if (!expiresAt) return '';
-        const diff = expiresAt.getTime() - Date.now();
-        if (diff <= 0) return 'Expirada';
+
+        const now = new Date();
+        const diff = expiresAt.getTime() - now.getTime();
+
+        if (diff <= 0) {
+            localStorage.removeItem(`accessKey_${projectId}`);
+            return 'Expirada';
+        }
 
         const hours = Math.floor(diff / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
         return `(Expira em ${hours}h ${minutes}m)`;
     };
 
@@ -117,18 +121,7 @@ export function AdminDropdownMenu({
                       customContent: (
                           <div className="px-2 py-1">
                               <CustomRadioGroup
-                                  options={[
-                                      {
-                                          id: 'no-camera',
-                                          value: 'no-camera',
-                                          label: 'Sem câmera 360°',
-                                      },
-                                      {
-                                          id: 'has-camera',
-                                          value: 'has-camera',
-                                          label: 'Com câmera 360°',
-                                      },
-                                  ]}
+                                  options={cameraType}
                                   selectedValue={cameraOption}
                                   onChange={setCameraOption}
                                   name="camera-options"
@@ -152,9 +145,8 @@ export function AdminDropdownMenu({
                               Chave de Acesso {getRemainingTime()}
                           </div>
                           <div className="flex items-center gap-2">
-                              <CustomFormInput
+                              <CustomReadOnlyFormInput
                                   value={accessKey}
-                                  readOnly
                                   icon={<KeyIcon className="w-5 h-5" />}
                                   label="Chave"
                                   className="flex-1"
@@ -186,10 +178,6 @@ export function AdminDropdownMenu({
     ];
 
     return (
-        <DropdownMenu
-            trigger={trigger}
-            items={items}
-            onOpenChange={setDropdownOpen}
-        />
+        <DropdownMenu trigger={trigger} items={items} onOpenChange={() => {}} />
     );
 }

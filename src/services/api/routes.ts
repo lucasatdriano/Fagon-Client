@@ -50,6 +50,7 @@ const API_ROUTES = {
 
     PROJECTS: {
         BASE: '/projects',
+        SEARCH: '/projects/search',
         CREATE: '/projects',
         BY_ID: ({ id }: Params) => `/projects/${id}`,
         UPDATE: ({ id }: Params) => `/projects/${id}`,

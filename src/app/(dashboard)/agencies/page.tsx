@@ -3,26 +3,26 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { LoaderCircleIcon, SearchXIcon } from 'lucide-react';
 
 import AgencyCard from '@/components/cards/AgencyCard';
 import FabButton from '@/components/layout/FabButton';
-import { agencyProps } from '@/interfaces/agency';
 import { AgencyService } from '@/services/domains/agencyService';
-import { LoaderCircleIcon, SearchXIcon } from 'lucide-react';
+import { useSearch } from '@/contexts/SearchContext';
+import { agencyProps } from '@/interfaces/agency';
 
 export default function DashboardAgenciesPage() {
-    const router = useRouter();
+    const { searchValue } = useSearch();
     const [agencies, setAgencies] = useState<agencyProps[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [debouncedQuery, setDebouncedQuery] = useState('');
+    const router = useRouter();
 
     useEffect(() => {
-        const timer = setTimeout(() => setDebouncedQuery(searchQuery), 500);
-        return () => clearTimeout(timer);
-    }, [searchQuery]);
+        console.log(
+            '[DashboardAgenciesPage] Search value changed:',
+            searchValue,
+        );
 
-    useEffect(() => {
         const token = document.cookie
             .split('; ')
             .find((row) => row.startsWith('token='))
@@ -33,18 +33,39 @@ export default function DashboardAgenciesPage() {
             return;
         }
 
-        if (searchQuery.trim() === '') {
+        setLoading(true);
+
+        if (searchValue.trim() === '') {
             AgencyService.listAll()
                 .then((res) => {
                     setAgencies(res.data);
                 })
                 .catch((err) => {
-                    toast.error('Erro ao carregar agências');
                     console.error(err);
                 })
                 .finally(() => setLoading(false));
         } else {
-            AgencyService.search({ name: searchQuery })
+            const searchParams = {
+                name: searchValue,
+                agencyNumber: !isNaN(Number(searchValue))
+                    ? Number(searchValue)
+                    : undefined,
+                state:
+                    searchValue.length === 2
+                        ? searchValue.toUpperCase()
+                        : undefined,
+                city: searchValue,
+                district: searchValue,
+                cnpj: searchValue.replace(/\D/g, ''),
+            };
+
+            const cleanedParams = Object.fromEntries(
+                Object.entries(searchParams).filter(
+                    ([_, value]) => value !== undefined,
+                ),
+            );
+
+            AgencyService.search(cleanedParams)
                 .then((res) => {
                     setAgencies(res.data);
                 })
@@ -54,7 +75,7 @@ export default function DashboardAgenciesPage() {
                 })
                 .finally(() => setLoading(false));
         }
-    }, [router, searchQuery]);
+    }, [router, searchValue]);
 
     return (
         <div className="h-svh flex flex-col items-center pt-20 px-6">
@@ -69,12 +90,16 @@ export default function DashboardAgenciesPage() {
                 {loading ? (
                     <p className="flex gap-2 text-foreground mt-10">
                         <LoaderCircleIcon className="animate-spin" />
-                        Carregando agências...
+                        {searchValue
+                            ? 'Buscando agências...'
+                            : 'Carregando agências...'}
                     </p>
                 ) : agencies.length === 0 ? (
                     <p className="flex gap-2 text-foreground mt-10">
                         <SearchXIcon />
-                        Nenhuma agência cadastrada.
+                        {searchValue
+                            ? 'Nenhuma agência encontrada para esta busca.'
+                            : 'Nenhuma agência cadastrada.'}
                     </p>
                 ) : (
                     agencies.map((agency) => (

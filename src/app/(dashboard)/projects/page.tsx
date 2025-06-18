@@ -3,19 +3,25 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { LoaderCircleIcon, SearchXIcon } from 'lucide-react';
 
 import ProjectCard from '@/components/cards/ProjectCard';
 import FabButton from '@/components/layout/FabButton';
 import { Project, ProjectService } from '@/services/domains/projectService';
-import { LoaderCircleIcon, SearchXIcon } from 'lucide-react';
+import { useSearch } from '@/contexts/SearchContext';
 
 export default function DashboardProjectsPage() {
+    const { searchValue } = useSearch();
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
-    const [searchQuery, setSearchQuery] = useState('');
     const router = useRouter();
 
     useEffect(() => {
+        console.log(
+            '[DashboardProjectsPage] Search value changed:',
+            searchValue,
+        );
+
         const token = document.cookie
             .split('; ')
             .find((row) => row.startsWith('token='))
@@ -26,7 +32,9 @@ export default function DashboardProjectsPage() {
             return;
         }
 
-        if (searchQuery.trim() === '') {
+        setLoading(true);
+
+        if (searchValue.trim() === '') {
             ProjectService.listAll()
                 .then((res) => {
                     setProjects(res.data);
@@ -37,7 +45,29 @@ export default function DashboardProjectsPage() {
                 })
                 .finally(() => setLoading(false));
         } else {
-            ProjectService.listAll({ upeCode: searchQuery })
+            const searchParams = {
+                upeCode: !isNaN(Number(searchValue))
+                    ? Number(searchValue)
+                    : undefined,
+                inspectorName: searchValue,
+                city: searchValue,
+                engineerName: searchValue,
+                agencyNumber: !isNaN(Number(searchValue))
+                    ? Number(searchValue)
+                    : undefined,
+                state:
+                    searchValue.length === 2
+                        ? searchValue.toUpperCase()
+                        : undefined,
+            };
+
+            const cleanedParams = Object.fromEntries(
+                Object.entries(searchParams).filter(
+                    ([_, value]) => value !== undefined,
+                ),
+            );
+
+            ProjectService.search(cleanedParams)
                 .then((res) => {
                     setProjects(res.data);
                 })
@@ -47,7 +77,7 @@ export default function DashboardProjectsPage() {
                 })
                 .finally(() => setLoading(false));
         }
-    }, [router, searchQuery]);
+    }, [router, searchValue]);
 
     return (
         <div className="h-svh flex flex-col items-center pt-20 px-6">
@@ -62,12 +92,16 @@ export default function DashboardProjectsPage() {
                 {loading ? (
                     <p className="flex gap-2 text-foreground mt-10">
                         <LoaderCircleIcon className="animate-spin" />
-                        Carregando projetos...
+                        {searchValue
+                            ? 'Buscando projetos...'
+                            : 'Carregando projetos...'}
                     </p>
                 ) : projects.length === 0 ? (
                     <p className="flex gap-2 text-foreground mt-10">
                         <SearchXIcon />
-                        Nenhum projeto encontrado.
+                        {searchValue
+                            ? 'Nenhum projeto encontrado para esta busca.'
+                            : 'Nenhum projeto encontrado.'}
                     </p>
                 ) : (
                     projects.map((project: Project) => (

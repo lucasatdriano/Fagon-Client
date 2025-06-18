@@ -1,4 +1,4 @@
 export const cameraType = [
-    { value: 'normal', label: 'Normal' },
-    { value: 'camera_360', label: 'Câmera 360°' },
+    { id: 'normal', value: 'normal', label: 'Normal' },
+    { id: 'camera_360', value: 'camera_360', label: 'Câmera 360°' },
 ];

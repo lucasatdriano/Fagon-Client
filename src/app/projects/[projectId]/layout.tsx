@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { MoreVerticalIcon } from 'lucide-react';
 import { AdminDropdownMenu } from '@/components/dropdownMenus/AdminDropdownMenu';
 import { Header } from '@/components/layout/Header';
@@ -11,6 +11,8 @@ export default function ProjectLayout({
     children: React.ReactNode;
 }) {
     const router = useRouter();
+    const { projectId } = useParams();
+    const id = projectId as string;
 
     const handleBack = () => {
         router.back();
@@ -31,7 +33,7 @@ export default function ProjectLayout({
                                 <MoreVerticalIcon className="w-6 h-6" />
                             </button>
                         }
-                        projectId={'123'}
+                        projectId={id}
                     />
                 }
             />
