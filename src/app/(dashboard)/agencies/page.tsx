@@ -18,11 +18,6 @@ export default function DashboardAgenciesPage() {
     const router = useRouter();
 
     useEffect(() => {
-        console.log(
-            '[DashboardAgenciesPage] Search value changed:',
-            searchValue,
-        );
-
         const token = document.cookie
             .split('; ')
             .find((row) => row.startsWith('token='))

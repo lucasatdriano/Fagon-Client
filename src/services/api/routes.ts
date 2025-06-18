@@ -11,6 +11,7 @@ const API_ROUTES = {
     METRICS: '/metrics',
 
     AUTH: {
+        ME: '/aurh/me',
         LOGIN: '/auth/login',
         REGISTER: '/auth/register',
         ACCESS_KEYS: '/auth/access-keys',

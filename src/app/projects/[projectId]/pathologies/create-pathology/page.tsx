@@ -23,7 +23,7 @@ import {
     PathologyService,
 } from '@/services/domains/pathologyService';
 import { PathologyPhotosService } from '@/services/domains/pathologyPhotoService';
-import { createPathologySchema } from '@/validations';
+import { createPathologySchema } from '@/validations/pathologies/pathologyCreateValidation';
 
 interface FormData {
     referenceLocation: string;

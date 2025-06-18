@@ -17,11 +17,6 @@ export default function DashboardProjectsPage() {
     const router = useRouter();
 
     useEffect(() => {
-        console.log(
-            '[DashboardProjectsPage] Search value changed:',
-            searchValue,
-        );
-
         const token = document.cookie
             .split('; ')
             .find((row) => row.startsWith('token='))

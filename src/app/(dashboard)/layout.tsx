@@ -13,7 +13,6 @@ export default function DashboardLayout({
     const [searchValue, setSearchValue] = useState('');
 
     const handleSearchChange = (value: string) => {
-        console.log('Search value updated:', value);
         setSearchValue(value);
     };
 

@@ -52,6 +52,13 @@ interface CreateProjectData {
     engineerId: string;
 }
 
+type UpdateProjectData = Partial<CreateProjectData> & {
+    status?: ProjectStatus;
+    structureType?: string;
+    inspectorName?: string;
+    inspectionDate?: string;
+};
+
 interface SearchProjectsParams {
     status?: ProjectStatus;
     projectType?: ProjectType;
@@ -124,10 +131,7 @@ export const ProjectService = {
         }
     },
 
-    async update(
-        id: string,
-        data: Partial<CreateProjectData>,
-    ): Promise<Project> {
+    async update(id: string, data: UpdateProjectData): Promise<Project> {
         try {
             const response = await api.patch(
                 API_ROUTES.PROJECTS.UPDATE({ id }),

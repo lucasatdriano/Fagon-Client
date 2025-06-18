@@ -24,14 +24,7 @@ export function Header({
     searchValue = '',
     onSearchChange,
 }: HeaderProps) {
-    console.log('[Header] Component rendered with props:', {
-        type,
-        searchValue,
-        hasOnChange: !!onSearchChange,
-    });
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log('[Header] Input changed:', e.target.value);
         if (onSearchChange) {
             onSearchChange(e.target.value);
         }
@@ -55,13 +48,14 @@ export function Header({
             )}
 
             {type !== 'search' && (
-                <div className="flex items-center self-center">
+                <div className="flex w-full justify-center items-center self-center">
                     <Image
                         src="/images/logo-horizontal.svg"
                         alt="Logo Fagon"
                         width={150}
                         height={150}
                         priority
+                        className="items-center"
                     />
                 </div>
             )}

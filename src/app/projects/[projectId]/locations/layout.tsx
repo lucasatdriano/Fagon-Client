@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useUserRole } from '@/hooks/useUserRole';
 import { LocationService } from '@/services/domains/locationService';
+import { parseCookies } from 'nookies';
 
 export default function CreationLayout({
     children,
@@ -14,10 +15,19 @@ export default function CreationLayout({
     const router = useRouter();
     const params = useParams();
     const { isVisitor } = useUserRole();
-
     const [canShowBack, setCanShowBack] = useState(true);
+    const [headerType, setHeaderType] = useState<'back' | 'default'>('back');
 
     useEffect(() => {
+        const cookies = parseCookies();
+        const userRole = cookies.role;
+
+        if (userRole === 'vistoriador') {
+            setHeaderType('default');
+            return;
+        }
+
+        // Se não for vistoriador, mantém a lógica original
         const checkIfCanShowBack = async () => {
             if (!isVisitor) return;
 
@@ -45,7 +55,14 @@ export default function CreationLayout({
 
     return (
         <div className="w-full">
-            <Header type="back" onBack={canShowBack ? handleBack : undefined} />
+            <Header
+                type={headerType}
+                onBack={
+                    headerType === 'back' && canShowBack
+                        ? handleBack
+                        : undefined
+                }
+            />
             {children}
         </div>
     );

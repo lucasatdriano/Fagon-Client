@@ -20,7 +20,6 @@ export default function PDFGeneratorWrapper({ projectId }: Props) {
                 deleting: false,
             }))}
             onGenerate={async (type) => {
-                // Simula geração com caminho fixo
                 await new Promise((res) => setTimeout(res, 1000)); // simula delay
                 toast.success(`PDF "${type}" gerado com sucesso!`);
                 return { path: `mock/path/${type}.pdf` };

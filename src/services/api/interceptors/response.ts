@@ -6,7 +6,7 @@ export const setupResponseInterceptor = (api: AxiosInstance) => {
             console.group(
                 `[Axios] Resposta de sucesso: ${response.status} ${response.config.url}`,
             );
-            console.log('Response:', {
+            console.info('Response:', {
                 status: response.status,
                 statusText: response.statusText,
                 data: response.data,

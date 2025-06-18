@@ -7,6 +7,17 @@ interface LoginData {
     accessKeyToken?: string;
 }
 
+export interface LoginResponse {
+    access_token: string;
+    projectId: string;
+    user: {
+        id: string;
+        name: string;
+        role: string;
+        cameraType?: string;
+    };
+}
+
 interface RegisterData {
     name: string;
     email: string;
@@ -18,7 +29,25 @@ interface AccessKeyData {
     cameraType: string;
 }
 
+export interface UserData {
+    id: string;
+    name: string;
+    email?: string;
+    role: string;
+    cameraType?: string;
+    status: boolean;
+}
+
 export const AuthService = {
+    async getMe(): Promise<UserData> {
+        try {
+            const response = await api.post(API_ROUTES.AUTH.ME);
+            return response.data;
+        } catch (error) {
+            throw new Error(extractAxiosError(error));
+        }
+    },
+
     async login(loginData: LoginData) {
         try {
             const response = await api.post(API_ROUTES.AUTH.LOGIN, loginData);

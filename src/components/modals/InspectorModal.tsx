@@ -9,71 +9,82 @@ import { InspectorFormData, inspectorSchema } from '@/validations';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CustomButton } from '../forms/CustomButton';
-import { parseCookies } from 'nookies';
-import { ProjectProps } from '@/interfaces/project';
+import { Project, ProjectService } from '@/services/domains/projectService';
 
-type Props = {
+type InspectorModalProps = {
     isOpen: boolean;
     setIsOpen: (open: boolean) => void;
+    projectId: string;
 };
 
-export default function InspectorModal({ isOpen, setIsOpen }: Props) {
+export default function InspectorModal({
+    isOpen,
+    setIsOpen,
+    projectId,
+}: InspectorModalProps) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    const [project, setProject] = useState<ProjectProps>();
+    const [project, setProject] = useState<Project | null>(null);
+    const [fetchError, setFetchError] = useState<string | null>(null);
 
     const {
         register,
         handleSubmit,
         formState: { errors },
         setError,
+        reset,
     } = useForm<InspectorFormData>({
         resolver: zodResolver(inspectorSchema),
         mode: 'onBlur',
     });
 
     useEffect(() => {
-        if (isOpen) {
-            const { token } = parseCookies();
-            fetch('/api/project-from-token', {
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-                .then((res) => res.json())
-                .then((data) => setProject(data))
-                .catch((err) => console.error('Erro ao buscar projeto:', err));
+        if (isOpen && projectId) {
+            const fetchProject = async () => {
+                try {
+                    setLoading(true);
+                    const response = await ProjectService.getById(projectId);
+                    setProject(response.data);
+                    setFetchError(null);
+
+                    if (response.data.inspectorName) {
+                        reset({ nameInspector: response.data.inspectorName });
+                    }
+                } catch (err) {
+                    console.error('Erro ao carregar projeto:', err);
+                    setFetchError('Falha ao carregar projeto');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            fetchProject();
         }
-    }, [isOpen]);
+    }, [isOpen, projectId, reset]);
 
     const onSubmit = async (data: InspectorFormData) => {
         setLoading(true);
 
         try {
-            const response = await fetch('/api/auth/access-key', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nameInspector: data.nameInspector }),
-            });
+            const inspectionDate = new Date().toISOString();
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(
-                    errorData.message || 'Chave de acesso inválida',
-                );
-            }
+            const updateData = {
+                inspectorName: data.nameInspector,
+                inspectionDate: inspectionDate,
+                status: 'vistoria_em_progresso',
+            };
 
-            document.cookie = `token=${(await response.json()).token}; path=/;`;
+            await ProjectService.update(projectId, updateData);
+
             setIsOpen(false);
-            router.push('/projects');
+            router.push(`/projects/${projectId}/locations`);
         } catch (error: unknown) {
             setError('root', {
                 type: 'manual',
                 message:
                     error instanceof Error
                         ? error.message
-                        : 'Erro desconhecido',
+                        : 'Erro ao salvar informações do vistoriador',
             });
         } finally {
             setLoading(false);
@@ -85,7 +96,7 @@ export default function InspectorModal({ isOpen, setIsOpen }: Props) {
             <Dialog
                 as="div"
                 className="relative z-10"
-                onClose={() => {}}
+                onClose={() => null}
                 static
             >
                 <Transition.Child
@@ -117,27 +128,35 @@ export default function InspectorModal({ isOpen, setIsOpen }: Props) {
                                     className="text-xl font-medium text-center text-gray-900"
                                 >
                                     {project
-                                        ? `Projeto: ${project.upeCode}`
-                                        : 'Carregando projeto...'}
+                                        ? `Projeto ${project.agency.city} -
+                                              ${project.agency.district}`
+                                        : fetchError || 'Carregando projeto...'}
                                 </Dialog.Title>
 
                                 <form
                                     onSubmit={handleSubmit(onSubmit)}
                                     className="mt-6 space-y-4 text-start"
                                 >
-                                    <label className="block text-sm ml-6 font-medium text-gray-700">
-                                        Nome do Vistoriador:
-                                    </label>
                                     <CustomFormInput
                                         icon={<User2Icon />}
                                         label="Nome do Vistoriador*"
                                         registration={register('nameInspector')}
                                         error={errors.nameInspector?.message}
                                         required
+                                        disabled={loading || !project}
                                     />
 
+                                    {errors.root?.message && (
+                                        <p className="text-red-500 text-sm text-center">
+                                            {errors.root.message}
+                                        </p>
+                                    )}
+
                                     <div className="flex justify-center space-x-3 pt-4">
-                                        <CustomButton type="submit">
+                                        <CustomButton
+                                            type="submit"
+                                            disabled={loading || !project}
+                                        >
                                             {loading
                                                 ? 'Salvando...'
                                                 : 'Salvar Informações'}

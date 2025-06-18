@@ -2,6 +2,12 @@ export const projectStatus = [
     {
         value: 'aguardando_vistoria',
         label: 'Aguardando Vistoria',
+        bg: 'bg-orange-100',
+        text: 'text-orange-800',
+    },
+    {
+        value: 'vistoria_em_progresso',
+        label: 'Vistoria em Progresso',
         bg: 'bg-blue-100',
         text: 'text-blue-800',
     },

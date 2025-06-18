@@ -18,7 +18,7 @@ export const setupRequestInterceptor = (api: AxiosInstance) => {
                     config.url
                 }`,
             );
-            console.log('Config:', {
+            console.info('Config:', {
                 method: config.method,
                 url: config.url,
                 headers: config.headers,
