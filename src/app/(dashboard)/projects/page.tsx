@@ -9,6 +9,7 @@ import ProjectCard from '@/components/cards/ProjectCard';
 import FabButton from '@/components/layout/FabButton';
 import { Project, ProjectService } from '@/services/domains/projectService';
 import { useSearch } from '@/contexts/SearchContext';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function DashboardProjectsPage() {
     const { searchValue } = useSearch();
@@ -16,17 +17,9 @@ export default function DashboardProjectsPage() {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
+    useAuth();
+
     useEffect(() => {
-        const token = document.cookie
-            .split('; ')
-            .find((row) => row.startsWith('token='))
-            ?.split('=')[1];
-
-        if (!token) {
-            router.push('/login');
-            return;
-        }
-
         setLoading(true);
 
         if (searchValue.trim() === '') {
@@ -58,7 +51,7 @@ export default function DashboardProjectsPage() {
 
             const cleanedParams = Object.fromEntries(
                 Object.entries(searchParams).filter(
-                    ([_, value]) => value !== undefined,
+                    ([, value]) => value !== undefined,
                 ),
             );
 

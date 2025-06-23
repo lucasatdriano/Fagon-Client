@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -14,18 +14,6 @@ import { AuthService } from '@/services/domains/authService';
 export default function RegisterPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        const token = document.cookie
-            .split('; ')
-            .find((row) => row.startsWith('token='))
-            ?.split('=')[1];
-
-        if (token) {
-            router.push('/projects');
-            return;
-        }
-    });
 
     const {
         register,

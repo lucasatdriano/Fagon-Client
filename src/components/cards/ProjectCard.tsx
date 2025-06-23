@@ -4,6 +4,7 @@ import { ProjectProps } from '@/interfaces/project';
 import Link from 'next/link';
 import { getProjectTypeLabel } from '@/constants';
 import { formatNumberAgency } from '@/utils/formatters/formatNumberAgency';
+import { formatDate } from '@/utils/formatters/formatDate';
 
 export default function ProjectCard({
     id,
@@ -45,7 +46,8 @@ export default function ProjectCard({
 
                 {inspectorName && inspectionDate && (
                     <p className="text-foreground mt-2">
-                        Vistoriador(a): {inspectorName} - {inspectionDate}
+                        Vistoriador(a): {inspectorName} -{' '}
+                        {formatDate(inspectionDate)}
                     </p>
                 )}
             </div>

@@ -10,6 +10,7 @@ import FabButton from '@/components/layout/FabButton';
 import { AgencyService } from '@/services/domains/agencyService';
 import { useSearch } from '@/contexts/SearchContext';
 import { agencyProps } from '@/interfaces/agency';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function DashboardAgenciesPage() {
     const { searchValue } = useSearch();
@@ -17,17 +18,9 @@ export default function DashboardAgenciesPage() {
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
+    useAuth();
+
     useEffect(() => {
-        const token = document.cookie
-            .split('; ')
-            .find((row) => row.startsWith('token='))
-            ?.split('=')[1];
-
-        if (!token) {
-            router.push('/login');
-            return;
-        }
-
         setLoading(true);
 
         if (searchValue.trim() === '') {
@@ -56,7 +49,7 @@ export default function DashboardAgenciesPage() {
 
             const cleanedParams = Object.fromEntries(
                 Object.entries(searchParams).filter(
-                    ([_, value]) => value !== undefined,
+                    ([, value]) => value !== undefined,
                 ),
             );
 

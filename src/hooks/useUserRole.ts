@@ -1,18 +1,31 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getCookie } from 'cookies-next';
+import { useState, useEffect } from 'react';
+import { AuthService } from '@/services/domains/authService';
 
 export function useUserRole() {
-    const [userRole, setUserRole] = useState<string | null>(null);
+    const [role, setRole] = useState<string | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const role = getCookie('role');
-        setUserRole(role?.toString() || null);
+        const fetchUserRole = async () => {
+            try {
+                const user = await AuthService.getMe();
+                setRole(user.data.role);
+            } catch (error) {
+                console.error('Failed to fetch user role:', error);
+                setRole(null);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserRole();
     }, []);
 
     return {
-        isVisitor: userRole === 'vistoriador',
-        userRole,
+        role,
+        loading,
+        isVisitor: role === 'vistoriador', // Adicionei esta propriedade conveniente
     };
 }

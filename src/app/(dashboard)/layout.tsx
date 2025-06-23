@@ -22,8 +22,11 @@ export default function DashboardLayout({
                 <SidebarNav />
 
                 <div className="flex-1 md:ml-32 md:w-[calc(100%-8rem)]">
-                    <Header type="search" onSearchChange={handleSearchChange} />
-
+                    <Header
+                        type="search"
+                        hasSidebar
+                        onSearchChange={handleSearchChange}
+                    />
                     {children}
                 </div>
 

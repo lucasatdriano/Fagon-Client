@@ -6,7 +6,7 @@ import { getCookie } from 'cookies-next';
 export const setupRequestInterceptor = (api: AxiosInstance) => {
     api.interceptors.request.use(
         async (config) => {
-            const token = getCookie('token');
+            const token = getCookie('authToken');
 
             if (token) {
                 config.headers = config.headers || {};

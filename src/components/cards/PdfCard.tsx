@@ -10,9 +10,12 @@ import {
     FileUpIcon,
     FileInputIcon,
     BadgeIcon,
+    DownloadIcon,
 } from 'lucide-react';
 import { DropdownMenu } from '../dropdownMenus/DropdownMenu';
 import { DeletePdfModal } from '../modals/DeletePdfModal';
+import { PdfService } from '@/services/domains/pdfService';
+import { toast } from 'react-toastify';
 
 const PDF_TITLES: Record<PdfType, string> = {
     atestado: 'Atestado de Emprego dos Materiais de Acabamento e Revestimento',
@@ -29,76 +32,76 @@ const PDF_TITLES: Record<PdfType, string> = {
 interface PDFGeneratorProps {
     projectId: string;
     initialPDFs: PDF[];
-    onGenerate: (type: PdfType, signed: boolean) => Promise<{ path: string }>;
+    onGenerate: (type: PdfType) => Promise<{ path: string }>;
     onView: (path: string) => void;
     onPreview: (type: PdfType) => void;
     onDelete: (type: PdfType) => Promise<void>;
     onUploadSigned: (type: PdfType, file: File) => Promise<{ path: string }>;
-    onGenerateSigned: (type: PdfType) => Promise<{ path: string }>;
 }
 
 export function PdfCard({
+    projectId,
     initialPDFs,
-    onGenerate,
     onView,
     onPreview,
-    onDelete,
-    onUploadSigned,
-    onGenerateSigned,
-}: PDFGeneratorProps) {
+}: Omit<PDFGeneratorProps, 'onGenerate' | 'onDelete' | 'onUploadSigned'>) {
     const [pdfs, setPdfs] = useState<PDF[]>(initialPDFs);
-    const [generating, setGenerating] = useState<{
-        type: PdfType;
-        signed: boolean;
-    } | null>(null);
+    const [generating, setGenerating] = useState<PdfType | null>(null);
+    const [signing, setSigning] = useState<PdfType | null>(null);
     const [deletingPdf, setDeletingPdf] = useState<PdfType | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleGenerate = async (type: PdfType, signed: boolean = false) => {
-        setGenerating({ type, signed });
+    const handleGenerate = async (type: PdfType) => {
+        setGenerating(type);
         try {
-            const result = signed
-                ? await onGenerateSigned(type)
-                : await onGenerate(type, signed);
+            const response = await PdfService.generate({
+                projectId,
+                pdfType: type,
+            });
 
             setPdfs(
                 pdfs.map((pdf) =>
                     pdf.type === type
                         ? {
                               ...pdf,
-                              generated: !signed,
-                              signed: signed,
-                              filePath: result.path,
+                              generated: true,
+                              filePath: response.data.filePath,
+                              id: response.data.id,
                           }
                         : pdf,
                 ),
             );
+            toast.success(`${PDF_TITLES[type]} gerado com sucesso!`);
+        } catch {
+            toast.error(`Erro ao gerar ${PDF_TITLES[type]}`);
         } finally {
             setGenerating(null);
         }
     };
 
     const handleDelete = async (type: PdfType) => {
+        const pdfToDelete = pdfs.find((pdf) => pdf.type === type);
+        if (!pdfToDelete?.id) return;
+
         setDeletingPdf(type);
-    };
-
-    const confirmDelete = async () => {
-        if (!deletingPdf) return;
-
         try {
-            await onDelete(deletingPdf);
+            await PdfService.delete(pdfToDelete.id);
             setPdfs(
                 pdfs.map((pdf) =>
-                    pdf.type === deletingPdf
+                    pdf.type === type
                         ? {
                               ...pdf,
                               generated: false,
                               signed: false,
                               filePath: undefined,
+                              signedFilePath: undefined,
                           }
                         : pdf,
                 ),
             );
+            toast.success(`${PDF_TITLES[type]} removido com sucesso!`);
+        } catch (error) {
+            toast.error(`Erro ao remover ${PDF_TITLES[type]}`);
         } finally {
             setDeletingPdf(null);
         }
@@ -117,28 +120,59 @@ export function PdfCard({
 
         const type = e.target.getAttribute('data-pdf-type') as PdfType;
         const file = files[0];
+        const pdfToUpdate = pdfs.find((pdf) => pdf.type === type);
 
+        if (!pdfToUpdate?.id) {
+            toast.error(
+                'Primeiro gere o PDF antes de enviar a versão assinada',
+            );
+            return;
+        }
+
+        setSigning(type);
         try {
-            setGenerating({ type, signed: true });
-            const result = await onUploadSigned(type, file);
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await PdfService.sign(pdfToUpdate.id, { file });
 
             setPdfs(
                 pdfs.map((pdf) =>
-                    pdf.type === type
+                    pdf.id === pdfToUpdate.id
                         ? {
                               ...pdf,
-                              generated: false,
                               signed: true,
-                              filePath: result.path,
+                              signedFilePath: response.data.signedFilePath,
                           }
                         : pdf,
                 ),
             );
+            toast.success(`${PDF_TITLES[type]} assinado enviado com sucesso!`);
+        } catch (error) {
+            toast.error(`Erro ao enviar ${PDF_TITLES[type]} assinado`);
         } finally {
-            setGenerating(null);
+            setSigning(null);
             if (fileInputRef.current) {
                 fileInputRef.current.value = '';
             }
+        }
+    };
+
+    const handleDownload = async (type: PdfType) => {
+        const pdf = pdfs.find((pdf) => pdf.type === type);
+        if (!pdf?.id) return;
+
+        try {
+            const path = pdf.signed ? pdf.signedFilePath : pdf.filePath;
+            if (!path) return;
+
+            // Abre o PDF em nova aba para visualização
+            window.open(
+                `/api/pdfs/download?path=${encodeURIComponent(path)}`,
+                '_blank',
+            );
+        } catch (error) {
+            toast.error(`Erro ao baixar ${PDF_TITLES[type]}`);
         }
     };
 
@@ -151,29 +185,36 @@ export function PdfCard({
     }> => {
         const items = [];
 
+        // Opções para PDFs gerados ou assinados
         if (pdf.generated || pdf.signed) {
             items.push({
-                label: 'Baixar PDF',
-                action: () => pdf.filePath && onView(pdf.filePath),
+                label: pdf.signed
+                    ? 'Visualizar PDF Assinado'
+                    : 'Visualizar PDF',
+                action: () => {
+                    const path = pdf.signed ? pdf.signedFilePath : pdf.filePath;
+                    if (path) onView(path);
+                },
                 icon: <FileUpIcon className="w-4 h-4" />,
             });
 
             items.push({
-                label: 'Deletar PDF',
+                label: 'Download',
+                action: () => handleDownload(pdf.type),
+                icon: <DownloadIcon className="w-4 h-4" />,
+            });
+
+            items.push({
+                label: 'Deletar',
                 action: () => handleDelete(pdf.type),
                 icon: <Trash2Icon className="w-4 h-4" />,
             });
         }
 
-        if (pdf.generated) {
+        // Opções adicionais para PDFs gerados mas não assinados
+        if (pdf.generated && !pdf.signed) {
             items.push({
-                label: 'Gerar PDF Assinado',
-                action: () => handleGenerate(pdf.type, true),
-                icon: <FileSignatureIcon className="w-4 h-4" />,
-            });
-
-            items.push({
-                label: 'Upload do PDF Assinado',
+                label: 'Enviar PDF Assinado',
                 action: () => handleUploadClick(pdf.type),
                 icon: <FileInputIcon className="w-4 h-4" />,
             });
@@ -197,7 +238,7 @@ export function PdfCard({
                 <DeletePdfModal
                     fileName={PDF_TITLES[deletingPdf]}
                     onClose={() => setDeletingPdf(null)}
-                    onConfirm={confirmDelete}
+                    onConfirm={() => handleDelete(deletingPdf)}
                 />
             )}
 
@@ -259,19 +300,14 @@ export function PdfCard({
                                         e.stopPropagation();
                                         handleGenerate(pdf.type);
                                     }}
-                                    disabled={
-                                        generating?.type === pdf.type &&
-                                        !generating.signed
-                                    }
+                                    disabled={generating === pdf.type}
                                     className={`px-3 py-1 rounded-md text-sm text-white ${
-                                        generating?.type === pdf.type &&
-                                        !generating.signed
+                                        generating === pdf.type
                                             ? 'bg-gray-400 cursor-not-allowed'
                                             : 'bg-primary hover:bg-primary-dark'
                                     }`}
                                 >
-                                    {generating?.type === pdf.type &&
-                                    !generating.signed
+                                    {generating === pdf.type
                                         ? 'Gerando...'
                                         : 'Gerar PDF'}
                                 </button>
@@ -283,9 +319,12 @@ export function PdfCard({
                         <div className="border-t">
                             <div
                                 className="p-3 text-center hover:bg-gray-50"
-                                onClick={() =>
-                                    pdf.filePath && onView(pdf.filePath)
-                                }
+                                onClick={() => {
+                                    const path = pdf.signed
+                                        ? pdf.signedFilePath
+                                        : pdf.filePath;
+                                    if (path) onView(path);
+                                }}
                             >
                                 <span
                                     className={`text-sm ${

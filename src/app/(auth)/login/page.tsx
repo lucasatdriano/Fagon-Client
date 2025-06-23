@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -10,22 +10,11 @@ import { CustomAuthInput } from '@/components/forms/CustomAuthInput';
 import { LockIcon, MailIcon } from 'lucide-react';
 import { LoginFormData, loginSchema } from '@/validations';
 import { AuthService } from '@/services/domains/authService';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        const token = document.cookie
-            .split('; ')
-            .find((row) => row.startsWith('token='))
-            ?.split('=')[1];
-
-        if (token) {
-            router.push('/projects');
-            return;
-        }
-    });
 
     const {
         register,
@@ -46,8 +35,7 @@ export default function LoginPage() {
                 accessKeyToken: undefined,
             });
 
-            document.cookie = `token=${response.data.access_token}; path=/;`;
-            document.cookie = `role=${response.data.user.role}; path=/;`;
+            document.cookie = `authToken=${response.data.access_token}; path=/;`;
             router.push('/projects');
         } catch (error: unknown) {
             const message =
@@ -56,6 +44,9 @@ export default function LoginPage() {
                 type: 'manual',
                 message,
             });
+            toast.error(
+                error instanceof Error ? error.message : 'Erro desconhecido',
+            );
         } finally {
             setLoading(false);
         }

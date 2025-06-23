@@ -1,3 +1,4 @@
+import { ApiResponse } from '@/types/api';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
 
@@ -39,9 +40,9 @@ export interface UserData {
 }
 
 export const AuthService = {
-    async getMe(): Promise<UserData> {
+    async getMe(): Promise<ApiResponse<UserData>> {
         try {
-            const response = await api.post(API_ROUTES.AUTH.ME);
+            const response = await api.get(API_ROUTES.AUTH.ME);
             return response.data;
         } catch (error) {
             throw new Error(extractAxiosError(error));

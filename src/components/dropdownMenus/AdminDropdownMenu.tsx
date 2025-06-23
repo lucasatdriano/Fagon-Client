@@ -57,10 +57,12 @@ export function AdminDropdownMenu({
                     cameraOption === 'camera_360' ? 'camera_360' : 'normal',
             });
 
-            // Garanta que está extraindo corretamente:
             const { token, expiresAt: expiryDate } = response.data;
 
-            // Atualize desta forma:
+            console.log(response.data);
+            console.log(token);
+            console.log(expiryDate);
+
             const newExpiresAt = new Date(expiryDate);
             setAccessKey(token);
             setExpiresAt(newExpiresAt);

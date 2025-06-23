@@ -1,13 +1,12 @@
-import { cookies } from 'next/headers';
+import { AuthService } from '@/services/domains/authService';
 import { redirect } from 'next/navigation';
 
 export default async function Home() {
-    const cookieStore = await cookies();
-    const token = cookieStore.get('token');
-
-    if (token?.value) {
+    try {
+        await AuthService.getMe();
         redirect('/projects');
-    } else {
+    } catch (error) {
+        console.error('Usuário não autenticado:', error);
         redirect('/login');
     }
 }

@@ -11,7 +11,7 @@ const API_ROUTES = {
     METRICS: '/metrics',
 
     AUTH: {
-        ME: '/aurh/me',
+        ME: '/auth/me',
         LOGIN: '/auth/login',
         REGISTER: '/auth/register',
         ACCESS_KEYS: '/auth/access-keys',
@@ -117,6 +117,16 @@ const API_ROUTES = {
         SIGNED_URL: ({ id }: Params) => `/photos/${id}/signed-url`,
         UPDATE: ({ id }: Params) => `/photos/${id}`,
         DELETE: ({ id }: Params) => `/photos/${id}`,
+    },
+
+    PDFS: {
+        BASE: '/pdfs',
+        GENERATE: '/pdfs',
+        SIGN: ({ id }: Params) => `/pdfs/${id}/sign`,
+        BY_PROJECT: ({ projectId }: Params) => `/pdfs/project/${projectId}`,
+        BY_ID: ({ id }: Params) => `/pdfs/${id}`,
+        DOWNLOAD: ({ id }: Params) => `/pdfs/${id}/download`,
+        DELETE: ({ id }: Params) => `/pdfs/${id}`,
     },
 
     STATE_LAWS: {

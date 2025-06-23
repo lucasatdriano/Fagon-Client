@@ -3,9 +3,8 @@
 import { Header } from '@/components/layout/Header';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useUserRole } from '@/hooks/useUserRole';
 import { LocationService } from '@/services/domains/locationService';
-import { parseCookies } from 'nookies';
+import { useUserRole } from '@/hooks/useUserRole';
 
 export default function CreationLayout({
     children,
@@ -14,44 +13,44 @@ export default function CreationLayout({
 }) {
     const router = useRouter();
     const params = useParams();
-    const { isVisitor } = useUserRole();
+    const { role, loading, isVisitor } = useUserRole();
     const [canShowBack, setCanShowBack] = useState(true);
     const [headerType, setHeaderType] = useState<'back' | 'default'>('back');
 
     useEffect(() => {
-        const cookies = parseCookies();
-        const userRole = cookies.role;
+        if (loading) return; // Aguarda o carregamento do role
 
-        if (userRole === 'vistoriador') {
-            setHeaderType('default');
-            return;
-        }
+        const checkPermissions = async () => {
+            // Define o tipo de header baseado no role
+            if (isVisitor) {
+                setHeaderType('default');
+                return;
+            }
 
-        // Se não for vistoriador, mantém a lógica original
-        const checkIfCanShowBack = async () => {
-            if (!isVisitor) return;
-
+            // Verifica as fotos apenas para não-visitantes
             const locationId = params?.locationId as string;
             if (!locationId) return;
 
             try {
                 const response = await LocationService.getById(locationId);
                 const hasPhotos = response.data?.photo?.length > 0;
-
-                if (!hasPhotos) {
-                    setCanShowBack(false);
-                }
+                setCanShowBack(hasPhotos);
             } catch (error) {
                 console.error('Erro ao buscar location:', error);
+                setCanShowBack(false);
             }
         };
 
-        checkIfCanShowBack();
-    }, [isVisitor, params]);
+        checkPermissions();
+    }, [loading, isVisitor, params?.locationId]);
 
     const handleBack = () => {
         router.back();
     };
+
+    if (loading) {
+        return <div>Carregando...</div>;
+    }
 
     return (
         <div className="w-full">

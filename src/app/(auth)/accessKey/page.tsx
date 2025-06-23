@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import Image from 'next/image';
@@ -10,25 +10,11 @@ import { CustomFormInput } from '@/components/forms/CustomFormInput';
 import { accessKeySchema, AccessKeyFormData } from '@/validations';
 import InspectorModal from '@/components/modals/InspectorModal';
 import { AuthService, LoginResponse } from '@/services/domains/authService';
-import { useRouter } from 'next/navigation';
 
 export default function AccessKeyPage() {
-    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [loginData, setLoginData] = useState<LoginResponse | null>(null);
-
-    // useEffect(() => {
-    //     const token = document.cookie
-    //         .split('; ')
-    //         .find((row) => row.startsWith('token='))
-    //         ?.split('=')[1];
-
-    //     if (token) {
-    //         router.push('/projects');
-    //         return;
-    //     }
-    // }, [router]);
 
     const {
         register,
@@ -50,9 +36,8 @@ export default function AccessKeyPage() {
 
             setLoginData(response.data);
 
-            document.cookie = `token=${response.data.access_token}; path=/;`;
-            document.cookie = `role=${response.data.user.role}; path=/;`;
-
+            document.cookie = `authToken=${response.data.access_token}; path=/;`;
+            document.cookie = `projectId=${response.data.projectId}; path=/;`;
             setIsModalOpen(true);
         } catch (error: unknown) {
             if (error instanceof Error) {
