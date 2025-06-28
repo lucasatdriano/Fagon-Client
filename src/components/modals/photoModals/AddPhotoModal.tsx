@@ -2,11 +2,12 @@
 
 import { CameraIcon, ImageIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 interface AddPhotoModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onPhotosAdded: (files: File[]) => void;
+    onPhotosAdded: (photos: File[]) => void;
     isLoading: boolean;
 }
 
@@ -18,7 +19,7 @@ export function AddPhotoModal({
 }: AddPhotoModalProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const cameraInputRef = useRef<HTMLInputElement>(null);
-    const [inputKey, setInputKey] = useState(Date.now());
+    const [uploading, setUploading] = useState(false);
 
     const openCamera = () => {
         if (cameraInputRef.current) {
@@ -32,23 +33,57 @@ export function AddPhotoModal({
         }
     };
 
-    const handleAddPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleAddPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length === 0) {
+            toast.error('Nenhum arquivo selecionado');
             return;
         }
 
-        const files = Array.from(e.target.files);
+        try {
+            setUploading(true);
+            const files = Array.from(e.target.files);
 
-        const renamedFiles = files.map((file, index) => {
-            const extension = file.name.split('.').pop();
-            const newFileName = `imagem${Date.now()}-${index}.${extension}`;
-            return new File([file], newFileName, { type: file.type });
-        });
+            const validFiles = files.map((file: File | unknown) => {
+                if (!(file instanceof File)) {
+                    const fileLike = file as { name?: string; type?: string };
+                    return new File(
+                        [file as BlobPart],
+                        fileLike.name || `photo-${Date.now()}.jpg`,
+                        {
+                            type: fileLike.type || 'image/jpeg',
+                        },
+                    );
+                }
+                return file;
+            });
 
-        onPhotosAdded(renamedFiles);
-        onClose();
+            validFiles.forEach((file) => {
+                if (!(file instanceof File)) {
+                    throw new Error(`Tipo de arquivo inválido: ${file}`);
+                }
+            });
 
-        setInputKey(Date.now());
+            validFiles.map((file) => ({
+                file,
+                previewUrl: URL.createObjectURL(file),
+            }));
+
+            onPhotosAdded(validFiles);
+
+            toast.success('Fotos adicionadas com sucesso!');
+        } catch (error) {
+            console.error('Erro detalhado:', error);
+            toast.error(
+                error instanceof Error
+                    ? error.message
+                    : 'Erro ao processar fotos',
+            );
+        } finally {
+            setUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+            if (cameraInputRef.current) cameraInputRef.current.value = '';
+            onClose();
+        }
     };
 
     if (!isOpen) return null;
@@ -65,24 +100,31 @@ export function AddPhotoModal({
                     <div className="p-4 space-y-2">
                         <button
                             onClick={openCamera}
-                            disabled={isLoading}
+                            disabled={isLoading || uploading}
                             className="flex items-center justify-center w-full py-3 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
                         >
                             <CameraIcon className="w-5 h-5 mr-2" />
-                            <span>Tirar foto</span>
+                            <span>
+                                {uploading ? 'Enviando...' : 'Tirar foto'}
+                            </span>
                         </button>
                         <button
                             onClick={openGallery}
-                            disabled={isLoading}
+                            disabled={isLoading || uploading}
                             className="flex items-center justify-center w-full py-3 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
                         >
                             <ImageIcon className="w-5 h-5 mr-2" />
-                            <span>Escolher da galeria</span>
+                            <span>
+                                {uploading
+                                    ? 'Enviando...'
+                                    : 'Escolher da galeria'}
+                            </span>
                         </button>
                     </div>
                     <div className="p-4 border-t border-gray-200">
                         <button
                             onClick={onClose}
+                            disabled={uploading}
                             className="w-full px-4 rounded-lg font-medium text-center"
                         >
                             Cancelar
@@ -91,28 +133,28 @@ export function AddPhotoModal({
                 </div>
             </div>
 
-            {/* Inputs escondidos com key para forçar recriação */}
             <input
-                key={`file-${inputKey}`}
-                title="Adicionar foto"
+                key={`file`}
                 ref={fileInputRef}
                 type="file"
-                className="hidden"
                 accept="image/*"
                 multiple
+                title="Adicionar fotos da galeria"
+                className="hidden"
                 onChange={handleAddPhoto}
-                disabled={isLoading}
+                disabled={isLoading || uploading}
             />
+
             <input
-                key={`camera-${inputKey}`}
-                title="Tirar foto"
+                key={`camera`}
                 ref={cameraInputRef}
                 type="file"
-                className="hidden"
                 accept="image/*"
                 capture="environment"
+                title="Tirar foto com a câmera"
+                className="hidden"
                 onChange={handleAddPhoto}
-                disabled={isLoading}
+                disabled={isLoading || uploading}
             />
         </>
     );

@@ -46,20 +46,15 @@ import { Photo } from '@/interfaces/photo';
 import { PhotoService } from '@/services/domains/photoService';
 import { useUserRole } from '@/hooks/useUserRole';
 import { AddPhotoModal } from '@/components/modals/photoModals/AddPhotoModal';
+import { MaterialFinishing } from '@/interfaces/materialFinishing';
 
 interface LocationData {
     id: string;
     name: string;
     locationType: string;
     height?: number;
-    pavement?: {
-        name: string;
-    };
-    photos: Photo[];
-    materialFinishing: Array<{
-        surface: string;
-        materialFinishing: string;
-    }>;
+    photo: Photo[];
+    materialFinishing: MaterialFinishing[];
 }
 
 export default function CreateLocationPage() {
@@ -108,8 +103,7 @@ export default function CreateLocationPage() {
             const response = await PavementService.getByProject(
                 projectId as string,
             );
-            console.log(response);
-            console.log(response.data);
+
             const mappedPavements = mapPavementToDropdownOptions(response.data);
 
             setPavements(mappedPavements);
@@ -126,6 +120,8 @@ export default function CreateLocationPage() {
                 locationId as string,
             );
             const locationData = response.data;
+
+            console.log('LOCATION', locationData);
 
             const mappedPhotos =
                 locationData.photo?.map((photo) => ({
@@ -189,15 +185,60 @@ export default function CreateLocationPage() {
         loadPavements();
     }, [locationId, loadLocationData, loadPavements]);
 
-    const handlePhotosAdded = useCallback((files: File[]) => {
-        const newPhotos = files.map((file) => ({
-            file,
-            filePath: URL.createObjectURL(file),
-            selectedForPdf: false,
-        }));
+    useEffect(() => {
+        return () => {
+            allPhotos.forEach((photo) => {
+                if (photo.tempUrl) {
+                    URL.revokeObjectURL(photo.tempUrl);
+                }
+            });
+        };
+    }, [allPhotos]);
 
-        setAllPhotos((prev) => [...prev, ...newPhotos]);
-    }, []);
+    const handlePhotosAdded = useCallback(
+        (files: File[]) => {
+            const tempPhotos = files.map((file) => ({
+                file,
+                tempUrl: URL.createObjectURL(file),
+                filePath: `temp-${file.name}`,
+                selectedForPdf: false,
+                id: `temp-${Date.now()}-${Math.random()
+                    .toString(36)
+                    .substr(2, 9)}`,
+            }));
+
+            setAllPhotos((prev) => [...prev, ...tempPhotos]);
+
+            (async () => {
+                try {
+                    const response = await PhotoService.upload(
+                        locationId as string,
+                        files,
+                    );
+
+                    const uploadedPhotos = response.data.map((photo) => ({
+                        id: photo.id,
+                        filePath: photo.filePath.startsWith('http')
+                            ? photo.filePath
+                            : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/sign/${process.env.NEXT_PUBLIC_SUPABASE_BUCKET_NAME}/${photo.filePath}`,
+                        selectedForPdf: false,
+                    }));
+
+                    setAllPhotos((prev) => [
+                        ...prev.filter((p) => !p.id?.startsWith('temp-')),
+                        ...uploadedPhotos,
+                    ]);
+                } catch (error) {
+                    console.error('Upload failed:', error);
+                    setAllPhotos((prev) =>
+                        prev.filter((p) => !p.id?.startsWith('temp-')),
+                    );
+                    toast.error('Falha no upload das fotos');
+                }
+            })();
+        },
+        [locationId],
+    );
 
     const handleTogglePhotoSelection = useCallback(
         async (photoId: string) => {
@@ -268,12 +309,6 @@ export default function CreateLocationPage() {
             if (data.height) formData.append('height', data.height);
             if (data.pavementId) formData.append('pavementId', data.pavementId);
 
-            allPhotos.forEach((photo) => {
-                if (photo.file) {
-                    formData.append('photos', photo.file);
-                }
-            });
-
             const finishes = {
                 floor: data.floorFinishing || [],
                 wall: data.wallFinishing || [],
@@ -285,8 +320,6 @@ export default function CreateLocationPage() {
                     formData.append(`finishes[${key}][${index}]`, value);
                 });
             });
-
-            console.log(formData);
 
             await LocationService.update(locationId as string, formData);
             toast.success('Local atualizado com sucesso!');
@@ -370,9 +403,10 @@ export default function CreateLocationPage() {
                                 key={`photo-${photo.id}-${index}`}
                                 photo={{
                                     id: photo.id || '',
-                                    filePath: photo.filePath,
+                                    filePath: photo.tempUrl || photo.filePath,
                                     selectedForPdf:
                                         photo.selectedForPdf || false,
+                                    file: photo.file,
                                 }}
                                 onSelect={handleTogglePhotoSelection}
                                 onDelete={handleDeletePhoto}
@@ -451,15 +485,13 @@ export default function CreateLocationPage() {
                                 isOtherOption: f.value === 'outro',
                             }))}
                             selectedValues={watch('floorFinishing') || []}
-                            onChange={(values) => {
-                                const filteredValues = values.filter(Boolean);
-                                setValue('floorFinishing', filteredValues, {
-                                    shouldValidate: true,
-                                });
-                            }}
+                            onChange={(values) =>
+                                setValue('floorFinishing', values)
+                            }
                             error={errors.floorFinishing?.message}
                             gridCols={'full'}
                             placeholder="Especifique o acabamento do piso"
+                            registration={register('floorFinishing')}
                         />
                     </div>
 

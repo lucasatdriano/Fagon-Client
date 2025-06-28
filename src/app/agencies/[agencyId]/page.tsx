@@ -63,8 +63,8 @@ export default function AgencyEditPage() {
 
             const updateData = {
                 agencyNumber: formData.agencyNumber,
-                cnpj: formData.cnpj?.replace(/\D/g, '') || null,
-                cep: formData.cep?.replace(/\D/g, ''),
+                cnpj: formData.cnpj?.replace(/\D/g, '') || undefined,
+                cep: formData.cep?.replace(/\D/g, '') || undefined,
                 state: formData.state,
                 city: formData.city,
                 district: formData.district,

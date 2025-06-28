@@ -1,16 +1,8 @@
-import { PdfType } from '@/interfaces/pdf';
+import { PdfType, PdfDocument } from '@/interfaces/pdf';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
 import { ApiResponse } from '@/types/api';
-
-export interface PdfDocument {
-    id: string;
-    projectId: string;
-    filePath: string;
-    pdfType: string;
-    signedFilePath?: string;
-    generatedAt: string;
-}
+import { ProjectService } from './projectService';
 
 interface GeneratePdfData {
     projectId: string;
@@ -74,37 +66,52 @@ export const PdfService = {
         }
     },
 
-    async download(id: string): Promise<Blob> {
+    async getSignedUrl(pdfId: string): Promise<string> {
         try {
-            const response = await api.get(API_ROUTES.PDFS.DOWNLOAD({ id }), {
-                responseType: 'blob',
-            });
-            return response.data;
+            const response = await api.get(
+                API_ROUTES.PDFS.SIGNED_URL({ id: pdfId }),
+            );
+            return response.data.data.url;
         } catch (error) {
             throw new Error(extractAxiosError(error));
         }
     },
 
-    async delete(id: string): Promise<void> {
+    async downloadPdf(pdfId: string): Promise<void> {
+        try {
+            const response = await api.get(
+                API_ROUTES.PDFS.DOWNLOAD({ id: pdfId }),
+                {
+                    responseType: 'blob',
+                },
+            );
+
+            const pdf = await this.getById(pdfId);
+            const project = await ProjectService.getById(pdf.data.projectId);
+
+            const contentDisposition = response.headers['content-disposition'];
+            const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
+            const filename = filenameMatch
+                ? filenameMatch[1]
+                : `${project.data.agency.agencyNumber}-${pdf.data.pdfType}-${project.data.upeCode}.pdf`;
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            throw new Error(extractAxiosError(error));
+        }
+    },
+
+    async deletePdf(id: string): Promise<void> {
         try {
             await api.delete(API_ROUTES.PDFS.DELETE({ id }));
-        } catch (error) {
-            throw new Error(extractAxiosError(error));
-        }
-    },
-
-    async openPdfInNewTab(id: string, filename: string): Promise<void> {
-        try {
-            const blob = await this.download(id);
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.target = '_blank';
-            a.download = filename || `document-${id}.pdf`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
         } catch (error) {
             throw new Error(extractAxiosError(error));
         }

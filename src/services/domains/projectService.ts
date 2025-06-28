@@ -13,6 +13,7 @@ export interface Project {
     projectDate: string;
     status: string;
     structureType: string;
+    floorHeight: number;
     inspectorName: string;
     inspectionDate: string;
     totalArea: string;
@@ -55,6 +56,7 @@ interface CreateProjectData {
 type UpdateProjectData = Partial<CreateProjectData> & {
     status?: ProjectStatus;
     structureType?: string;
+    floorHeight?: number;
     inspectorName?: string;
     inspectionDate?: string;
 };

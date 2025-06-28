@@ -15,11 +15,24 @@ export const PhotoService = {
     ): Promise<ApiResponse<Photo[]>> {
         try {
             const formData = new FormData();
-            files.forEach((file, index) => {
-                const newName = `photo-${Date.now()}-${index}.${file.name
-                    .split('.')
-                    .pop()}`;
-                formData.append('files', file, newName);
+
+            files.forEach((file) => {
+                if (!(file instanceof Blob)) {
+                    const blob = new Blob([file], {
+                        type: file.type || 'image/jpeg',
+                    });
+                    formData.append(
+                        'files',
+                        blob,
+                        file.name || `photo-${Date.now()}.jpg`,
+                    );
+                } else {
+                    formData.append(
+                        'files',
+                        file,
+                        file.name || `photo-${Date.now()}.jpg`,
+                    );
+                }
             });
 
             const response = await api.post(
@@ -74,7 +87,8 @@ export const PhotoService = {
                 }),
             );
 
-            return photosWithUrls;
+            response.data.data = photosWithUrls;
+            return response.data;
         } catch (error) {
             throw new Error(extractAxiosError(error));
         }
@@ -97,9 +111,11 @@ export const PhotoService = {
 
     async getSignedUrl(photoId: string): Promise<string> {
         try {
-            const response = await api.get(`/photos/${photoId}/signed-url`);
+            const response = await api.get(
+                API_ROUTES.PHOTOS.SIGNED_URL({ id: photoId }),
+            );
 
-            if (!response.data?.data?.url) {
+            if (!response.data?.data.url) {
                 throw new Error('Invalid response format from server');
             }
 

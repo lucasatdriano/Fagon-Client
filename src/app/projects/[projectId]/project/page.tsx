@@ -81,8 +81,7 @@ export default function ProjectEditPage() {
                 inspectorName: formData.inspectorName,
                 inspectionDate: formData.inspectionDate,
                 structureType: formData.structureType,
-                totalArea: formData.totalArea,
-                height: formData.maxHeight,
+                floorHeight: formData.floorHeight,
             };
 
             const response = await ProjectService.update(id, {
@@ -246,7 +245,7 @@ export default function ProjectEditPage() {
                             textColor="text-foreground"
                         />
 
-                        <div className="flex items-center gap-2">
+                        {/* <div className="flex items-center gap-2">
                             <CustomEditInput
                                 label="Área Total da Agência"
                                 registration={register('totalArea')}
@@ -256,8 +255,8 @@ export default function ProjectEditPage() {
                                 className="flex-1"
                             />
                             <span>m²</span>
-                        </div>
-                        <div className="flex items-center gap-2">
+                        </div> */}
+                        {/* <div className="flex items-center gap-2">
                             <CustomEditInput
                                 label="Altura Máxima do Pé Direito"
                                 registration={register('maxHeight')}
@@ -267,7 +266,7 @@ export default function ProjectEditPage() {
                                 className="flex-1"
                             />
                             <span>m</span>
-                        </div>
+                        </div> */}
                     </div>
 
                     <div className="flex justify-center pt-4">

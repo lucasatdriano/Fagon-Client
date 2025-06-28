@@ -39,7 +39,7 @@ export default function CreatePathology() {
     const [selectedLocation, setSelectedLocation] = useState<string | null>(
         null,
     );
-    const [pathologies, setPathologies] = useState<any[]>([]); // Substitua por tipo adequado
+    const [pathologies, setPathologies] = useState<any[]>([]);
 
     const {
         register,

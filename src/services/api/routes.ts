@@ -125,6 +125,7 @@ const API_ROUTES = {
         SIGN: ({ id }: Params) => `/pdfs/${id}/sign`,
         BY_PROJECT: ({ projectId }: Params) => `/pdfs/project/${projectId}`,
         BY_ID: ({ id }: Params) => `/pdfs/${id}`,
+        SIGNED_URL: ({ id }: Params) => `/pdfs/${id}/signed-url`,
         DOWNLOAD: ({ id }: Params) => `/pdfs/${id}/download`,
         DELETE: ({ id }: Params) => `/pdfs/${id}`,
     },

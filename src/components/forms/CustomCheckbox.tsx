@@ -36,67 +36,100 @@ export function CustomCheckboxGroup({
     const [internalSelected, setInternalSelected] = useState<string[]>(
         selectedValues || [],
     );
-    const [otherValue, setOtherValue] = useState('');
+    const [otherValue, setOtherValue] = useState(() => {
+        if (!selectedValues) return '';
+        const nonStandard = selectedValues.filter(
+            (val) =>
+                !options.some((opt) => opt.value === val && !opt.isOtherOption),
+        );
+        return nonStandard.join(', ');
+    });
     const otherOption = options.find((o) => o.isOtherOption);
 
-    // Initialize other value from selectedValues
     useEffect(() => {
-        if (otherOption) {
-            const otherValues =
-                selectedValues?.filter(
-                    (val) =>
-                        !options.some(
-                            (opt) => opt.value === val && !opt.isOtherOption,
-                        ),
-                ) || [];
-
-            if (otherValues.length > 0) {
-                setOtherValue(otherValues.join(', '));
-            }
+        if (!selectedValues?.length) {
+            setInternalSelected([]);
+            setOtherValue('');
+            return;
         }
-        setInternalSelected(selectedValues || []);
-    }, [selectedValues, options, otherOption]);
+
+        const standardOptions = options
+            .filter((opt) => !opt.isOtherOption)
+            .map((opt) => opt.value);
+
+        const standardValues = selectedValues.filter((val) =>
+            standardOptions.includes(val),
+        );
+
+        const nonStandardValues = selectedValues.filter(
+            (val) => !standardOptions.includes(val),
+        );
+
+        setInternalSelected(standardValues);
+        setOtherValue(nonStandardValues.join(', '));
+    }, [selectedValues, options]);
 
     const handleCheckboxChange = (value: string) => {
+        console.log('Checkbox alterado:', value);
         let newSelected: string[];
 
         if (internalSelected.includes(value)) {
-            // Unchecking
             newSelected = internalSelected.filter((v) => v !== value);
+            console.log('Desmarcando checkbox:', value);
 
-            // If unchecking "Other", clear the value
             if (otherOption?.value === value) {
+                console.log(
+                    'Limpando otherValue (checkbox "Outro" desmarcado)',
+                );
                 setOtherValue('');
             }
         } else {
-            // Checking
             newSelected = [...internalSelected, value];
+            console.log('Marcando checkbox:', value);
         }
 
         updateSelection(newSelected);
     };
 
     const handleOtherValueChange = (value: string) => {
+        console.log('Input "Outro" alterado para:', value);
         setOtherValue(value);
 
-        // Update selected options
         const newSelected = internalSelected
-            .filter((v) => v !== otherOption?.value) // Remove "Other" marker
-            .concat(value ? [value] : []); // Add new value if not empty
+            .filter((v) => v !== otherOption?.value)
+            .concat(value ? [value] : []);
 
         updateSelection(newSelected);
     };
 
     const updateSelection = (newSelected: string[]) => {
-        // Keep standard selected values and add other value if exists
-        const finalSelected = [
-            ...newSelected.filter((v) =>
-                options.some((opt) => opt.value === v && !opt.isOtherOption),
-            ),
-            ...(otherValue ? [otherValue] : []),
-        ].filter(Boolean); // Remove empty values
+        console.log('Atualizando seleção com:', newSelected);
 
-        setInternalSelected(finalSelected);
+        const standardOptions = options
+            .filter((opt) => !opt.isOtherOption)
+            .map((opt) => opt.value);
+
+        const standardValues = newSelected.filter((val) =>
+            standardOptions.includes(val),
+        );
+
+        const nonStandardValues = newSelected.filter(
+            (val) =>
+                !standardOptions.includes(val) && val !== otherOption?.value,
+        );
+
+        console.log('Valores padrão filtrados:', standardValues);
+        console.log('Valores não-padrão filtrados:', nonStandardValues);
+
+        const finalSelected = [
+            ...standardValues,
+            ...(nonStandardValues.length > 0 ? nonStandardValues : []),
+        ];
+
+        console.log('Estado final a ser enviado:', finalSelected);
+
+        setInternalSelected(standardValues);
+        setOtherValue(nonStandardValues.join(', '));
         onChange?.(finalSelected);
     };
 
@@ -106,6 +139,9 @@ export function CustomCheckboxGroup({
         }
         return `grid grid-cols-${gridCols} gap-4`;
     };
+
+    console.log('Estado interno (internalSelected):', internalSelected);
+    console.log('Valor otherValue:', otherValue);
 
     return (
         <div className={className}>
@@ -128,10 +164,12 @@ export function CustomCheckboxGroup({
                                     type="checkbox"
                                     name={name}
                                     checked={
-                                        internalSelected.includes(
+                                        Array.isArray(internalSelected) &&
+                                        (internalSelected.includes(
                                             option.value,
                                         ) ||
-                                        (option.isOtherOption && !!otherValue)
+                                            (option.isOtherOption &&
+                                                !!otherValue))
                                     }
                                     onChange={() =>
                                         handleCheckboxChange(option.value)
@@ -171,13 +209,14 @@ export function CustomCheckboxGroup({
                                     <CustomFormInput
                                         label={placeholder}
                                         value={otherValue}
-                                        onChange={(e) =>
-                                            handleOtherValueChange(
-                                                e.target.value,
-                                            )
-                                        }
+                                        onChange={(e) => {
+                                            const newValue = e.target.value;
+                                            setOtherValue(newValue);
+                                            handleOtherValueChange(newValue);
+                                        }}
                                         icon={<SquarePenIcon />}
                                         borderColor="border-gray-300"
+                                        key={`other-input-${otherValue}`} // Força re-renderização
                                     />
                                     <p className="text-xs text-gray-500">
                                         Se precisar inserir mais de um valor,

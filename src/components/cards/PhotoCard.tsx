@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { CheckIcon, ImageIcon } from 'lucide-react';
 import { Photo } from '@/interfaces/photo';
-import { PhotoViewModal } from '../modals/photoModals/PhotoViewModal';
 import { DeletePhotoModal } from '../modals/photoModals/DeletePhotoModal';
+import { PhotoViewModal } from '../modals/photoModals/PhotoViewModal';
 
 interface PhotoCardProps {
     photo: Photo;

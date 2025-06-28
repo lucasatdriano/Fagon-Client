@@ -14,15 +14,13 @@ const editableFieldsSchema = z.object({
         .min(1, 'Tipo da estrutura é obrigatório')
         .max(100, 'Máximo 100 caracteres'),
 
-    totalArea: z
-        .string()
-        .min(1, 'Área total é obrigatória')
-        .regex(/^[\d,]+$/, 'Deve conter apenas números e vírgula'),
-
-    maxHeight: z
-        .string()
-        .min(1, 'Altura é obrigatória')
-        .regex(/^[\d,]+$/, 'Deve conter apenas números e vírgula'),
+    floorHeight: z
+        .string({ required_error: 'Valor piso a piso é obrigatório' })
+        .min(1, 'Valor piso a piso é obrigatório')
+        .regex(
+            /^\d+(\.\d+)?$/,
+            'o valor piso a piso deve ser um número válido',
+        ),
 });
 
 export type UpdateProjectFormValues = z.infer<typeof editableFieldsSchema> & {

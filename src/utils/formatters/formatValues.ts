@@ -1,4 +1,4 @@
-import { locationOptions } from '@/constants';
+import { locationOptions, pdfType } from '@/constants';
 
 export function getLocationLabelByValue(value: string): string {
     if (!value) return '';
@@ -24,7 +24,6 @@ export function getLocationValueByLabel(label: string): string {
     return option ? option.value : label.toLowerCase().replace(/ /g, '_');
 }
 
-// export function getLocationValueByLabel(label: string): string {
-//     const option = locationOptions.find((opt) => opt.label === label);
-//     return option ? option.value : label.toLowerCase().replace(/ /g, '_');
-// }
+export function getPdfLabel(type: string): string {
+    return pdfType.find((item) => item.value === type)?.label || type;
+}

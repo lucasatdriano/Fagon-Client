@@ -13,7 +13,7 @@ export default function CreationLayout({
 }) {
     const router = useRouter();
     const params = useParams();
-    const { role, loading, isVisitor } = useUserRole();
+    const { loading, isVisitor } = useUserRole();
     const [canShowBack, setCanShowBack] = useState(true);
     const [headerType, setHeaderType] = useState<'back' | 'default'>('back');
 

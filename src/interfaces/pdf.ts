@@ -3,11 +3,19 @@ import { pdfType } from '@/constants';
 export type PdfType = (typeof pdfType)[number]['value'];
 
 export interface PDF {
-    id: string;
+    id?: string;
     type: PdfType;
     generated: boolean;
-    deleting: boolean;
     signed: boolean;
-    filePath?: string;
-    signedFilePath?: string;
+    filePath?: string | null;
+    signedFilePath?: string | null;
+}
+
+export interface PdfDocument {
+    id: string;
+    projectId: string;
+    filePath: string;
+    pdfType: PdfType;
+    signedFilePath?: string | null;
+    generatedAt: string;
 }
