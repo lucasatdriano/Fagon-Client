@@ -1,8 +1,9 @@
 export interface Photo {
     id?: string;
     locationId?: string;
+    name?: string;
     filePath: string;
-    selectedForPdf: boolean;
+    selectedForPdf?: boolean;
     file?: File;
     signedUrl?: string;
     tempUrl?: string;

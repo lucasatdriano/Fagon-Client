@@ -1,6 +1,9 @@
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
 import { ApiResponse } from '@/types/api';
+import { Location } from './locationService';
+import { Project } from './projectService';
+import { PathologyPhoto } from './pathologyPhotoService';
 
 export interface Pathology {
     id: string;
@@ -8,15 +11,9 @@ export interface Pathology {
     title: string;
     description: string;
     recordDate: string;
-    project: {
-        id: string;
-        // Add other project properties as needed
-    };
-    location: {
-        id: string;
-        // Add other location properties as needed
-    };
-    photos?: string[];
+    project: Project;
+    location: Location;
+    pathologyPhoto?: PathologyPhoto[];
 }
 
 export interface CreatePathologyData {
@@ -25,8 +22,7 @@ export interface CreatePathologyData {
     referenceLocation: string;
     title: string;
     description: string;
-    recordDate: string;
-    photos?: string[];
+    photos?: File[];
 }
 
 export interface ListPathologiesParams {
@@ -46,6 +42,11 @@ export const PathologyService = {
             const response = await api.post(
                 API_ROUTES.PATHOLOGIES.CREATE,
                 data,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                },
             );
             return response.data;
         } catch (error) {

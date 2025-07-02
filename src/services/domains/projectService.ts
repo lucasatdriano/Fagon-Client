@@ -13,11 +13,9 @@ export interface Project {
     projectDate: string;
     status: string;
     structureType: string;
-    floorHeight: number;
+    floorHeight: string;
     inspectorName: string;
     inspectionDate: string;
-    totalArea: string;
-    maxHeight: string;
     createdAt: string;
     agency: {
         id: string;

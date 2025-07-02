@@ -89,7 +89,6 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
     };
 
     const handlePreview = (type: PdfType) => {
-        console.log(type);
         const pdfFileMap: Record<PdfType, string> = {
             atestado: 'docs/atestado.pdf',
             anexo_m3: 'docs/anexo_m3.pdf',
@@ -99,11 +98,9 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
         };
 
         const filePath = pdfFileMap[type];
-        console.log(filePath);
 
         if (filePath) {
             const pdfUrl = `/${filePath}`;
-            console.log(pdfUrl);
 
             toast.info(`Mostrando pré-visualização para ${getPdfLabel(type)}`);
             window.open(pdfUrl, '_blank', 'noopener,noreferrer');

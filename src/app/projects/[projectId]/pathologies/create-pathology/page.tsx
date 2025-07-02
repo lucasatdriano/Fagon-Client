@@ -1,109 +1,183 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
     CameraIcon,
-    MapPinnedIcon,
+    MapPinIcon,
     SaveIcon,
     TextIcon,
     TypeIcon,
 } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 import { CustomButton } from '@/components/forms/CustomButton';
 import { CustomFormInput } from '@/components/forms/CustomFormInput';
 import { PhotoCard } from '@/components/cards/PhotoCard';
 import { PathologyCard } from '@/components/cards/PathologyCard';
-import { CustomDropdownInput } from '@/components/forms/CustomDropdownInput';
-import { ceilingOptions } from '@/constants';
 import {
-    CreatePathologyData,
+    CustomDropdownInput,
+    DropdownOption,
+} from '@/components/forms/CustomDropdownInput';
+import {
+    Pathology,
     PathologyService,
 } from '@/services/domains/pathologyService';
-import { PathologyPhotosService } from '@/services/domains/pathologyPhotoService';
-import { createPathologySchema } from '@/validations/pathologies/pathologyCreateValidation';
+import { LocationService } from '@/services/domains/locationService';
+import {
+    createPathologySchema,
+    CreatePathologyFormValues,
+} from '@/validations/pathologies/pathologyCreateValidation';
+import { useUserRole } from '@/hooks/useUserRole';
+import { AddPhotoModal } from '@/components/modals/photoModals/AddPhotoModal';
+import { PathologyPhoto } from '@/interfaces/pathologyPhoto';
+import { formatWithCapitals } from '@/utils/formatters/formatValues';
+import { UpdatePathologyModal } from '@/components/modals/PathologyModal';
 
-interface FormData {
-    referenceLocation: string;
-    title: string;
-    description: string;
-    photos: File[];
-}
-
-export default function CreatePathology() {
+export default function CreatePathologyPage() {
     const router = useRouter();
+    const { projectId } = useParams<{ projectId: string }>();
+    const { isVisitor } = useUserRole();
     const [isLoading, setIsLoading] = useState(false);
-    const [photos, setPhotos] = useState<File[]>([]);
-    const [selectedLocation, setSelectedLocation] = useState<string | null>(
-        null,
-    );
-    const [pathologies, setPathologies] = useState<any[]>([]);
+    const [photos, setPhotos] = useState<PathologyPhoto[]>([]);
+    const [locations, setLocations] = useState<DropdownOption[]>([]);
+    const [pathologies, setPathologies] = useState<Pathology[]>([]);
+    const [showPhotoModal, setShowPhotoModal] = useState(false);
+    const [selectedLocationId, setSelectedLocationId] = useState<string>('');
+    const [selectedPathology, setSelectedPathology] =
+        useState<Pathology | null>(null);
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<FormData>({
-        resolver: zodResolver(createPathologySchema),
+        setValue,
+    } = useForm<Omit<CreatePathologyFormValues, 'photos'>>({
+        resolver: zodResolver(createPathologySchema.omit({ photos: true })),
     });
 
+    const loadPathologies = useCallback(async () => {
+        try {
+            const pats = await PathologyService.listAll({ projectId });
+            setPathologies(pats.data);
+        } catch (error) {
+            toast.error('Erro ao carregar patologias');
+            console.error(error);
+        }
+    }, [projectId]);
+
     useEffect(() => {
-        const loadPathologies = async () => {
+        const loadData = async () => {
             try {
-                const response = await PathologyService.listAll();
-                setPathologies(response.data);
+                setIsLoading(true);
+
+                const locs = await LocationService.listAll(projectId);
+                setLocations(
+                    locs.data.map((l) => ({
+                        id: l.id,
+                        value: l.id,
+                        label: formatWithCapitals(l.name),
+                    })),
+                );
+
+                setValue('projectId', projectId);
+                await loadPathologies();
             } catch (error) {
-                toast.error('Erro ao carregar patologias');
+                toast.error('Erro ao carregar dados');
                 console.error(error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
-        loadPathologies();
+        loadData();
+    }, [projectId, setValue, loadPathologies]);
+
+    const handleLocationSelect = (id: string) => {
+        setSelectedLocationId(id);
+        setValue('referenceLocation', id);
+        setValue('locationId', id);
+    };
+
+    useEffect(() => {
+        return () => {
+            photos.forEach((p) => URL.revokeObjectURL(p.tempUrl));
+        };
+    }, [photos]);
+
+    const handleAddPhotos = useCallback((files: File[]) => {
+        const newPhotos = files.map((file) => ({
+            id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            file,
+            tempUrl: URL.createObjectURL(file),
+            name: file.name,
+        }));
+        setPhotos((prev) => [...prev, ...newPhotos]);
     }, []);
 
-    const handleAddPhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files) {
-            const newPhotos = Array.from(e.target.files);
-            setPhotos([...photos, ...newPhotos]);
-        }
-    };
-
-    const handleRemovePhoto = (index: number) => {
-        setPhotos(photos.filter((_, i) => i !== index));
-    };
-
-    const onSubmit = async (data: FormData) => {
-        if (!selectedLocation) {
-            toast.error('Selecione um local para a patologia');
-            return;
-        }
-
-        setIsLoading(true);
-
+    const handleRemovePhoto = useCallback(async (id: string) => {
         try {
-            const pathologyData: CreatePathologyData = {
-                projectId: 'ID_DO_PROJETO',
-                locationId: 'ID_DA_LOCALIZACAO',
-                referenceLocation: selectedLocation,
-                title: data.title,
-                description: data.description,
-                recordDate: new Date().toISOString(),
-            };
+            setIsLoading(true);
+            setPhotos((prev) => prev.filter((p) => p.id !== id));
+        } catch (error) {
+            toast.error('Erro ao remover foto');
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
 
-            const pathologyResponse = await PathologyService.create(
-                pathologyData,
-            );
-            const pathologyId = pathologyResponse.data.id;
+    const handleCardClick = (pathology: Pathology) => {
+        setSelectedPathology(pathology);
+        setIsUpdateModalOpen(true);
+    };
 
-            // 2. Fazer upload das fotos
-            if (photos.length > 0) {
-                await PathologyPhotosService.upload(pathologyId, photos);
+    const handlePathologyUpdated = (updatedPathology: Pathology) => {
+        setPathologies((prev) =>
+            prev.map((p) =>
+                p.id === updatedPathology.id ? updatedPathology : p,
+            ),
+        );
+        setIsUpdateModalOpen(false);
+    };
+
+    const onSubmit = async (
+        data: Omit<CreatePathologyFormValues, 'photos'>,
+    ) => {
+        try {
+            setIsLoading(true);
+
+            if (photos.length < 2) {
+                toast.error('Pelo menos 2 fotos são necessárias');
+                return;
             }
 
+            const location = await LocationService.getById(selectedLocationId);
+            const formData = new FormData();
+
+            formData.append('projectId', projectId);
+            formData.append('locationId', selectedLocationId);
+            formData.append('referenceLocation', location.data.name);
+            formData.append('title', data.title);
+            formData.append('description', data.description || '');
+            formData.append('recordDate', new Date().toISOString());
+
+            photos.forEach((photo) => {
+                formData.append(
+                    'photos',
+                    photo.file,
+                    photo.name || `photo-${Date.now()}`,
+                );
+            });
+
+            await PathologyService.create(formData);
             toast.success('Patologia criada com sucesso!');
-            router.push('/pathologies'); // Ou atualize a lista local
+            await loadPathologies();
+            setPhotos([]);
+            setSelectedLocationId('');
+            router.push(`/projects/${projectId}/pathologies/create-pathology`);
         } catch (error) {
             toast.error('Erro ao criar patologia');
             console.error(error);
@@ -121,60 +195,75 @@ export default function CreatePathology() {
                 <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="mb-4">
-                    <div className="pl-4">
-                        <div className="w-full relative flex justify-start py-3">
-                            <h3 className="text-2xl font-sans bg-background px-2 ml-8">
-                                Fotos
-                            </h3>
-                            <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
-                        </div>
-                        <div className="grid gap-4 grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-                            <label className="bg-white md:text-lg flex items-center justify-center gap-2 rounded-md shadow-sm text-primary py-4 px-6 hover:bg-white/60 hover:shadow-md cursor-pointer">
-                                <CameraIcon className="w-6 h-6" />
-                                <span>Adicionar Foto</span>
-                                <input
-                                    type="file"
-                                    className="hidden"
-                                    accept="image/*"
-                                    multiple
-                                    onChange={handleAddPhoto}
-                                />
-                            </label>
-
-                            {photos.map((photo, index) => (
-                                <PhotoCard
-                                    key={index}
-                                    photo={{
-                                        id: index.toString(),
-                                        filePath: URL.createObjectURL(photo),
-                                        selectedForPdf: false,
-                                    }}
-                                    onRemove={() => handleRemovePhoto(index)}
-                                />
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mb-4">
+            <form
+                onSubmit={handleSubmit(onSubmit, (errors) => {
+                    console.error('Erros de validação:', errors);
+                })}
+                className="space-y-6"
+            >
+                {/* Seção de Fotos */}
+                <div className="space-y-4">
                     <div className="w-full relative flex justify-start py-3">
                         <h3 className="text-2xl font-sans bg-background px-2 ml-8">
-                            Local
+                            Fotos ({photos.length}/2 mínimo)
+                        </h3>
+                        <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
+                    </div>
+
+                    <div className="grid gap-4 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                        <button
+                            type="button"
+                            className="bg-white flex items-center justify-center gap-2 rounded-md shadow-sm text-primary py-4 px-6 hover:shadow-md cursor-pointer"
+                            onClick={() => setShowPhotoModal(true)}
+                            disabled={isLoading}
+                        >
+                            <CameraIcon className="w-6 h-6" />
+                            <span>Adicionar Foto</span>
+                        </button>
+
+                        {photos.map((photo, index) => (
+                            <PhotoCard
+                                key={photo.id}
+                                photo={{
+                                    id: photo.id,
+                                    name: photo.name || '',
+                                    filePath: photo.tempUrl || photo.filePath,
+                                    file: photo.file,
+                                    tempUrl: photo.tempUrl,
+                                }}
+                                onDelete={handleRemovePhoto}
+                                isPathologyPhoto={true}
+                                index={index}
+                                isVisitor={isVisitor}
+                                disabled={isLoading}
+                            />
+                        ))}
+                    </div>
+                    {photos.length < 2 && (
+                        <p className="text-error mt-2">
+                            Pelo menos 2 fotos são necessárias
+                        </p>
+                    )}
+                </div>
+
+                <div className="space-y-4">
+                    <div className="w-full relative flex justify-start py-3">
+                        <h3 className="text-2xl font-sans bg-background px-2 ml-8">
+                            Localização
                         </h3>
                         <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
                     </div>
                     <CustomDropdownInput
-                        options={ceilingOptions}
-                        selectedOptionValue={selectedLocation}
-                        onOptionSelected={setSelectedLocation}
-                        icon={<MapPinnedIcon />}
-                        placeholder="Selecione o Local da Patologia*"
+                        options={locations}
+                        selectedOptionValue={selectedLocationId}
+                        onOptionSelected={handleLocationSelect}
+                        icon={<MapPinIcon />}
+                        placeholder="Selecione o local*"
+                        error={errors.referenceLocation?.message}
                     />
                 </div>
 
-                <div className="mb-4">
+                <div className="space-y-4">
                     <div className="w-full relative flex justify-start py-3">
                         <h3 className="text-2xl font-sans bg-background px-2 ml-8">
                             Título
@@ -186,10 +275,11 @@ export default function CreatePathology() {
                         label="Título*"
                         {...register('title')}
                         error={errors.title?.message}
+                        disabled={isLoading}
                     />
                 </div>
 
-                <div className="mb-4">
+                <div className="space-y-4">
                     <div className="w-full relative flex justify-start py-3">
                         <h3 className="text-2xl font-sans bg-background px-2 ml-8">
                             Descrição
@@ -198,44 +288,66 @@ export default function CreatePathology() {
                     </div>
                     <CustomFormInput
                         icon={<TextIcon />}
-                        label="Descrição"
+                        label="Descrição*"
                         {...register('description')}
                         error={errors.description?.message}
+                        disabled={isLoading}
                     />
                 </div>
 
-                <div className="mb-8">
-                    <div className="flex justify-center mt-8">
-                        <CustomButton
-                            icon={<SaveIcon />}
-                            type="submit"
-                            disabled={isLoading}
-                        >
-                            {isLoading ? 'Salvando...' : 'Salvar Patologia'}
-                        </CustomButton>
-                    </div>
+                <div className="flex justify-center mt-8">
+                    <CustomButton
+                        type="submit"
+                        icon={<SaveIcon />}
+                        disabled={isLoading || photos.length < 2}
+                        className="px-8 py-3"
+                    >
+                        {isLoading ? 'Salvando...' : 'Salvar Patologia'}
+                    </CustomButton>
                 </div>
             </form>
 
-            <div className="mb-4">
+            <AddPhotoModal
+                isOpen={showPhotoModal}
+                onClose={() => setShowPhotoModal(false)}
+                onPhotosAdded={handleAddPhotos}
+                isLoading={isLoading}
+            />
+
+            {/* Lista de Patologias Existentes */}
+            <div className="mt-12">
                 <div className="w-full relative flex justify-center py-3">
                     <h2 className="text-3xl font-sans bg-background px-2">
-                        Lista de Patologias
+                        Patologias Existentes
                     </h2>
                     <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
                 </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                    {pathologies.map((p) => (
+                        <div
+                            key={p.id}
+                            onClick={() => handleCardClick(p)}
+                            className="cursor-pointer"
+                        >
+                            <PathologyCard
+                                id={p.id}
+                                title={p.title}
+                                location={p.referenceLocation}
+                                photoCount={p.pathologyPhoto?.length}
+                            />
+                        </div>
+                    ))}
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {pathologies.map((pathology) => (
-                    <PathologyCard
-                        key={pathology.id}
-                        id={pathology.id}
-                        title={pathology.title}
-                        location={pathology.referenceLocation}
-                    />
-                ))}
-            </div>
+            {selectedPathology && (
+                <UpdatePathologyModal
+                    pathology={selectedPathology}
+                    isOpen={isUpdateModalOpen}
+                    onClose={() => setIsUpdateModalOpen(false)}
+                    onUpdate={handlePathologyUpdated}
+                />
+            )}
         </div>
     );
 }

@@ -5,12 +5,14 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import { Loader2Icon, XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { PhotoService } from '@/services/domains/photoService';
+import { PathologyPhotosService } from '@/services/domains/pathologyPhotoService';
 
 interface PhotoViewModalProps {
     photoId?: string;
     file?: File;
     isOpen: boolean;
     onClose: () => void;
+    isPathologyPhoto?: boolean;
 }
 
 export function PhotoViewModal({
@@ -18,6 +20,7 @@ export function PhotoViewModal({
     file,
     isOpen,
     onClose,
+    isPathologyPhoto = false,
 }: PhotoViewModalProps) {
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
@@ -37,9 +40,16 @@ export function PhotoViewModal({
                 }
 
                 const timestamp = Date.now();
-                const signedUrl = await PhotoService.getSignedUrl(
-                    photoId || '',
-                );
+                let signedUrl: string;
+
+                if (isPathologyPhoto) {
+                    signedUrl = await PathologyPhotosService.getSignedUrl(
+                        photoId || '',
+                    );
+                } else {
+                    signedUrl = await PhotoService.getSignedUrl(photoId || '');
+                }
+
                 const urlWithTimestamp = signedUrl.includes('?')
                     ? `${signedUrl}&t=${timestamp}`
                     : `${signedUrl}?t=${timestamp}`;
@@ -60,7 +70,7 @@ export function PhotoViewModal({
                 URL.revokeObjectURL(imageUrlRef.current);
             }
         };
-    }, [isOpen, photoId, file]);
+    }, [isOpen, photoId, file, isPathologyPhoto]);
 
     return (
         <Transition appear show={isOpen} as={Fragment}>

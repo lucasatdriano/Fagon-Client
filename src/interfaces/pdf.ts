@@ -14,6 +14,7 @@ export interface PDF {
 export interface PdfDocument {
     id: string;
     projectId: string;
+    name?: string;
     filePath: string;
     pdfType: PdfType;
     signedFilePath?: string | null;

@@ -59,10 +59,6 @@ export function AdminDropdownMenu({
 
             const { token, expiresAt: expiryDate } = response.data;
 
-            console.log(response.data);
-            console.log(token);
-            console.log(expiryDate);
-
             const newExpiresAt = new Date(expiryDate);
             setAccessKey(token);
             setExpiresAt(newExpiresAt);

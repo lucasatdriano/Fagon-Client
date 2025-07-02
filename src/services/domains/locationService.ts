@@ -17,6 +17,7 @@ export interface Location {
     photo: Array<{
         id: string;
         locationId: string;
+        name?: string;
         filePath: string;
         selectedForPdf: boolean;
         signedUrl: string;
@@ -46,8 +47,6 @@ export interface CreateLocationData {
         materialFinishing: string;
     }>;
 }
-
-// interface UpdateLocationData extends Partial<CreateLocationData> {}
 
 export const LocationService = {
     async create(data: CreateLocationData): Promise<ApiResponse<Location>> {

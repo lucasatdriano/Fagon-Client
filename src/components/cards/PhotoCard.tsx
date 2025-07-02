@@ -5,12 +5,14 @@ import { CheckIcon, ImageIcon } from 'lucide-react';
 import { Photo } from '@/interfaces/photo';
 import { DeletePhotoModal } from '../modals/photoModals/DeletePhotoModal';
 import { PhotoViewModal } from '../modals/photoModals/PhotoViewModal';
+import { PathologyPhoto } from '@/interfaces/pathologyPhoto';
 
 interface PhotoCardProps {
-    photo: Photo;
-    onSelect: (id: string) => Promise<void>;
+    photo: Photo | PathologyPhoto;
+    onSelect?: (id: string) => Promise<void>;
     onDelete: (id: string) => Promise<void>;
     index: number;
+    isPathologyPhoto?: boolean;
     disabled?: boolean;
     isVisitor?: boolean;
 }
@@ -22,9 +24,12 @@ export function PhotoCard({
     index,
     disabled,
     isVisitor = false,
+    isPathologyPhoto = false,
 }: PhotoCardProps) {
     const [isLoading, setIsLoading] = useState(false);
-    const [isSelected, setIsSelected] = useState(photo.selectedForPdf || false);
+    const [isSelected, setIsSelected] = useState(
+        'selectedForPdf' in photo ? photo.selectedForPdf : false,
+    );
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showViewModal, setShowViewModal] = useState(false);
     const longPressTimer = useRef<NodeJS.Timeout | null>(null);
@@ -65,7 +70,7 @@ export function PhotoCard({
     };
 
     const handleToggleSelection = async () => {
-        if (isVisitor) return;
+        if (isVisitor || !onSelect) return;
 
         setIsLoading(true);
         try {
@@ -115,10 +120,14 @@ export function PhotoCard({
             >
                 <div className="flex items-center justify-center py-4 gap-2">
                     <ImageIcon className="h-6 w-6" />
-                    {photo.filePath
-                        ? photo.filePath.split('/').pop()?.substring(0, 20) +
-                          (photo.filePath.length > 20 ? '...' : '')
-                        : `imagem${index + 1}.${photo.file?.type}`}
+                    <span
+                        className="truncate max-w-[180px]"
+                        title={photo.name || `Foto${index + 1}`}
+                    >
+                        {photo.name
+                            ? `${photo.name}.png`
+                            : `Foto${index + 1}.png`}
+                    </span>
                 </div>
 
                 {isSelected && (
@@ -148,6 +157,7 @@ export function PhotoCard({
                 onClose={() => setShowViewModal(false)}
                 photoId={photo.id || ''}
                 file={photo.file || undefined}
+                isPathologyPhoto={isPathologyPhoto}
             />
         </>
     );

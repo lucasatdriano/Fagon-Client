@@ -28,21 +28,33 @@ export function CustomButton({
     className = '',
 }: CustomButtonProps) {
     const baseClasses = `
-    px-4 py-2 
-    ${rounded}
-    ${fontSize}
-    ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-    transition-all 
-    font-medium
-    gap-2
-    items-center 
-    flex justify-center
-    ${className}
-  `;
+        px-4 py-2 
+        ${rounded}
+        ${fontSize}
+        ${
+            disabled
+                ? 'opacity-50 cursor-not-allowed'
+                : 'cursor-pointer hover:shadow-md'
+        }
+        transition-all 
+        font-medium
+        gap-2
+        items-center 
+        flex justify-center
+        ${className}
+    `;
 
     const variantClasses = ghost
-        ? `bg-transparent ${textColor} underline border border-transparent hover:border-current`
-        : `${color} ${textColor} border border-transparent hover:opacity-90`;
+        ? `bg-transparent ${textColor} underline border ${
+              disabled
+                  ? 'border-gray-300'
+                  : 'border-transparent hover:border-current'
+          }`
+        : `${color} ${textColor} border ${
+              disabled
+                  ? 'border-gray-300'
+                  : 'border-transparent hover:opacity-90'
+          }`;
 
     return (
         <button

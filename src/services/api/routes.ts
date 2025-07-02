@@ -73,7 +73,7 @@ const API_ROUTES = {
     },
 
     MATERIAL_FINISHINGS: {
-        // BASE: '/material-finishings',
+        BASE: '/material-finishings',
         CREATE: '/material-finishings',
         BY_LOCATION: ({ locationId }: Params) =>
             `/material-finishings/location/${locationId}`,
@@ -95,6 +95,7 @@ const API_ROUTES = {
         UPLOAD: ({ pathologyId }: Params) =>
             `/pathology-photos/upload/${pathologyId}`,
         BY_ID: ({ id }: Params) => `/pathology-photos/${id}`,
+        SIGNED_URL: ({ id }: Params) => `/pathology-photos/${id}/signed-url`,
         BY_PATHOLOGY: ({ pathologyId }: Params) =>
             `/pathology-photos/pathology/${pathologyId}`,
         DELETE: ({ id }: Params) => `/pathology-photos/${id}`,

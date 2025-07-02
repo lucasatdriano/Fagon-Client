@@ -40,7 +40,7 @@ export default function ProjectEditPage() {
                 const response = await ProjectService.getById(id);
                 const data = response.data;
                 setProject(data);
-
+                console.log(data);
                 setValue('name', data.name || '');
                 setValue('upeCode', data.upeCode.toString() || '');
                 setValue('agency', data.agency || '');
@@ -49,12 +49,11 @@ export default function ProjectEditPage() {
                 setValue('agency.city', data.agency.city || '');
                 setValue('agency.district', data.agency.district || '');
                 setValue('projectType', data.projectType || '');
-                setValue('projectDate', data.projectDate || '');
+                setValue('projectDate', data.createdAt || '');
                 setValue('engineer.name', data.engineer.name || '');
                 setValue('inspectorName', data.inspectorName || '');
                 setValue('inspectionDate', data.inspectionDate || '');
-                setValue('totalArea', data.totalArea || '');
-                setValue('maxHeight', data.maxHeight || '');
+                setValue('floorHeight', data.floorHeight || '');
                 setValue('status', data.status || '');
 
                 const foundStatus = projectStatus.find(
@@ -206,7 +205,7 @@ export default function ProjectEditPage() {
                             type="date"
                             registration={register('projectDate')}
                             error={errors.projectDate?.message}
-                            defaultValue={project?.projectDate?.toString()}
+                            defaultValue={project?.createdAt}
                             textColor="text-foreground"
                             disabled
                         />

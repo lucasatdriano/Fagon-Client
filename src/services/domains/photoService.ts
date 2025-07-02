@@ -17,22 +17,11 @@ export const PhotoService = {
             const formData = new FormData();
 
             files.forEach((file) => {
-                if (!(file instanceof Blob)) {
-                    const blob = new Blob([file], {
-                        type: file.type || 'image/jpeg',
-                    });
-                    formData.append(
-                        'files',
-                        blob,
-                        file.name || `photo-${Date.now()}.jpg`,
-                    );
-                } else {
-                    formData.append(
-                        'files',
-                        file,
-                        file.name || `photo-${Date.now()}.jpg`,
-                    );
-                }
+                formData.append(
+                    'files',
+                    file,
+                    file.name || `photo-${Date.now()}.jpg`,
+                );
             });
 
             const response = await api.post(

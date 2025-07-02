@@ -22,7 +22,7 @@ import {
     wallOptions,
 } from '@/constants';
 import { PhotoCard } from '@/components/cards/PhotoCard';
-import { LocationService } from '@/services/domains/locationService';
+import { Location, LocationService } from '@/services/domains/locationService';
 import {
     locationFormSchema,
     LocationFormSchema,
@@ -46,16 +46,6 @@ import { Photo } from '@/interfaces/photo';
 import { PhotoService } from '@/services/domains/photoService';
 import { useUserRole } from '@/hooks/useUserRole';
 import { AddPhotoModal } from '@/components/modals/photoModals/AddPhotoModal';
-import { MaterialFinishing } from '@/interfaces/materialFinishing';
-
-interface LocationData {
-    id: string;
-    name: string;
-    locationType: string;
-    height?: number;
-    photo: Photo[];
-    materialFinishing: MaterialFinishing[];
-}
 
 export default function CreateLocationPage() {
     const { projectId, locationId } = useParams();
@@ -63,7 +53,7 @@ export default function CreateLocationPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [allPhotos, setAllPhotos] = useState<Photo[]>([]);
     const [pavements, setPavements] = useState<DropdownOption[]>([]);
-    const [location, setLocation] = useState<LocationData | null>(null);
+    const [location, setLocation] = useState<Location | null>(null);
     const [formKey, setFormKey] = useState(0);
     const [showPhotoOptionsModal, setShowPhotoOptionsModal] = useState(false);
 
@@ -126,6 +116,7 @@ export default function CreateLocationPage() {
             const mappedPhotos =
                 locationData.photo?.map((photo) => ({
                     id: photo.id,
+                    name: photo.name,
                     filePath: photo.filePath.startsWith('http')
                         ? photo.filePath
                         : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/sign/${process.env.NEXT_PUBLIC_SUPABASE_BUCKET_NAME}/${photo.filePath}`,
@@ -341,7 +332,7 @@ export default function CreateLocationPage() {
             <form
                 key={formKey}
                 onSubmit={handleSubmit(onSubmit, (errors) => {
-                    console.log('Form validation errors:', errors);
+                    console.error('Form validation errors:', errors);
                 })}
                 className="space-y-6"
             >
@@ -403,6 +394,7 @@ export default function CreateLocationPage() {
                                 key={`photo-${photo.id}-${index}`}
                                 photo={{
                                     id: photo.id || '',
+                                    name: photo.name || '',
                                     filePath: photo.tempUrl || photo.filePath,
                                     selectedForPdf:
                                         photo.selectedForPdf || false,
@@ -491,7 +483,7 @@ export default function CreateLocationPage() {
                             error={errors.floorFinishing?.message}
                             gridCols={'full'}
                             placeholder="Especifique o acabamento do piso"
-                            registration={register('floorFinishing')}
+                            // registration={register('floorFinishing')}
                         />
                     </div>
 
