@@ -1,7 +1,7 @@
 'use client';
 
 import { LocationCard } from '@/components/cards/LocationCard';
-import { NavigationCard } from '@/components/cards/NavegationCard';
+import { NavigationCard } from '@/components/cards/NavigationCard';
 import { AlertTriangleIcon, MapPinPlusIcon } from 'lucide-react';
 import LocationModal from '@/components/modals/LocationModal';
 import { useState, useEffect } from 'react';

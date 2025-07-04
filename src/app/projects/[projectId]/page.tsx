@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { NavigationCard } from '@/components/cards/NavegationCard';
+import { NavigationCard } from '@/components/cards/NavigationCard';
 import PDFGeneratorWrapper from '@/components/layout/PdfGeneratorWrapper';
 import { Project, ProjectService } from '@/services/domains/projectService';
 import { ClipboardEditIcon, InfoIcon, Loader2Icon } from 'lucide-react';
