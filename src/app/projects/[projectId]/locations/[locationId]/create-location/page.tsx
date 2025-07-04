@@ -23,11 +23,7 @@ import {
 } from '@/constants';
 import { PhotoCard } from '@/components/cards/PhotoCard';
 import { Location, LocationService } from '@/services/domains/locationService';
-import {
-    locationFormSchema,
-    LocationFormSchema,
-    UpdateLocationFormSchema,
-} from '@/validations';
+import { UpdateLocationFormSchema, updateLocationSchema } from '@/validations';
 import { locationType as locationTypes, surfaceType } from '@/constants';
 import {
     CustomDropdownInput,
@@ -63,8 +59,11 @@ export default function CreateLocationPage() {
         setValue,
         watch,
         formState: { errors },
-    } = useForm<LocationFormSchema>({
-        resolver: zodResolver(locationFormSchema),
+    } = useForm<UpdateLocationFormSchema>({
+        resolver: zodResolver(updateLocationSchema),
+        defaultValues: {
+            projectId: projectId as string,
+        },
     });
 
     const name = watch('name');
@@ -295,6 +294,7 @@ export default function CreateLocationPage() {
             }
 
             const formData = new FormData();
+            formData.append('projectId', projectId as string);
             formData.append('name', getLocationValueByLabel(data.name));
             formData.append('locationType', data.locationType);
             if (data.height) formData.append('height', data.height);

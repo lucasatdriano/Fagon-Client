@@ -9,10 +9,9 @@ export const createProjectSchema = z.object({
             message: 'Tipo de projeto inválido',
         }),
 
-    selectedPerson: z
-        .string()
-        .min(1, 'Responsável é obrigatório')
-        .uuid('ID inválido'),
+    engineer: z.object({
+        id: z.string().min(1, 'Responsável é obrigatório').uuid('ID inválido'),
+    }),
 
     pavements: z.array(z.string()).min(1, 'Selecione pelo menos um pavimento'),
 

@@ -3,17 +3,11 @@ import { z } from 'zod';
 export const createAgencySchema = z.object({
     name: z.string().min(1, 'Nome da agência é obrigatório').max(100),
 
-    agencyNumber: z
-        .union([
-            z.number().min(1, 'Número da agência é obrigatório'),
-            z
-                .string()
-                .min(1, 'Número da agência é obrigatório')
-                .transform((val) => Number(val)),
-        ])
-        .refine((val) => !isNaN(val), {
-            message: 'Deve ser um número válido',
-        }),
+    agencyNumber: z.coerce
+        .number({
+            invalid_type_error: 'Número da agência deve ser um número',
+        })
+        .min(1, 'Número da agência é obrigatório'),
 
     cnpj: z
         .string()
@@ -33,17 +27,11 @@ export const createAgencySchema = z.object({
     district: z.string().min(1, 'Bairro é obrigatório').max(100),
     street: z.string().min(1, 'Rua é obrigatória').max(200),
 
-    number: z
-        .union([
-            z.number().min(1, 'Número é obrigatório'),
-            z
-                .string()
-                .min(1, 'Número é obrigatório')
-                .transform((val) => Number(val)),
-        ])
-        .refine((val) => !isNaN(val), {
-            message: 'Deve ser um número válido',
-        }),
+    number: z.coerce
+        .number({
+            invalid_type_error: 'Número deve ser um valor numérico',
+        })
+        .min(1, 'Número é obrigatório'),
 });
 
 export type CreateAgencyFormValues = z.infer<typeof createAgencySchema>;

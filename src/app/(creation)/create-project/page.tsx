@@ -22,6 +22,7 @@ import { toast } from 'sonner';
 import { ProjectType } from '@/types/project';
 import { CustomCheckboxGroup } from '@/components/forms/CustomCheckbox';
 import { handleMaskedChange } from '@/utils/helpers/handleMaskedInput';
+import { PavementItem } from '@/services/domains/pavementService';
 
 export default function CreateProjectPage() {
     const router = useRouter();
@@ -39,7 +40,6 @@ export default function CreateProjectPage() {
         resolver: zodResolver(createProjectSchema),
         defaultValues: {
             projectType: '',
-            selectedPerson: '',
             pavements: [],
             upeCode: '',
             agencyId: '',
@@ -55,14 +55,14 @@ export default function CreateProjectPage() {
             const payload = {
                 projectType: data.projectType as ProjectType,
                 upeCode: Number(data.upeCode),
-                pavements: pavementsArray.map((p) => ({
+                pavement: pavementsArray.map((p) => ({
                     pavement:
                         typeof p === 'string'
                             ? p
-                            : (p as { pavement: string }).pavement,
+                            : (p as PavementItem).pavement,
                 })),
                 agencyId: data.agencyId,
-                engineerId: data.selectedPerson,
+                engineerId: data.engineer.id,
             };
 
             const newProject = await ProjectService.create(payload);
@@ -95,7 +95,9 @@ export default function CreateProjectPage() {
     return (
         <div className="h-screen w-full flex items-center justify-center">
             <form
-                onSubmit={handleSubmit(onSubmit)}
+                onSubmit={handleSubmit(onSubmit, (errors) => {
+                    console.error('Form validation errors:', errors);
+                })}
                 className="space-y-4 bg-white grid place-items-center shadow-md p-6 rounded-lg w-full max-w-sm md:max-w-4xl"
             >
                 <h1 className="text-2xl text-foreground mb-4 text-center font-sans">
@@ -117,10 +119,10 @@ export default function CreateProjectPage() {
                         />
 
                         <CustomRadioGroup
-                            name="people"
+                            name="engineer"
                             options={engineers}
-                            selectedValue={watch('selectedPerson')}
-                            onChange={(val) => setValue('selectedPerson', val)}
+                            selectedValue={watch('engineer.id')}
+                            onChange={(val) => setValue('engineer.id', val)}
                             className="p-4 border-2 rounded-lg row-span-2"
                             gridCols={1}
                         />

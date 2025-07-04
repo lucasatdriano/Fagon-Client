@@ -4,6 +4,7 @@ import { Pavement } from '@/interfaces/pavement';
 import { PathologyProps } from '@/interfaces/pathology';
 import { ApiResponse } from '@/types/api';
 import { ProjectType, ProjectStatus } from '@/types/project';
+import { PavementItem } from './pavementService';
 
 export interface Project {
     id: string;
@@ -33,31 +34,25 @@ export interface Project {
         id: string;
         name: string;
     };
-    pavement: {
-        id: string;
-        pavement: string;
-    };
+    pavement: Pavement[];
 }
-
-interface PavementItem {
-    pavement: string;
-}
-
 interface CreateProjectData {
     projectType: ProjectType;
     upeCode: number;
-    pavements?: PavementItem[];
+    pavement: PavementItem[];
     agencyId: string;
     engineerId: string;
 }
 
-type UpdateProjectData = Partial<CreateProjectData> & {
+interface UpdateProjectData {
     status?: ProjectStatus;
     structureType?: string;
     floorHeight?: number;
     inspectorName?: string;
     inspectionDate?: string;
-};
+    engineerId?: string;
+    pavement?: PavementItem[];
+}
 
 interface SearchProjectsParams {
     status?: ProjectStatus;

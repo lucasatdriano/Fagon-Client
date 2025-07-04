@@ -27,7 +27,8 @@ interface ProjectInformationModalProps {
 interface PavementUpdate {
     id: string;
     pavement: string;
-    area?: string;
+    area: string;
+    originalHeight: string;
 }
 
 export default function ProjectInformationModal({
@@ -61,11 +62,20 @@ export default function ProjectInformationModal({
                           id: p.id,
                           pavement: p.pavement,
                           area: p.area || '',
+                          originalHeight: p.height || '',
                       }))
                     : [];
 
                 setPavements(formattedPavements);
-                setValue('pavements', formattedPavements);
+                setValue(
+                    'pavements',
+                    formattedPavements.map((p) => ({
+                        id: p.id,
+                        pavement: p.pavement,
+                        area: p.area,
+                        height: p.originalHeight,
+                    })),
+                );
             } catch (error) {
                 console.error('Erro ao carregar pavimentos:', error);
                 toast.error('Erro ao carregar informações dos pavimentos');
@@ -81,10 +91,18 @@ export default function ProjectInformationModal({
 
     const handleAreaChange = (id: string, value: string) => {
         const updatedPavements = pavements.map((pav) =>
-            pav.id === id ? { ...pav, area: value } : pav,
+            pav.id === id ? { ...pav, area: value || '' } : pav,
         );
         setPavements(updatedPavements);
-        setValue('pavements', updatedPavements);
+        setValue(
+            'pavements',
+            updatedPavements.map((p) => ({
+                id: p.id,
+                pavement: p.pavement,
+                area: p.area,
+                height: p.originalHeight,
+            })),
+        );
     };
 
     const onSubmit = async (data: ProjectInfoFormData) => {
@@ -94,10 +112,11 @@ export default function ProjectInformationModal({
             await ProjectService.update(projectId, {
                 structureType: data.structureType,
                 floorHeight: floorHeightNumber,
-                pavements: data.pavements?.map((p) => ({
+                pavement: data.pavements?.map((p) => ({
                     id: p.id,
                     pavement: p.pavement,
                     area: p.area,
+                    height: p.height,
                 })),
             });
 
@@ -156,7 +175,15 @@ export default function ProjectInformationModal({
                                     </div>
                                 ) : (
                                     <form
-                                        onSubmit={handleSubmit(onSubmit)}
+                                        onSubmit={handleSubmit(
+                                            onSubmit,
+                                            (errors) => {
+                                                console.error(
+                                                    'Form validation errors:',
+                                                    errors,
+                                                );
+                                            },
+                                        )}
                                         className="mt-4 space-y-4"
                                     >
                                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

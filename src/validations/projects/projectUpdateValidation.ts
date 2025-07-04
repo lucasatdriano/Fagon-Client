@@ -1,51 +1,35 @@
-import { ProjectStatus } from '@/types/project';
 import { z } from 'zod';
+import { createProjectSchema } from './projectCreateValidation';
 
-const editableFieldsSchema = z.object({
-    inspectorName: z
-        .string()
-        .max(100, 'Máximo 100 caracteres')
-        .optional()
-        .nullable(),
+const baseUpdateSchema = createProjectSchema
+    .extend({
+        id: z.string().uuid('ID inválido').optional(),
+        name: z.string().min(1, 'Nome é obrigatório').optional(),
+        agency: z
+            .object({
+                id: z.string().uuid(),
+                name: z.string(),
+                agencyNumber: z.string(),
+                state: z.string(),
+                city: z.string(),
+                district: z.string(),
+            })
+            .optional(),
+        projectDate: z.string().optional(),
+        status: z.string().optional(),
+        inspectorName: z.string().max(100, 'Máximo 100 caracteres').optional(),
+        inspectionDate: z.string().optional(),
+        structureType: z.string().max(100, 'Máximo 100 caracteres').optional(),
+        // floorHeight: z.number().optional()
+    })
+    .partial();
 
-    inspectionDate: z.string().optional().nullable(),
+export const updateProjectSchema = baseUpdateSchema.refine(
+    (data) => data.pavements === undefined || data.pavements.length > 0,
+    {
+        message: 'Selecione pelo menos um pavimento',
+        path: ['pavements'],
+    },
+);
 
-    structureType: z
-        .string()
-        .max(100, 'Máximo 100 caracteres')
-        .optional()
-        .nullable(),
-
-    engineer: z
-        .object({
-            id: z.string().min(1, 'Selecione um engenheiro responsável'),
-        })
-        .optional(),
-
-    pavements: z.array(z.string()).optional(),
-
-    // floorHeight: z
-    //     .string()
-    //     .regex(/^\d+(\.\d+)?$/, 'Deve ser um número válido')
-    //     .optional()
-    //     .nullable(),
-});
-
-export type UpdateProjectFormValues = z.infer<typeof editableFieldsSchema> & {
-    id: string;
-    name: string;
-    upeCode: string;
-    agency: {
-        id: string;
-        name: string;
-        agencyNumber: string;
-        state: string;
-        city: string;
-        district: string;
-    };
-    projectType: string;
-    projectDate: string;
-    status: ProjectStatus;
-};
-
-export const updateProjectSchema = editableFieldsSchema;
+export type UpdateProjectFormValues = z.infer<typeof updateProjectSchema>;

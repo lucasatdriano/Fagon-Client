@@ -167,8 +167,7 @@ export default function CreatePathologyPage() {
             formData.append('locationId', selectedLocationId);
             formData.append('referenceLocation', location.data.name);
             formData.append('title', data.title);
-            formData.append('description', data.description || '');
-            formData.append('recordDate', new Date().toISOString());
+            formData.append('description', data.description);
 
             photos.forEach((photo) => {
                 formData.append(

@@ -86,7 +86,9 @@ export default function CreateAgencyPage() {
     return (
         <div className="h-screen w-full flex items-center justify-center">
             <form
-                onSubmit={handleSubmit(onSubmit)}
+                onSubmit={handleSubmit(onSubmit, (errors) => {
+                    console.error('Form validation errors:', errors);
+                })}
                 className="space-y-4 bg-white grid place-items-center shadow-md p-6 rounded-lg w-full max-w-sm md:max-w-4xl"
             >
                 <h1 className="text-2xl text-foreground mb-4 text-center font-sans">

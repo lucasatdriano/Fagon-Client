@@ -94,12 +94,12 @@ export default function DashboardAgenciesPage() {
                         <AgencyCard
                             key={agency.id}
                             id={agency.id}
-                            agencyNumber={String(agency.agencyNumber)}
+                            agencyNumber={agency.agencyNumber}
                             name={agency.name}
                             city={agency.city}
                             district={agency.district}
                             street={agency.street}
-                            number={String(agency.number)}
+                            number={agency.number}
                             cnpj={agency.cnpj}
                             cep={agency.cep}
                             state={agency.state}

@@ -1,13 +1,10 @@
 import z from 'zod';
-import { photoSchema } from '../photos/photoCreateValidation';
 
 export const updateLocationSchema = z
     .object({
         id: z.string().optional(),
 
         projectId: z.string(),
-
-        photo: z.array(photoSchema),
 
         name: z.string().min(1, 'O nome do local é obrigatório'),
 

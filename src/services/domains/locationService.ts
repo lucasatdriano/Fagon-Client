@@ -34,18 +34,6 @@ export interface CreateLocationData {
     projectId: string;
     name: string;
     locationType: LocationType;
-    height?: number;
-    photos?: File[];
-    pavement?: {
-        pavement: string;
-        height: number;
-        area: number;
-        projectId: string;
-    };
-    materialFinishings?: Array<{
-        surface: SurfaceType;
-        materialFinishing: string;
-    }>;
 }
 
 export const LocationService = {

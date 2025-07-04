@@ -17,12 +17,20 @@ import { EngineerService } from '@/services/domains/engineerService';
 import { CustomRadioGroup } from '@/components/forms/CustomRadioGroup';
 import { engineerProps } from '@/interfaces/engineer';
 import { CustomCheckboxGroup } from '@/components/forms/CustomCheckbox';
+import { Pavement } from '@/interfaces/pavement';
 
 type StatusItem = {
     value: string;
     label: string;
     bg: string;
     text: string;
+};
+
+type FormValues = UpdateProjectFormValues & {
+    pavements?: string[];
+    engineer?: {
+        id: string;
+    };
 };
 
 export default function ProjectEditPage() {
@@ -41,8 +49,12 @@ export default function ProjectEditPage() {
         setValue,
         watch,
         formState: { errors },
-    } = useForm<UpdateProjectFormValues>({
+    } = useForm<FormValues>({
         resolver: zodResolver(updateProjectSchema),
+        defaultValues: {
+            pavements: [],
+            engineer: { id: '' },
+        },
     });
 
     useEffect(() => {
@@ -74,17 +86,20 @@ export default function ProjectEditPage() {
 
                 setValue('name', data.name || '');
                 setValue('upeCode', data.upeCode.toString() || '');
-                setValue('agency', data.agency || '');
-                setValue('agency.agencyNumber', data.agency.agencyNumber || '');
-                setValue('agency.state', data.agency.state || '');
-                setValue('agency.city', data.agency.city || '');
-                setValue('agency.district', data.agency.district || '');
+                setValue('agency', {
+                    id: data.agency.id,
+                    name: data.agency.name,
+                    agencyNumber: data.agency.agencyNumber,
+                    state: data.agency.state,
+                    city: data.agency.city,
+                    district: data.agency.district,
+                });
                 setValue(
                     'projectType',
                     getProjectTypeLabel(data.projectType || ''),
                 );
                 setValue('projectDate', formatDateForInput(data.createdAt));
-                setValue('engineer.id', data.engineer.id || '');
+                setValue('engineer', { id: data.engineer.id || '' });
                 setValue('inspectorName', data.inspectorName || '');
                 setValue(
                     'inspectionDate',
@@ -94,7 +109,9 @@ export default function ProjectEditPage() {
                 setValue('status', data.status || '');
                 setValue(
                     'pavements',
-                    data.pavement?.map((p) => p.pavement) || [],
+                    data.pavement
+                        ? data.pavement.map((p: Pavement) => p.pavement)
+                        : [],
                 );
 
                 const foundStatus = projectStatus.find(
@@ -113,21 +130,19 @@ export default function ProjectEditPage() {
         fetchProjectData();
     }, [id, setValue]);
 
-    const onSubmit = async (formData: UpdateProjectFormValues) => {
+    const onSubmit = async (formData: FormValues) => {
         try {
             setIsLoading(true);
 
             const updateData = {
-                inspectorName: formData.inspectorName,
-                inspectionDate: formData.inspectionDate
-                    ? new Date(formData.inspectionDate).toISOString()
-                    : null,
-                structureType: formData.structureType,
+                inspectorName: formData.inspectorName || undefined,
+                inspectionDate: formData.inspectionDate || undefined,
+                structureType: formData.structureType || undefined,
                 engineerId: formData.engineer?.id,
                 pavement: formData.pavements?.map((pavement) => ({
                     pavement,
                 })),
-                // floorHeight: formData.floorHeight,
+                // floorHeight: formData.floorHeight
             };
 
             const response = await ProjectService.update(id, updateData);
@@ -293,7 +308,7 @@ export default function ProjectEditPage() {
                         </div>
 
                         <CustomRadioGroup
-                            name="engineer"
+                            name="engineer.id"
                             placeholder="Engenheiro(a) Responsável"
                             options={engineers}
                             selectedValue={watch('engineer.id')}

@@ -6,6 +6,7 @@ import { Photo } from '@/interfaces/photo';
 import { DeletePhotoModal } from '../modals/photoModals/DeletePhotoModal';
 import { PhotoViewModal } from '../modals/photoModals/PhotoViewModal';
 import { PathologyPhoto } from '@/interfaces/pathologyPhoto';
+import { toast } from 'sonner';
 
 interface PhotoCardProps {
     photo: Photo | PathologyPhoto;
@@ -40,6 +41,11 @@ export function PhotoCard({
         if (disabled || isLoading) return;
 
         longPressTimer.current = setTimeout(() => {
+            if (isVisitor) {
+                toast.error('Vistoriadores não podem deletar fotos');
+                return;
+            }
+
             setShowDeleteModal(true);
         }, 1000);
     };
@@ -106,9 +112,9 @@ export function PhotoCard({
         <>
             <div
                 className={`px-4 bg-white relative cursor-pointer border rounded-lg overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md ${
-                    isSelected || !isVisitor ? 'border border-primary' : ''
+                    isSelected && !isVisitor ? 'border-primary' : ''
                 }
-                    ${!isSelected ? 'border-0' : ''} ${
+                    ${!isSelected ? 'border-gray-200' : ''} ${
                     disabled ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
                 onClick={handleClick}
@@ -130,7 +136,7 @@ export function PhotoCard({
                     </span>
                 </div>
 
-                {isSelected && (
+                {isSelected && !isVisitor && (
                     <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
                         <div className="bg-primary p-2 rounded-full">
                             <CheckIcon className="h-5 w-5 text-white" />

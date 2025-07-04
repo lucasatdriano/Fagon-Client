@@ -220,7 +220,9 @@ export function UpdatePathologyModal({
                 </div>
 
                 <form
-                    onSubmit={handleSubmit(onSubmit)}
+                    onSubmit={handleSubmit(onSubmit, (errors) => {
+                        console.error('Form validation errors:', errors);
+                    })}
                     className="p-6 space-y-6"
                 >
                     <div>

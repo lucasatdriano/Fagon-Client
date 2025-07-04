@@ -60,22 +60,22 @@ export default function AgencyEditPage() {
         fetchAddress();
     }, [cepValue, setValue]);
 
-    const checkFormChanges = (currentValues: UpdateAgencyFormValues) => {
-        if (!agency) return false;
-
-        return (
-            currentValues.agencyNumber !== agency.agencyNumber ||
-            (currentValues.cnpj || '') !== (agency.cnpj || '') ||
-            (currentValues.cep || '') !== (agency.cep || '') ||
-            (currentValues.state || '') !== (agency.state || '') ||
-            (currentValues.city || '') !== (agency.city || '') ||
-            (currentValues.district || '') !== (agency.district || '') ||
-            (currentValues.street || '') !== (agency.street || '') ||
-            (currentValues.number || '') !== (agency.number || '')
-        );
-    };
-
     useEffect(() => {
+        const checkFormChanges = (currentValues: UpdateAgencyFormValues) => {
+            if (!agency) return false;
+
+            return (
+                currentValues.agencyNumber !== agency.agencyNumber ||
+                (currentValues.cnpj || '') !== (agency.cnpj || '') ||
+                (currentValues.cep || '') !== (agency.cep || '') ||
+                (currentValues.state || '') !== (agency.state || '') ||
+                (currentValues.city || '') !== (agency.city || '') ||
+                (currentValues.district || '') !== (agency.district || '') ||
+                (currentValues.street || '') !== (agency.street || '') ||
+                (currentValues.number || '') !== (agency.number || '')
+            );
+        };
+
         const subscription = watch((value) => {
             setIsFormModified(
                 checkFormChanges(value as UpdateAgencyFormValues),
@@ -165,7 +165,9 @@ export default function AgencyEditPage() {
                 </div>
 
                 <form
-                    onSubmit={handleSubmit(onSubmit)}
+                    onSubmit={handleSubmit(onSubmit, (errors) => {
+                        console.error('Form validation errors:', errors);
+                    })}
                     className="py-4 px-8 space-y-6"
                 >
                     {apiError && (
@@ -179,7 +181,10 @@ export default function AgencyEditPage() {
                             Itaú Unibanco S/A
                         </h2>
                         <h2 className="text-xl font-semibold text-gray-800">
-                            Ag. {formatNumberAgency(agency?.agencyNumber || '')}
+                            Ag.{' '}
+                            {formatNumberAgency(
+                                String(agency?.agencyNumber || ''),
+                            )}
                         </h2>
                     </div>
 

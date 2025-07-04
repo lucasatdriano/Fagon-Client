@@ -105,7 +105,15 @@ export default function LocationModal({
                                 </Dialog.Title>
 
                                 <form
-                                    onSubmit={handleSubmit(onSubmit)}
+                                    onSubmit={handleSubmit(
+                                        onSubmit,
+                                        (errors) => {
+                                            console.error(
+                                                'Form validation errors:',
+                                                errors,
+                                            );
+                                        },
+                                    )}
                                     className="mt-4 space-y-6"
                                 >
                                     <div>

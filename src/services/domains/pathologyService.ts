@@ -16,14 +16,16 @@ export interface Pathology {
     pathologyPhoto?: PathologyPhoto[];
 }
 
-export interface CreatePathologyData {
-    projectId: string;
-    locationId: string;
-    referenceLocation: string;
-    title: string;
-    description: string;
-    photos?: File[];
-}
+export type CreatePathologyData =
+    | {
+          projectId: string;
+          locationId: string;
+          referenceLocation: string;
+          title: string;
+          description: string;
+          photos: File[];
+      }
+    | FormData;
 
 export interface ListPathologiesParams {
     projectId?: string;

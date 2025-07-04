@@ -12,6 +12,10 @@ export interface Pavement {
     updatedAt: string;
 }
 
+export interface PavementItem {
+    pavement: string;
+}
+
 export interface CreatePavementData {
     projectId: string;
     pavement: string;

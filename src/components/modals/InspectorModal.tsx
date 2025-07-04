@@ -134,7 +134,15 @@ export default function InspectorModal({
                                 </Dialog.Title>
 
                                 <form
-                                    onSubmit={handleSubmit(onSubmit)}
+                                    onSubmit={handleSubmit(
+                                        onSubmit,
+                                        (errors) => {
+                                            console.error(
+                                                'Form validation errors:',
+                                                errors,
+                                            );
+                                        },
+                                    )}
                                     className="mt-6 space-y-4 text-start"
                                 >
                                     <CustomFormInput

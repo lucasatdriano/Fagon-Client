@@ -68,7 +68,9 @@ export default function RegisterPage() {
                 className="w-44 h-44 md:w-56 md:h-56"
             />
             <form
-                onSubmit={handleSubmit(onSubmit)}
+                onSubmit={handleSubmit(onSubmit, (errors) => {
+                    console.error('Form validation errors:', errors);
+                })}
                 className="space-y-4 bg-primary grid place-items-center shadow-md p-6 rounded-lg w-full max-w-sm md:max-w-md"
             >
                 <h1 className="text-2xl text-white mb-4 text-center font-sans">
