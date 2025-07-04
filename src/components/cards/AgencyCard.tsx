@@ -23,7 +23,7 @@ export default function AgencyCard({
             <div className="flex items-center gap-2 mb-3">
                 <LandmarkIcon className="w-8 h-8 text-primary" />
                 <span className="font-semibold text-foreground">
-                    AG. {formatNumberAgency(agencyNumber)}
+                    AG. {formatNumberAgency(agencyNumber.toString())}
                 </span>
             </div>
 
