@@ -77,7 +77,7 @@ export function SearchCardList({
                                     <span className="ml-2 text-gray-600">
                                         {agency.name} - AG.{' '}
                                         {formatNumberAgency(
-                                            agency.agencyNumber,
+                                            agency.agencyNumber.toString(),
                                         )}{' '}
                                         - {agency.city} - {agency.district}
                                     </span>
