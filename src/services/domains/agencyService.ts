@@ -72,7 +72,7 @@ export const AgencyService = {
     async update(
         id: string,
         data: Partial<CreateAgencyFormValues>,
-    ): Promise<agencyProps> {
+    ): Promise<ApiResponse<agencyProps>> {
         try {
             const response = await api.patch(
                 API_ROUTES.AGENCIES.UPDATE({ id }),

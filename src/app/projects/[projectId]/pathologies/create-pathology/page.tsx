@@ -25,15 +25,15 @@ import {
     PathologyService,
 } from '@/services/domains/pathologyService';
 import { LocationService } from '@/services/domains/locationService';
-import {
-    createPathologySchema,
-    CreatePathologyFormValues,
-} from '@/validations/pathologies/pathologyCreateValidation';
 import { useUserRole } from '@/hooks/useUserRole';
 import { AddPhotoModal } from '@/components/modals/photoModals/AddPhotoModal';
 import { PathologyPhoto } from '@/interfaces/pathologyPhoto';
 import { formatWithCapitals } from '@/utils/formatters/formatValues';
 import { UpdatePathologyModal } from '@/components/modals/PathologyModal';
+import {
+    CreatePathologyFormValues,
+    createPathologySchema,
+} from '@/validations';
 
 export default function CreatePathologyPage() {
     const router = useRouter();
@@ -95,10 +95,16 @@ export default function CreatePathologyPage() {
         loadData();
     }, [projectId, setValue, loadPathologies]);
 
-    const handleLocationSelect = (id: string) => {
-        setSelectedLocationId(id);
-        setValue('referenceLocation', id);
-        setValue('locationId', id);
+    const handleLocationSelect = (id: string | null) => {
+        if (id === null) {
+            setSelectedLocationId('');
+            setValue('referenceLocation', '');
+            setValue('locationId', '');
+        } else {
+            setSelectedLocationId(id);
+            setValue('referenceLocation', id);
+            setValue('locationId', id);
+        }
     };
 
     useEffect(() => {

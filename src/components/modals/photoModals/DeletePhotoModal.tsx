@@ -64,7 +64,7 @@ export function DeletePhotoModal({
                                         type="button"
                                         onClick={onClose}
                                         disabled={isLoading}
-                                        className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50"
+                                        className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:border-2 focus-visible:border-blue-500 focus-visible:border-offset-2 disabled:opacity-50"
                                     >
                                         Cancelar
                                     </button>
@@ -72,7 +72,7 @@ export function DeletePhotoModal({
                                         type="button"
                                         onClick={onConfirm}
                                         disabled={isLoading}
-                                        className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:border-2 focus-visible:border-red-500 focus-visible:border-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isLoading
                                             ? 'Excluindo...'

@@ -26,6 +26,6 @@ export function useUserRole() {
     return {
         role,
         loading,
-        isVisitor: role === 'vistoriador', // Adicionei esta propriedade conveniente
+        isVisitor: role === 'vistoriador',
     };
 }

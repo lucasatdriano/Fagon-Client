@@ -1,11 +1,13 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { NavigationCard } from '@/components/cards/NavegationCard';
 import PDFGeneratorWrapper from '@/components/layout/PdfGeneratorWrapper';
 import { Project, ProjectService } from '@/services/domains/projectService';
 import { ClipboardEditIcon, InfoIcon, Loader2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { parseCookies } from 'nookies';
+import { useUserRole } from '@/hooks/useUserRole';
 
 export default function DashboardProjectPage() {
     const { projectId } = useParams();
@@ -13,9 +15,28 @@ export default function DashboardProjectPage() {
     const [project, setProject] = useState<Project>();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
+    const { loading: roleLoading, isVisitor } = useUserRole();
+    const [isChecking, setIsChecking] = useState(true);
 
     useEffect(() => {
-        if (!projectId) return;
+        if (!roleLoading) {
+            if (isVisitor && !window.location.pathname.includes('/locations')) {
+                const cookies = parseCookies();
+                const projectId = cookies.projectId || id;
+
+                if (projectId) {
+                    router.push(`/projects/${projectId}/locations`);
+                } else {
+                    router.push('/projects');
+                }
+            }
+            setIsChecking(false);
+        }
+    }, [roleLoading, isVisitor, router, id]);
+
+    useEffect(() => {
+        if (!projectId || isVisitor) return;
 
         async function fetchProject() {
             try {
@@ -31,7 +52,15 @@ export default function DashboardProjectPage() {
         }
 
         fetchProject();
-    }, [projectId, id]);
+    }, [projectId, id, isVisitor]);
+
+    if (roleLoading || isChecking) {
+        return (
+            <div className="flex h-screen items-center justify-center">
+                <Loader2Icon className="h-8 w-8 animate-spin" />
+            </div>
+        );
+    }
 
     if (loading) {
         return (

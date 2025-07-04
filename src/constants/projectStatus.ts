@@ -12,7 +12,7 @@ export const projectStatus = [
         text: 'text-blue-800',
     },
     {
-        value: 'aguardando_geração_de_pdfs',
+        value: 'aguardando_gerar_pdfs',
         label: 'Aguardando Geração de PDFs',
         bg: 'bg-yellow-100',
         text: 'text-yellow-800',

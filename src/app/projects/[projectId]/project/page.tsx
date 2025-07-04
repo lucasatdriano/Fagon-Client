@@ -5,10 +5,18 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CustomEditInput } from '@/components/forms/CustomEditInput';
 import { CustomButton } from '@/components/forms/CustomButton';
-import { projectStatus } from '@/constants';
+import { projectStatus, pavements } from '@/constants';
 import { UpdateProjectFormValues, updateProjectSchema } from '@/validations';
 import { Project, ProjectService } from '@/services/domains/projectService';
 import { useParams } from 'next/navigation';
+import { Loader2Icon } from 'lucide-react';
+import { toast } from 'sonner';
+import { formatDateForInput } from '@/utils/formatters/formatDate';
+import { getProjectTypeLabel } from '@/utils/formatters/formatValues';
+import { EngineerService } from '@/services/domains/engineerService';
+import { CustomRadioGroup } from '@/components/forms/CustomRadioGroup';
+import { engineerProps } from '@/interfaces/engineer';
+import { CustomCheckboxGroup } from '@/components/forms/CustomCheckbox';
 
 type StatusItem = {
     value: string;
@@ -23,15 +31,38 @@ export default function ProjectEditPage() {
     const [project, setProject] = useState<Project | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [statusData, setStatusData] = useState<StatusItem>();
+    const [engineers, setEngineers] = useState<
+        { id: string; value: string; label: string }[]
+    >([]);
 
     const {
         register,
         handleSubmit,
         setValue,
+        watch,
         formState: { errors },
     } = useForm<UpdateProjectFormValues>({
         resolver: zodResolver(updateProjectSchema),
     });
+
+    useEffect(() => {
+        const fetchEngineers = async () => {
+            try {
+                const result = await EngineerService.listAll();
+                const data = result.data;
+                const formatted = data.map((engineer: engineerProps) => ({
+                    id: engineer.id,
+                    value: engineer.id,
+                    label: engineer.name,
+                }));
+                setEngineers(formatted);
+            } catch (error) {
+                console.error('Erro ao buscar engenheiros:', error);
+            }
+        };
+
+        fetchEngineers();
+    }, []);
 
     useEffect(() => {
         const fetchProjectData = async () => {
@@ -40,7 +71,7 @@ export default function ProjectEditPage() {
                 const response = await ProjectService.getById(id);
                 const data = response.data;
                 setProject(data);
-                console.log(data);
+
                 setValue('name', data.name || '');
                 setValue('upeCode', data.upeCode.toString() || '');
                 setValue('agency', data.agency || '');
@@ -48,13 +79,23 @@ export default function ProjectEditPage() {
                 setValue('agency.state', data.agency.state || '');
                 setValue('agency.city', data.agency.city || '');
                 setValue('agency.district', data.agency.district || '');
-                setValue('projectType', data.projectType || '');
-                setValue('projectDate', data.createdAt || '');
-                setValue('engineer.name', data.engineer.name || '');
+                setValue(
+                    'projectType',
+                    getProjectTypeLabel(data.projectType || ''),
+                );
+                setValue('projectDate', formatDateForInput(data.createdAt));
+                setValue('engineer.id', data.engineer.id || '');
                 setValue('inspectorName', data.inspectorName || '');
-                setValue('inspectionDate', data.inspectionDate || '');
-                setValue('floorHeight', data.floorHeight || '');
+                setValue(
+                    'inspectionDate',
+                    formatDateForInput(data.inspectionDate),
+                );
+                setValue('structureType', data.structureType || '');
                 setValue('status', data.status || '');
+                setValue(
+                    'pavements',
+                    data.pavement?.map((p) => p.pavement) || [],
+                );
 
                 const foundStatus = projectStatus.find(
                     (s) => s.value === data.status,
@@ -78,17 +119,21 @@ export default function ProjectEditPage() {
 
             const updateData = {
                 inspectorName: formData.inspectorName,
-                inspectionDate: formData.inspectionDate,
+                inspectionDate: formData.inspectionDate
+                    ? new Date(formData.inspectionDate).toISOString()
+                    : null,
                 structureType: formData.structureType,
-                floorHeight: formData.floorHeight,
+                engineerId: formData.engineer?.id,
+                pavement: formData.pavements?.map((pavement) => ({
+                    pavement,
+                })),
+                // floorHeight: formData.floorHeight,
             };
 
-            const response = await ProjectService.update(id, {
-                updateData,
-            });
+            const response = await ProjectService.update(id, updateData);
 
             if (response) {
-                alert('Projeto atualizado com sucesso!');
+                toast.success('Projeto atualizado com sucesso!');
                 if (
                     statusData &&
                     formData.status &&
@@ -110,7 +155,7 @@ export default function ProjectEditPage() {
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                <Loader2Icon className="animate-spin w-12 h-12 text-primary" />
             </div>
         );
     }
@@ -129,7 +174,9 @@ export default function ProjectEditPage() {
                 </div>
 
                 <form
-                    onSubmit={handleSubmit(onSubmit)}
+                    onSubmit={handleSubmit(onSubmit, (errors) => {
+                        console.error('Form validation errors:', errors);
+                    })}
                     className="py-4 px-8 space-y-6"
                 >
                     <div className="flex justify-between pb-4">
@@ -211,15 +258,6 @@ export default function ProjectEditPage() {
                         />
 
                         <CustomEditInput
-                            label="Engenheiro(a) Responsável"
-                            registration={register('engineer.name')}
-                            error={errors.engineer?.name?.message}
-                            defaultValue={project?.engineer.name}
-                            textColor="text-foreground"
-                            disabled
-                        />
-
-                        <CustomEditInput
                             label="Nome do Vistoriador"
                             registration={register('inspectorName')}
                             error={errors.inspectorName?.message}
@@ -243,29 +281,48 @@ export default function ProjectEditPage() {
                             defaultValue={project?.structureType}
                             textColor="text-foreground"
                         />
+                    </div>
 
-                        {/* <div className="flex items-center gap-2">
-                            <CustomEditInput
-                                label="Área Total da Agência"
-                                registration={register('totalArea')}
-                                error={errors.totalArea?.message}
-                                defaultValue={project?.totalArea}
-                                textColor="text-foreground"
-                                className="flex-1"
-                            />
-                            <span>m²</span>
-                        </div> */}
-                        {/* <div className="flex items-center gap-2">
-                            <CustomEditInput
-                                label="Altura Máxima do Pé Direito"
-                                registration={register('maxHeight')}
-                                error={errors.maxHeight?.message}
-                                defaultValue={project?.maxHeight}
-                                textColor="text-foreground"
-                                className="flex-1"
-                            />
-                            <span>m</span>
-                        </div> */}
+                    {/* Seção Engenheiro Responsável */}
+                    <div className="col-span-2">
+                        <div className="w-full relative flex justify-start">
+                            <hr className="w-full h-px absolute border-foreground top-1/2 left-0" />
+                            <h2 className="text-xl text-foreground font-sans bg-white px-2 ml-6 z-0">
+                                Engenheiro Responsável
+                            </h2>
+                        </div>
+
+                        <CustomRadioGroup
+                            name="engineer"
+                            placeholder="Engenheiro(a) Responsável"
+                            options={engineers}
+                            selectedValue={watch('engineer.id')}
+                            onChange={(val) => setValue('engineer.id', val)}
+                            className="p-4 border-2 rounded-lg mt-6"
+                            gridCols={2}
+                        />
+                    </div>
+
+                    {/* Seção Pavimentos */}
+                    <div className="col-span-2">
+                        <div className="w-full relative flex justify-start">
+                            <hr className="w-full h-px absolute border-foreground top-1/2 left-0" />
+                            <h2 className="text-xl text-foreground font-sans bg-white px-2 ml-6 z-0">
+                                Pavimentos
+                            </h2>
+                        </div>
+
+                        <CustomCheckboxGroup
+                            name="pavements"
+                            options={pavements.map((p) => ({
+                                value: p.value,
+                                label: p.label,
+                            }))}
+                            selectedValues={watch('pavements') || []}
+                            onChange={(values) => setValue('pavements', values)}
+                            className="p-4 border-2 rounded-lg mt-6"
+                            gridCols={'full'}
+                        />
                     </div>
 
                     <div className="flex justify-center pt-4">

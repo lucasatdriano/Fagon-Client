@@ -60,7 +60,7 @@ export function CustomAuthInput({
                             absolute left-0 transition-all duration-200 pointer-events-none ${textColor}
                             ${
                                 isFocused || hasValue
-                                    ? 'ms-8 -translate-y-5 text-sm text-white' // Sobe mais (equivalente a -top-1.5)
+                                    ? 'ms-8 -translate-y-5 text-sm text-white'
                                     : 'ms-12 translate-y-0 text-base text-gray-300'
                             }
                         `}

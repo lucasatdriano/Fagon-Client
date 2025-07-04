@@ -216,7 +216,7 @@ export function CustomCheckboxGroup({
                                         }}
                                         icon={<SquarePenIcon />}
                                         borderColor="border-gray-300"
-                                        key={`other-input-${otherValue}`} // Força re-renderização
+                                        key={`other-input-${otherValue}`}
                                     />
                                     <p className="text-xs text-gray-500">
                                         Se precisar inserir mais de um valor,

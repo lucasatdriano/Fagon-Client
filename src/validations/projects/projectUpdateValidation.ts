@@ -4,31 +4,35 @@ import { z } from 'zod';
 const editableFieldsSchema = z.object({
     inspectorName: z
         .string()
-        .min(1, 'Nome do vistoriador é obrigatório')
-        .max(100, 'Máximo 100 caracteres'),
+        .max(100, 'Máximo 100 caracteres')
+        .optional()
+        .nullable(),
 
-    inspectionDate: z.string().min(1, 'Data da vistoria é obrigatória'),
+    inspectionDate: z.string().optional().nullable(),
 
     structureType: z
         .string()
-        .min(1, 'Tipo da estrutura é obrigatório')
-        .max(100, 'Máximo 100 caracteres'),
+        .max(100, 'Máximo 100 caracteres')
+        .optional()
+        .nullable(),
 
-    floorHeight: z
-        .string({ required_error: 'Valor piso a piso é obrigatório' })
-        .min(1, 'Valor piso a piso é obrigatório')
-        .regex(
-            /^\d+(\.\d+)?$/,
-            'o valor piso a piso deve ser um número válido',
-        ),
+    engineer: z
+        .object({
+            id: z.string().min(1, 'Selecione um engenheiro responsável'),
+        })
+        .optional(),
+
+    pavements: z.array(z.string()).optional(),
+
+    // floorHeight: z
+    //     .string()
+    //     .regex(/^\d+(\.\d+)?$/, 'Deve ser um número válido')
+    //     .optional()
+    //     .nullable(),
 });
 
 export type UpdateProjectFormValues = z.infer<typeof editableFieldsSchema> & {
     id: string;
-    engineer: {
-        id: string;
-        name: string;
-    };
     name: string;
     upeCode: string;
     agency: {

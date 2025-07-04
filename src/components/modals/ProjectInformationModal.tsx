@@ -89,10 +89,8 @@ export default function ProjectInformationModal({
 
     const onSubmit = async (data: ProjectInfoFormData) => {
         try {
-            // Converte floorHeight para number
             const floorHeightNumber = parseFloat(data.floorHeight);
 
-            // 1. Atualiza o projeto com os dados adicionais
             await ProjectService.update(projectId, {
                 structureType: data.structureType,
                 floorHeight: floorHeightNumber,
@@ -103,7 +101,6 @@ export default function ProjectInformationModal({
                 })),
             });
 
-            // 2. Gera o PDF
             await PdfService.generate({
                 projectId,
                 pdfType: 'laudo_avaliacao',

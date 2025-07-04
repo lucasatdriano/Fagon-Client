@@ -76,7 +76,11 @@ export default function DashboardInspectorPage() {
                                 name={location.name}
                                 locationType={location.locationType}
                                 height={location.height}
-                                hasPhotosSelected={false}
+                                hasPhotosSelected={
+                                    location.photo?.some(
+                                        (photo) => photo.selectedForPdf,
+                                    ) || false
+                                }
                             />
                         ))}
 

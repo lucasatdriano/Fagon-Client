@@ -106,9 +106,9 @@ export function PhotoCard({
         <>
             <div
                 className={`px-4 bg-white relative cursor-pointer border rounded-lg overflow-hidden shadow-sm transition-all duration-200 hover:shadow-md ${
-                    isSelected || !isVisitor ? 'ring-2 ring-primary' : ''
+                    isSelected || !isVisitor ? 'border border-primary' : ''
                 }
-                    ${!isSelected ? 'ring-0' : ''} ${
+                    ${!isSelected ? 'border-0' : ''} ${
                     disabled ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
                 onClick={handleClick}

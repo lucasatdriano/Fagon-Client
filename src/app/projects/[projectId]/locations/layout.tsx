@@ -18,16 +18,14 @@ export default function CreationLayout({
     const [headerType, setHeaderType] = useState<'back' | 'default'>('back');
 
     useEffect(() => {
-        if (loading) return; // Aguarda o carregamento do role
+        if (loading) return;
 
         const checkPermissions = async () => {
-            // Define o tipo de header baseado no role
             if (isVisitor) {
                 setHeaderType('default');
                 return;
             }
 
-            // Verifica as fotos apenas para não-visitantes
             const locationId = params?.locationId as string;
             if (!locationId) return;
 

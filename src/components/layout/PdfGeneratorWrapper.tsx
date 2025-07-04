@@ -9,6 +9,7 @@ import { PdfCard } from '../cards/PdfCard';
 import { getPdfLabel } from '@/utils/formatters/formatValues';
 import ProjectInformationModal from '../modals/ProjectInformationModal';
 import { ProjectService } from '@/services/domains/projectService';
+import { ProjectStatus } from '@/types/project';
 
 interface PdfGeneratorProps {
     projectId: string;
@@ -20,6 +21,7 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
     const [generating, setGenerating] = useState<PdfType | null>(null);
     const [deletingPdf, setDeletingPdf] = useState<PdfType | null>(null);
     const [showProjectInfoModal, setShowProjectInfoModal] = useState(false);
+    const [projectStatus, setProjectStatus] = useState<ProjectStatus>();
 
     useEffect(() => {
         async function loadPdfs() {
@@ -27,6 +29,9 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
                 setLoading(true);
                 const response = await PdfService.getByProject(projectId);
                 setPdfDocuments(response.data);
+
+                const projectResponse = await ProjectService.getById(projectId);
+                setProjectStatus(projectResponse.data.status as ProjectStatus);
             } catch (error) {
                 toast.error('Erro ao carregar PDFs');
                 console.error(error);
@@ -51,6 +56,37 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
         };
     });
 
+    const updateProjectStatus = async () => {
+        try {
+            const allPdfsGenerated = pdfType.every((type) => {
+                const pdf = pdfs.find((p) => p.type === type.value);
+                return pdf?.generated || pdf?.signed;
+            });
+
+            const allPdfsSigned = pdfType.every((type) => {
+                const pdf = pdfs.find((p) => p.type === type.value);
+                return pdf?.signed;
+            });
+
+            let newStatus: ProjectStatus | undefined;
+
+            if (allPdfsSigned) {
+                newStatus = 'finalizado';
+            } else if (allPdfsGenerated) {
+                newStatus = 'aguardando_assinatura_de_pdfs';
+            } else if (pdfs.some((pdf) => pdf.generated || pdf.signed)) {
+                newStatus = 'aguardando_gerar_pdfs';
+            }
+
+            if (newStatus && newStatus !== projectStatus) {
+                await ProjectService.update(projectId, { status: newStatus });
+                setProjectStatus(newStatus);
+            }
+        } catch (error) {
+            console.error('Erro ao atualizar status do projeto:', error);
+        }
+    };
+
     const handleGenerate = async (type: PdfType) => {
         setGenerating(type);
         try {
@@ -69,6 +105,8 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
             });
             setPdfDocuments([...pdfDocuments, response.data]);
             toast.success(`PDF ${getPdfLabel(type)} gerado com sucesso!`);
+
+            await updateProjectStatus();
         } catch {
             toast.error(`Erro ao gerar PDF ${getPdfLabel(type)}`);
         } finally {
@@ -136,6 +174,8 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
                 pdfDocuments.filter((pdf) => pdf.id !== pdfToDelete.id),
             );
             toast.success(`PDF ${getPdfLabel(type)} deletado com sucesso!`);
+
+            await updateProjectStatus();
         } catch {
             toast.error(`Erro ao deletar PDF ${getPdfLabel(type)}`);
         } finally {
@@ -161,6 +201,8 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
             toast.success(
                 `PDF ${getPdfLabel(type)} assinado enviado com sucesso!`,
             );
+
+            await updateProjectStatus();
         } catch (error) {
             toast.error(`Erro ao enviar PDF assinado ${getPdfLabel(type)}`);
             throw error;

@@ -21,10 +21,6 @@ import { CustomFormInput } from '@/components/forms/CustomFormInput';
 import { PhotoCard } from '@/components/cards/PhotoCard';
 import { useUserRole } from '@/hooks/useUserRole';
 import { AddPhotoModal } from '@/components/modals/photoModals/AddPhotoModal';
-import {
-    UpdatePathologyFormValues,
-    updatePathologySchema,
-} from '@/validations/pathologies/pathologyUpdateValidation';
 import { PathologyPhoto } from '@/services/domains/pathologyPhotoService';
 import { PathologyPhotosService } from '@/services/domains/pathologyPhotoService';
 import { LocationService } from '@/services/domains/locationService';
@@ -33,6 +29,10 @@ import {
     DropdownOption,
 } from '@/components/forms/CustomDropdownInput';
 import { formatWithCapitals } from '@/utils/formatters/formatValues';
+import {
+    UpdatePathologyFormValues,
+    updatePathologySchema,
+} from '@/validations';
 
 interface UpdatePathologyModalProps {
     pathology: Pathology;
@@ -75,7 +75,6 @@ export function UpdatePathologyModal({
                 try {
                     setIsLoading(true);
 
-                    // Carrega locais
                     const locs = await LocationService.listAll(
                         pathology.project.id,
                     );
@@ -96,7 +95,6 @@ export function UpdatePathologyModal({
                         setValue('locationId', pathology.location.id);
                     }
 
-                    // Carrega fotos
                     const response =
                         await PathologyPhotosService.listByPathology(
                             pathology.id,
@@ -107,7 +105,6 @@ export function UpdatePathologyModal({
                     }));
                     setPhotos(loadedPhotos);
 
-                    // Reseta o formulário com os valores atuais
                     reset({
                         title: pathology.title,
                         description: pathology.description || '',
@@ -126,13 +123,19 @@ export function UpdatePathologyModal({
         loadData();
     }, [pathology, isOpen, reset, setValue]);
 
-    const handleLocationSelect = (id: string) => {
-        setSelectedLocationId(id);
-        setValue(
-            'referenceLocation',
-            locations.find((l) => l.id === id)?.label || '',
-        );
-        setValue('locationId', id);
+    const handleLocationSelect = (id: string | null) => {
+        if (id === null) {
+            setSelectedLocationId('');
+            setValue('referenceLocation', '');
+            setValue('locationId', '');
+        } else {
+            setSelectedLocationId(id);
+            setValue(
+                'referenceLocation',
+                locations.find((l) => l.id === id)?.label || '',
+            );
+            setValue('locationId', id);
+        }
     };
 
     const handleAddPhotos = (files: File[]) => {
@@ -173,7 +176,6 @@ export function UpdatePathologyModal({
                 return;
             }
 
-            // Upload de novas fotos primeiro
             const newPhotos = photos.filter((photo) => photo.file);
             if (newPhotos.length > 0) {
                 await PathologyPhotosService.upload(
@@ -182,7 +184,6 @@ export function UpdatePathologyModal({
                 );
             }
 
-            // Atualização dos dados da patologia
             const updated = await PathologyService.update(pathology.id, {
                 title: data.title,
                 description: data.description,
@@ -229,9 +230,9 @@ export function UpdatePathologyModal({
                         <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
                             <button
                                 type="button"
-                                className="bg-white flex items-center justify-center gap-2 rounded-md shadow-sm text-primary py-4 px-6 hover:shadow-md cursor-pointer"
+                                className="bg-white flex items-center justify-center gap-2 rounded-md shadow-sm border border-gray-200 text-primary py-4 px-6 hover:shadow-md cursor-pointer"
                                 onClick={() => setShowPhotoModal(true)}
-                                disabled={isLoading || isVisitor}
+                                disabled={isLoading}
                             >
                                 <CameraIcon className="w-6 h-6" />
                                 <span>Adicionar Foto</span>
@@ -271,7 +272,6 @@ export function UpdatePathologyModal({
                                 icon={<MapPinIcon />}
                                 placeholder="Selecione o local"
                                 error={errors.referenceLocation?.message}
-                                disabled={isLoading || isVisitor}
                             />
                         </div>
 
@@ -280,7 +280,7 @@ export function UpdatePathologyModal({
                             label="Título*"
                             {...register('title')}
                             error={errors.title?.message}
-                            disabled={isLoading || isVisitor}
+                            disabled={isLoading}
                             defaultValue={pathology.title}
                         />
 
@@ -289,7 +289,7 @@ export function UpdatePathologyModal({
                             label="Descrição"
                             {...register('description')}
                             error={errors.description?.message}
-                            disabled={isLoading || isVisitor}
+                            disabled={isLoading}
                             defaultValue={pathology.description || ''}
                         />
                     </div>
@@ -305,9 +305,7 @@ export function UpdatePathologyModal({
                         <CustomButton
                             type="submit"
                             icon={<SaveIcon className="w-4 h-4" />}
-                            disabled={
-                                isLoading || isVisitor || photos.length < 2
-                            }
+                            disabled={isLoading || photos.length < 2}
                         >
                             {isLoading ? 'Salvando...' : 'Salvar Alterações'}
                         </CustomButton>

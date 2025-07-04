@@ -12,6 +12,9 @@ import { formatCNPJ } from '@/utils/formatters/formatCNPJ';
 import { formatCEP } from '@/utils/formatters/formatCEP';
 import { formatNumberAgency } from '@/utils/formatters/formatNumberAgency';
 import { handleMaskedChange } from '@/utils/helpers/handleMaskedInput';
+import { Loader2Icon } from 'lucide-react';
+import { toast } from 'sonner';
+import { fetchAddressByCep } from '@/utils/viacep';
 
 export default function AgencyEditPage() {
     const { agencyId } = useParams();
@@ -19,6 +22,7 @@ export default function AgencyEditPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [apiError, setApiError] = useState('');
     const [agency, setAgency] = useState<UpdateAgencyFormValues | null>(null);
+    const [isFormModified, setIsFormModified] = useState(false);
 
     const {
         register,
@@ -26,9 +30,59 @@ export default function AgencyEditPage() {
         setValue,
         watch,
         formState: { errors },
+        reset,
     } = useForm<UpdateAgencyFormValues>({
         resolver: zodResolver(updateAgencySchema),
     });
+
+    const cepValue = watch('cep');
+
+    useEffect(() => {
+        async function fetchAddress() {
+            const cleanedCep = cepValue?.replace(/\D/g, '') || '';
+            if (cleanedCep.length === 8) {
+                try {
+                    const address = await fetchAddressByCep(cleanedCep);
+                    if (address) {
+                        setValue('state', address.state);
+                        setValue('city', address.city);
+                        setValue('district', address.district);
+                        setValue('street', address.street);
+
+                        setIsFormModified(true);
+                    }
+                } catch (error) {
+                    console.error('Erro ao buscar endereço:', error);
+                }
+            }
+        }
+
+        fetchAddress();
+    }, [cepValue, setValue]);
+
+    const checkFormChanges = (currentValues: UpdateAgencyFormValues) => {
+        if (!agency) return false;
+
+        return (
+            currentValues.agencyNumber !== agency.agencyNumber ||
+            (currentValues.cnpj || '') !== (agency.cnpj || '') ||
+            (currentValues.cep || '') !== (agency.cep || '') ||
+            (currentValues.state || '') !== (agency.state || '') ||
+            (currentValues.city || '') !== (agency.city || '') ||
+            (currentValues.district || '') !== (agency.district || '') ||
+            (currentValues.street || '') !== (agency.street || '') ||
+            (currentValues.number || '') !== (agency.number || '')
+        );
+    };
+
+    useEffect(() => {
+        const subscription = watch((value) => {
+            setIsFormModified(
+                checkFormChanges(value as UpdateAgencyFormValues),
+            );
+        });
+        return () => subscription.unsubscribe();
+    }, [watch, agency]);
 
     useEffect(() => {
         const fetchAgencyData = async () => {
@@ -38,14 +92,16 @@ export default function AgencyEditPage() {
                 const data = response.data;
                 setAgency(data);
 
-                setValue('agencyNumber', data.agencyNumber);
-                setValue('cnpj', data.cnpj || '');
-                setValue('cep', data.cep || '');
-                setValue('state', data.state || '');
-                setValue('city', data.city || '');
-                setValue('district', data.district || '');
-                setValue('street', data.street || '');
-                setValue('number', data.number || '');
+                reset({
+                    agencyNumber: data.agencyNumber,
+                    cnpj: data.cnpj || '',
+                    cep: data.cep || '',
+                    state: data.state || '',
+                    city: data.city || '',
+                    district: data.district || '',
+                    street: data.street || '',
+                    number: data.number,
+                });
             } catch (error) {
                 setApiError('Falha ao carregar dados da agência');
                 console.error(error);
@@ -55,7 +111,7 @@ export default function AgencyEditPage() {
         };
 
         fetchAgencyData();
-    }, [id, setValue]);
+    }, [id, reset]);
 
     const onSubmit = async (formData: UpdateAgencyFormValues) => {
         try {
@@ -64,7 +120,7 @@ export default function AgencyEditPage() {
             const updateData = {
                 agencyNumber: formData.agencyNumber,
                 cnpj: formData.cnpj?.replace(/\D/g, '') || undefined,
-                cep: formData.cep?.replace(/\D/g, '') || undefined,
+                cep: formData.cep?.replace(/\D/g, ''),
                 state: formData.state,
                 city: formData.city,
                 district: formData.district,
@@ -75,8 +131,10 @@ export default function AgencyEditPage() {
             const response = await AgencyService.update(id, updateData);
 
             if (response) {
-                alert('Agência atualizada com sucesso!');
-                setAgency(formData);
+                toast.success('Agência atualizada com sucesso!');
+                const updatedAgency = await AgencyService.getById(id);
+                setAgency(updatedAgency.data);
+                setIsFormModified(false);
             }
         } catch (error) {
             setApiError('Erro ao salvar as alterações');
@@ -86,10 +144,10 @@ export default function AgencyEditPage() {
         }
     };
 
-    if (isLoading) {
+    if (isLoading && !agency) {
         return (
             <div className="flex justify-center items-center h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+                <Loader2Icon className="animate-spin w-12 h-12 text-primary" />
             </div>
         );
     }
@@ -162,36 +220,32 @@ export default function AgencyEditPage() {
                             label="Estado"
                             registration={register('state')}
                             error={errors.state?.message}
-                            defaultValue={agency?.state}
+                            value={watch('state')}
                             textColor="text-foreground"
-                            disabled
                         />
 
                         <CustomEditInput
                             label="Cidade"
                             registration={register('city')}
                             error={errors.city?.message}
-                            defaultValue={agency?.city}
+                            value={watch('city')}
                             textColor="text-foreground"
-                            disabled
                         />
 
                         <CustomEditInput
                             label="Bairro"
                             registration={register('district')}
                             error={errors.district?.message}
-                            defaultValue={agency?.district}
+                            value={watch('district')}
                             textColor="text-foreground"
-                            disabled
                         />
 
                         <CustomEditInput
                             label="Rua"
                             registration={register('street')}
                             error={errors.street?.message}
-                            defaultValue={agency?.street}
+                            value={watch('street')}
                             textColor="text-foreground"
-                            disabled
                         />
 
                         <CustomEditInput
@@ -204,7 +258,10 @@ export default function AgencyEditPage() {
                     </div>
 
                     <div className="flex justify-center pt-4">
-                        <CustomButton type="submit" disabled={isLoading}>
+                        <CustomButton
+                            type="submit"
+                            disabled={!isFormModified || isLoading}
+                        >
                             {isLoading ? 'Salvando...' : 'Salvar Informações'}
                         </CustomButton>
                     </div>

@@ -16,4 +16,5 @@ export * from './locations/locationFormValidation';
 
 export * from './photos/photoCreateValidation';
 
-// export * from './pathologies/createPathologyValidation';
+export * from './pathologies/pathologyCreateValidation';
+export * from './pathologies/pathologyUpdateValidation';

@@ -61,7 +61,7 @@ export function CustomDropdownInput({
                 </button>
 
                 {isOpen && (
-                    <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-1 ring-1 ring-black ring-opacity-5 focus:outline-none max-h-60 overflow-y-auto">
+                    <div className="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md py-1 border-1 border-black border-opacity-5 focus:outline-none max-h-60 overflow-y-auto">
                         {options.map((option) => (
                             <div key={option.id}>
                                 <div

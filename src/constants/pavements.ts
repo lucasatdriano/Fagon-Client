@@ -1,19 +1,19 @@
 export const pavements = [
     {
         id: '1',
+        value: 'subsolo',
+        label: 'Subsolo',
+    },
+    {
+        id: '2',
         value: 'terreo',
         label: 'Térreo',
         checked: true,
     },
     {
-        id: '2',
+        id: '3',
         value: 'mezanino',
         label: 'Mezanino',
-    },
-    {
-        id: '3',
-        value: 'subsolo',
-        label: 'Subsolo',
     },
     {
         id: '4',
