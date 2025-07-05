@@ -19,6 +19,7 @@ const nextConfig: NextConfig = {
         ],
     },
     reactStrictMode: true,
+    productionBrowserSourceMaps: true,
 };
 
 export default pwaConfig(nextConfig);
