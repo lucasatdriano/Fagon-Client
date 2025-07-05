@@ -40,7 +40,9 @@ export function AdminDropdownMenu({
     }, [projectId]);
 
     const handleCopyLink = () => {
-        navigator.clipboard.writeText(`http://localhost:8080/accessKey`);
+        navigator.clipboard.writeText(
+            `https://fagon-client.onrender.com/accessKey`,
+        );
         toast.success('Link copiado com sucesso!');
     };
 

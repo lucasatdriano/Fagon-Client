@@ -8,6 +8,7 @@ const pwaConfig = withPWA({
 });
 
 const nextConfig: NextConfig = {
+    output: 'standalone',
     images: {
         remotePatterns: [
             {
@@ -19,9 +20,6 @@ const nextConfig: NextConfig = {
         ],
     },
     reactStrictMode: true,
-    // experimental: {
-    //     turbopack: true,
-    // },
 };
 
 export default pwaConfig(nextConfig);
