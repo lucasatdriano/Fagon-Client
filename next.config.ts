@@ -1,10 +1,17 @@
 import type { NextConfig } from 'next';
+import path from 'path';
 import withPWA from 'next-pwa';
+import withTM from 'next-transpile-modules';
+
+withTM(['@/components', '@/services', '@/validations']);
 
 const pwaConfig = withPWA({
     dest: 'public',
+    disable: process.env.NODE_ENV === 'development',
     register: true,
     skipWaiting: true,
+    // Adicione esta linha para evitar conflitos:
+    buildExcludes: [/middleware-manifest\.json$/],
 });
 
 const nextConfig: NextConfig = {
@@ -20,6 +27,20 @@ const nextConfig: NextConfig = {
     },
     reactStrictMode: true,
     productionBrowserSourceMaps: true,
+    // Adicione estas configurações importantes:
+    webpack: (config) => {
+        // Resolve aliases manualmente se necessário
+        config.resolve.alias = {
+            ...config.resolve.alias,
+            '@/components': path.resolve(__dirname, 'src/components'),
+            '@/services': path.resolve(__dirname, 'src/services'),
+            '@/validations': path.resolve(__dirname, 'src/validations'),
+        };
+        return config;
+    },
+    // Configuração para builds mais robustos:
+    output: 'standalone',
 };
 
-export default pwaConfig(nextConfig);
+// Aplique os plugins na ordem correta:
+export default withTM(pwaConfig(nextConfig));
