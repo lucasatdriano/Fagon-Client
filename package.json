@@ -9,6 +9,10 @@
         "postinstall": "npm run build",
         "lint": "next lint"
     },
+    "engines": {
+        "node": ">=18.0.0",
+        "npm": ">=9.0.0"
+    },
     "dependencies": {
         "@fontsource/open-sans": "^5.2.5",
         "@headlessui/react": "^2.2.2",
