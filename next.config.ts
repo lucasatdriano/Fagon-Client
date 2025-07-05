@@ -8,7 +8,6 @@ const pwaConfig = withPWA({
 });
 
 const nextConfig: NextConfig = {
-    output: 'standalone',
     images: {
         remotePatterns: [
             {
