@@ -1,7 +1,8 @@
-import { Photo } from '@/interfaces/photo';
+import { Photo } from '../../interfaces/photo';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
-import { ApiResponse } from '@/types/api';
+import { ApiResponse } from '../../types/api';
+
 export interface UpdatePhotoData {
     locationId?: string;
     filePath?: string;

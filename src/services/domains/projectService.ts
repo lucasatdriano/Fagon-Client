@@ -1,9 +1,9 @@
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
-import { Pavement } from '@/interfaces/pavement';
-import { PathologyProps } from '@/interfaces/pathology';
-import { ApiResponse } from '@/types/api';
-import { ProjectType, ProjectStatus } from '@/types/project';
+import { Pavement } from '../../interfaces/pavement';
+import { PathologyProps } from '../../interfaces/pathology';
+import { ApiResponse } from '../../types/api';
+import { ProjectType, ProjectStatus } from '../../types/project';
 import { PavementItem } from './pavementService';
 
 export interface Project {

@@ -1,4 +1,4 @@
-import { SurfaceType } from '@/types/location';
+import { SurfaceType } from '../types/location';
 
 export interface MaterialFinishing {
     id: string;

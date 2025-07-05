@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Header } from '@/components/layout/Header';
-import BottomNav from '@/components/layout/BottomNav';
-import SidebarNav from '@/components/layout/SidebarNav';
-import { SearchProvider } from '@/contexts/SearchContext';
-import { useUserRole } from '@/hooks/useUserRole';
+import { Header } from '../../components/layout/Header';
+import BottomNav from '../../components/layout/BottomNav';
+import SidebarNav from '../../components/layout/SidebarNav';
+import { SearchProvider } from '../../contexts/SearchContext';
+import { useUserRole } from '../../hooks/useUserRole';
 import { Loader2Icon } from 'lucide-react';
 import { parseCookies } from 'nookies';
 import { useRouter } from 'next/navigation';

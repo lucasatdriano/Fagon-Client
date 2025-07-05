@@ -1,13 +1,16 @@
 'use client';
 
-import { LocationCard } from '@/components/cards/LocationCard';
-import { NavigationCard } from '@/components/cards/NavigationCard';
+import { LocationCard } from '../../../../components/cards/LocationCard';
+import { NavigationCard } from '../../../../components/cards/NavigationCard';
 import { AlertTriangleIcon, MapPinPlusIcon } from 'lucide-react';
-import LocationModal from '@/components/modals/LocationModal';
+import LocationModal from '../../../../components/modals/LocationModal';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import { Location, LocationService } from '@/services/domains/locationService';
+import {
+    Location,
+    LocationService,
+} from '../../../../services/domains/locationService';
 
 export default function DashboardInspectorPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);

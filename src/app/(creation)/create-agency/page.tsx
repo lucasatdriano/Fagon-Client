@@ -5,9 +5,12 @@ import { useRouter } from 'next/navigation';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
-import { createAgencySchema, CreateAgencyFormValues } from '@/validations';
-import { CustomButton } from '@/components/forms/CustomButton';
-import { CustomFormInput } from '@/components/forms/CustomFormInput';
+import {
+    createAgencySchema,
+    CreateAgencyFormValues,
+} from '../../../validations';
+import { CustomButton } from '../../../components/forms/CustomButton';
+import { CustomFormInput } from '../../../components/forms/CustomFormInput';
 import {
     Building2Icon,
     FileTextIcon,
@@ -18,9 +21,9 @@ import {
     Navigation2Icon,
     PinIcon,
 } from 'lucide-react';
-import { fetchAddressByCep } from '@/utils/viacep';
-import { AgencyService } from '@/services/domains/agencyService';
-import { handleMaskedChange } from '@/utils/helpers/handleMaskedInput';
+import { fetchAddressByCep } from '../../../utils/viacep';
+import { AgencyService } from '../../../services/domains/agencyService';
+import { handleMaskedChange } from '../../../utils/helpers/handleMaskedInput';
 
 export default function CreateAgencyPage() {
     const router = useRouter();

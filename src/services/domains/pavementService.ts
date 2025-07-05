@@ -1,6 +1,6 @@
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
-import { ApiResponse } from '@/types/api';
+import { ApiResponse } from '../../types/api';
 
 export interface Pavement {
     id: string;

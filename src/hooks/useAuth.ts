@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { parseCookies } from 'nookies';
-import { AuthService } from '@/services/domains/authService';
+import { AuthService } from '../services/domains/authService';
 
 type UseAuthOptions = {
     redirectIfAuthenticated?: string | boolean;

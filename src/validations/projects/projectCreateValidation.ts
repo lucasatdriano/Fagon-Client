@@ -1,4 +1,4 @@
-import { projectType } from '@/constants';
+import { projectType } from '../../constants';
 import { z } from 'zod';
 
 export const createProjectSchema = z.object({

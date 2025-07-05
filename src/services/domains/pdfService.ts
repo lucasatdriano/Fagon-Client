@@ -1,7 +1,7 @@
-import { PdfType, PdfDocument } from '@/interfaces/pdf';
+import { PdfType, PdfDocument } from '../../interfaces/pdf';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
-import { ApiResponse } from '@/types/api';
+import { ApiResponse } from '../../types/api';
 import { ProjectService } from './projectService';
 
 interface GeneratePdfData {

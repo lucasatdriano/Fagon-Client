@@ -1,6 +1,6 @@
 'use client';
 
-import { PdfType, PDF } from '@/interfaces/pdf';
+import { PdfType, PDF } from '../../interfaces/pdf';
 import {
     BadgeCheckIcon,
     MoreVerticalIcon,

@@ -1,8 +1,8 @@
 import { Path, UseFormSetValue, PathValue, FieldValues } from 'react-hook-form';
-import { decimalMask } from '@/utils/masks/maskDecimal';
-import { numberMask } from '@/utils/masks/maskNumber';
-import { cnpjMask } from '@/utils/masks/maskCNPJ';
-import { cepMask } from '@/utils/masks/maskCEP';
+import { decimalMask } from '../masks/maskDecimal';
+import { numberMask } from '../masks/maskNumber';
+import { cnpjMask } from '../masks/maskCNPJ';
+import { cepMask } from '../masks/maskCEP';
 
 export function handleMaskedChange<T extends FieldValues>(
     field: Path<T>,

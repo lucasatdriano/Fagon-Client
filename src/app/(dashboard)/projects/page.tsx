@@ -5,11 +5,14 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { LoaderCircleIcon, SearchXIcon } from 'lucide-react';
 
-import ProjectCard from '@/components/cards/ProjectCard';
-import FabButton from '@/components/layout/FabButton';
-import { Project, ProjectService } from '@/services/domains/projectService';
-import { useSearch } from '@/contexts/SearchContext';
-import { useAuth } from '@/hooks/useAuth';
+import ProjectCard from '../../../components/cards/ProjectCard';
+import FabButton from '../../../components/layout/FabButton';
+import {
+    Project,
+    ProjectService,
+} from '../../../services/domains/projectService';
+import { useSearch } from '../../../contexts/SearchContext';
+import { useAuth } from '../../../hooks/useAuth';
 
 export default function DashboardProjectsPage() {
     const { searchValue } = useSearch();

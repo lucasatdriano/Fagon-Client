@@ -1,6 +1,6 @@
-import { agencyProps } from '@/interfaces/agency';
-import { formatCNPJ } from '@/utils/formatters/formatCNPJ';
-import { formatNumberAgency } from '@/utils/formatters/formatNumberAgency';
+import { agencyProps } from '../../interfaces/agency';
+import { formatCNPJ } from '../../utils/formatters/formatCNPJ';
+import { formatNumberAgency } from '../../utils/formatters/formatNumberAgency';
 import { LandmarkIcon } from 'lucide-react';
 import Link from 'next/link';
 

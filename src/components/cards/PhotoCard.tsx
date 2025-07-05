@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { CheckIcon, ImageIcon } from 'lucide-react';
-import { Photo } from '@/interfaces/photo';
+import { Photo } from '../../interfaces/photo';
 import { DeletePhotoModal } from '../modals/photoModals/DeletePhotoModal';
 import { PhotoViewModal } from '../modals/photoModals/PhotoViewModal';
-import { PathologyPhoto } from '@/interfaces/pathologyPhoto';
+import { PathologyPhoto } from '../../interfaces/pathologyPhoto';
 import { toast } from 'sonner';
 
 interface PhotoCardProps {

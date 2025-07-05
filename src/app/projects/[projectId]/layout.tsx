@@ -2,8 +2,8 @@
 
 import { useRouter, useParams } from 'next/navigation';
 import { MoreVerticalIcon } from 'lucide-react';
-import { AdminDropdownMenu } from '@/components/dropdownMenus/AdminDropdownMenu';
-import { Header } from '@/components/layout/Header';
+import { AdminDropdownMenu } from '../../../components/dropdownMenus/AdminDropdownMenu';
+import { Header } from '../../../components/layout/Header';
 
 export default function ProjectLayout({
     children,

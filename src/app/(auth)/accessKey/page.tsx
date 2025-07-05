@@ -4,12 +4,15 @@ import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import Image from 'next/image';
-import { CustomButton } from '@/components/forms/CustomButton';
+import { CustomButton } from '../../../components/forms/CustomButton';
 import { KeyRoundIcon } from 'lucide-react';
-import { CustomFormInput } from '@/components/forms/CustomFormInput';
-import { accessKeySchema, AccessKeyFormData } from '@/validations';
-import InspectorModal from '@/components/modals/InspectorModal';
-import { AuthService, LoginResponse } from '@/services/domains/authService';
+import { CustomFormInput } from '../../../components/forms/CustomFormInput';
+import { accessKeySchema, AccessKeyFormData } from '../../../validations';
+import InspectorModal from '../../../components/modals/InspectorModal';
+import {
+    AuthService,
+    LoginResponse,
+} from '../../../services/domains/authService';
 
 export default function AccessKeyPage() {
     const [loading, setLoading] = useState(false);

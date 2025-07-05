@@ -4,8 +4,8 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { Loader2Icon, XIcon } from 'lucide-react';
 import Image from 'next/image';
-import { PhotoService } from '@/services/domains/photoService';
-import { PathologyPhotosService } from '@/services/domains/pathologyPhotoService';
+import { PhotoService } from '../../../services/domains/photoService';
+import { PathologyPhotosService } from '../../../services/domains/pathologyPhotoService';
 
 interface PhotoViewModalProps {
     photoId?: string;

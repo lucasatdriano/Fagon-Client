@@ -5,8 +5,8 @@ import { CopyIcon, KeyIcon, CheckIcon, ShieldPlusIcon } from 'lucide-react';
 import { CustomRadioGroup } from '../forms/CustomRadioGroup';
 import { DropdownMenu } from './DropdownMenu';
 import { toast } from 'sonner';
-import { AuthService } from '@/services/domains/authService';
-import { cameraType } from '@/constants';
+import { AuthService } from '../../services/domains/authService';
+import { cameraType } from '../../constants';
 import { CustomReadOnlyFormInput } from '../forms/CustomReadOnlyFormInput';
 
 interface AdminDropdownMenuProps {

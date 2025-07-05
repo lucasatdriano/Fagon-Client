@@ -6,23 +6,26 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { HashIcon } from 'lucide-react';
 
-import { CustomButton } from '@/components/forms/CustomButton';
-import { SearchCardList } from '@/components/forms/SearchCardList';
-import { CustomDropdownInput } from '@/components/forms/CustomDropdownInput';
-import { CustomRadioGroup } from '@/components/forms/CustomRadioGroup';
-import { CustomFormInput } from '@/components/forms/CustomFormInput';
+import { CustomButton } from '../../../components/forms/CustomButton';
+import { SearchCardList } from '../../../components/forms/SearchCardList';
+import { CustomDropdownInput } from '../../../components/forms/CustomDropdownInput';
+import { CustomRadioGroup } from '../../../components/forms/CustomRadioGroup';
+import { CustomFormInput } from '../../../components/forms/CustomFormInput';
 
-import { createProjectSchema, CreateProjectFormValues } from '@/validations';
-import { pavements, projectType } from '@/constants';
-import { EngineerService } from '@/services/domains/engineerService';
-import { AgencyService } from '@/services/domains/agencyService';
-import { engineerProps } from '@/interfaces/engineer';
-import { ProjectService } from '@/services/domains/projectService';
+import {
+    createProjectSchema,
+    CreateProjectFormValues,
+} from '../../../validations';
+import { pavements, projectType } from '../../../constants';
+import { EngineerService } from '../../../services/domains/engineerService';
+import { AgencyService } from '../../../services/domains/agencyService';
+import { engineerProps } from '../../../interfaces/engineer';
+import { ProjectService } from '../../../services/domains/projectService';
 import { toast } from 'sonner';
-import { ProjectType } from '@/types/project';
-import { CustomCheckboxGroup } from '@/components/forms/CustomCheckbox';
-import { handleMaskedChange } from '@/utils/helpers/handleMaskedInput';
-import { PavementItem } from '@/services/domains/pavementService';
+import { ProjectType } from '../../../types/project';
+import { CustomCheckboxGroup } from '../../../components/forms/CustomCheckbox';
+import { handleMaskedChange } from '../../../utils/helpers/handleMaskedInput';
+import { PavementItem } from '../../../services/domains/pavementService';
 
 export default function CreateProjectPage() {
     const router = useRouter();

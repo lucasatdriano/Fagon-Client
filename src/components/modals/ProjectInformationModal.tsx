@@ -11,11 +11,11 @@ import {
 import { CustomButton } from '../forms/CustomButton';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ProjectInfoFormData, projectInfoSchema } from '@/validations';
-import { ProjectService } from '@/services/domains/projectService';
-import { PdfService } from '@/services/domains/pdfService';
+import { ProjectInfoFormData, projectInfoSchema } from '../../validations';
+import { ProjectService } from '../../services/domains/projectService';
+import { PdfService } from '../../services/domains/pdfService';
 import { toast } from 'sonner';
-import { PavementService } from '@/services/domains/pavementService';
+import { PavementService } from '../../services/domains/pavementService';
 
 interface ProjectInformationModalProps {
     projectId: string;

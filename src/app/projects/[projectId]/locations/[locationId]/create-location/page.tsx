@@ -12,36 +12,36 @@ import {
 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
-import { CustomButton } from '@/components/forms/CustomButton';
-import { CustomFormInput } from '@/components/forms/CustomFormInput';
-import { CustomCheckboxGroup } from '@/components/forms/CustomCheckbox';
+import { CustomButton } from '../../../../../../components/forms/CustomButton';
+import { CustomFormInput } from '../../../../../../components/forms/CustomFormInput';
+import { CustomCheckboxGroup } from '../../../../../../components/forms/CustomCheckbox';
 import {
     ceilingOptions,
     floorOptions,
     mappedLocationTypeOptions,
     wallOptions,
-} from '@/constants';
-import { PhotoCard } from '@/components/cards/PhotoCard';
-import { Location, LocationService } from '@/services/domains/locationService';
-import { UpdateLocationFormSchema, updateLocationSchema } from '@/validations';
-import { locationType as locationTypes, surfaceType } from '@/constants';
+} from '../../../../../../constants';
+import { PhotoCard } from '../../../../../../components/cards/PhotoCard';
+import { Location, LocationService } from '../../../../../../services/domains/locationService';
+import { UpdateLocationFormSchema, updateLocationSchema } from '../../../../../../validations';
+import { locationType as locationTypes, surfaceType } from '../../../../../../constants';
 import {
     CustomDropdownInput,
     DropdownOption,
-} from '@/components/forms/CustomDropdownInput';
-import { CustomRadioGroup } from '@/components/forms/CustomRadioGroup';
+} from '../../../../../../components/forms/CustomDropdownInput';
+import { CustomRadioGroup } from '../../../../../../components/forms/CustomRadioGroup';
 import {
     getLocationLabelByValue,
     getLocationValueByLabel,
-} from '@/utils/formatters/formatValues';
-import { PavementService } from '@/services/domains/pavementService';
-import { pavements as pavementOptions } from '@/constants/pavements';
-import { Pavement } from '@/interfaces/pavement';
-import { handleMaskedChange } from '@/utils/helpers/handleMaskedInput';
-import { Photo } from '@/interfaces/photo';
-import { PhotoService } from '@/services/domains/photoService';
-import { useUserRole } from '@/hooks/useUserRole';
-import { AddPhotoModal } from '@/components/modals/photoModals/AddPhotoModal';
+} from '../../../../../../utils/formatters/formatValues';
+import { PavementService } from '../../../../../../services/domains/pavementService';
+import { pavements as pavementOptions } from '../../../../../../constants/pavements';
+import { Pavement } from '../../../../../../interfaces/pavement';
+import { handleMaskedChange } from '../../../../../../utils/helpers/handleMaskedInput';
+import { Photo } from '../../../../../../interfaces/photo';
+import { PhotoService } from '../../../../../../services/domains/photoService';
+import { useUserRole } from '../../../../../../hooks/useUserRole';
+import { AddPhotoModal } from '../../../../../../components/modals/photoModals/AddPhotoModal';
 
 export default function CreateLocationPage() {
     const { projectId, locationId } = useParams();

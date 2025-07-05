@@ -1,13 +1,16 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { NavigationCard } from '@/components/cards/NavigationCard';
-import PDFGeneratorWrapper from '@/components/layout/PdfGeneratorWrapper';
-import { Project, ProjectService } from '@/services/domains/projectService';
+import { NavigationCard } from '../../../components/cards/NavigationCard';
+import PDFGeneratorWrapper from '../../../components/layout/PdfGeneratorWrapper';
+import {
+    Project,
+    ProjectService,
+} from '../../../services/domains/projectService';
 import { ClipboardEditIcon, InfoIcon, Loader2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { parseCookies } from 'nookies';
-import { useUserRole } from '@/hooks/useUserRole';
+import { useUserRole } from '../../../hooks/useUserRole';
 
 export default function DashboardProjectPage() {
     const { projectId } = useParams();

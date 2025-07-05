@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AuthService } from '@/services/domains/authService';
+import { AuthService } from '../services/domains/authService';
 
 export function useUserRole() {
     const [role, setRole] = useState<string | null>(null);

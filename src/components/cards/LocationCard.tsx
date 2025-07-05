@@ -1,8 +1,8 @@
 'use client';
-import { locationOptions } from '@/constants';
-import { locationType as locationTypeOptions } from '@/constants/locationType';
-import { LocationProps } from '@/interfaces/location';
-import { getLocationLabelByValue } from '@/utils/formatters/formatValues';
+import { locationOptions } from '../../constants';
+import { locationType as locationTypeOptions } from '../../constants/locationType';
+import { LocationProps } from '../../interfaces/location';
+import { getLocationLabelByValue } from '../../utils/formatters/formatValues';
 import { BadgeCheckIcon, BadgeIcon, MapPinIcon } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 

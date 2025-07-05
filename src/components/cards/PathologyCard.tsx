@@ -1,6 +1,6 @@
 'use client';
 
-import { formatWithCapitals } from '@/utils/formatters/formatValues';
+import { formatWithCapitals } from '../../utils/formatters/formatValues';
 import { OctagonAlertIcon } from 'lucide-react';
 
 interface PathologyCardProps {

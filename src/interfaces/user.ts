@@ -1,5 +1,5 @@
-import { cameraType } from '@/constants/cameraType';
-import { userRole } from '@/constants/userRole';
+import { cameraType } from '../constants/cameraType';
+import { userRole } from '../constants/userRole';
 
 type UserRole = (typeof userRole)[number]['value'];
 type CameraType = (typeof cameraType)[number]['value'];

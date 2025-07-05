@@ -1,15 +1,15 @@
 'use client';
 
-import { pdfType } from '@/constants';
-import { PdfType, PDF, PdfDocument } from '@/interfaces/pdf';
-import { PdfService } from '@/services/domains/pdfService';
+import { pdfType } from '../../constants';
+import { PdfType, PDF, PdfDocument } from '../../interfaces/pdf';
+import { PdfService } from '../../services/domains/pdfService';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { PdfCard } from '../cards/PdfCard';
-import { getPdfLabel } from '@/utils/formatters/formatValues';
+import { getPdfLabel } from '../../utils/formatters/formatValues';
 import ProjectInformationModal from '../modals/ProjectInformationModal';
-import { ProjectService } from '@/services/domains/projectService';
-import { ProjectStatus } from '@/types/project';
+import { ProjectService } from '../../services/domains/projectService';
+import { ProjectStatus } from '../../types/project';
 
 interface PdfGeneratorProps {
     projectId: string;

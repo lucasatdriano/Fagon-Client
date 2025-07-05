@@ -1,7 +1,7 @@
-import { LocationType, SurfaceType } from '@/types/location';
+import { LocationType, SurfaceType } from '../../types/location';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
-import { ApiResponse } from '@/types/api';
+import { ApiResponse } from '../../types/api';
 
 export interface Location {
     id: string;

@@ -1,10 +1,10 @@
-import { useSearch } from '@/hooks/useSearch';
-import { debounce } from '@/utils/helpers/debounce';
+import { useSearch } from '../../hooks/useSearch';
+import { debounce } from '../../utils/helpers/debounce';
 import { LandmarkIcon, SearchIcon } from 'lucide-react';
 import { CustomFormInput } from './CustomFormInput';
 import { useState } from 'react';
-import { agencyProps } from '@/interfaces/agency';
-import { formatNumberAgency } from '@/utils/formatters/formatNumberAgency';
+import { agencyProps } from '../../interfaces/agency';
+import { formatNumberAgency } from '../../utils/formatters/formatNumberAgency';
 
 interface SearchCardListProps {
     onSelectAgency: (agency: agencyProps) => void;

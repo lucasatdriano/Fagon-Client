@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import Image from 'next/image';
-import { CustomButton } from '@/components/forms/CustomButton';
-import { CustomAuthInput } from '@/components/forms/CustomAuthInput';
+import { CustomButton } from '../../../components/forms/CustomButton';
+import { CustomAuthInput } from '../../../components/forms/CustomAuthInput';
 import { LockIcon, MailIcon, UserIcon } from 'lucide-react';
-import { RegisterFormData, registerSchema } from '@/validations';
-import { AuthService } from '@/services/domains/authService';
+import { RegisterFormData, registerSchema } from '../../../validations';
+import { AuthService } from '../../../services/domains/authService';
 
 export default function RegisterPage() {
     const router = useRouter();

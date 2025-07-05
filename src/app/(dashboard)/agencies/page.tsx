@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { LoaderCircleIcon, SearchXIcon } from 'lucide-react';
 
-import AgencyCard from '@/components/cards/AgencyCard';
-import FabButton from '@/components/layout/FabButton';
-import { AgencyService } from '@/services/domains/agencyService';
-import { useSearch } from '@/contexts/SearchContext';
-import { agencyProps } from '@/interfaces/agency';
-import { useAuth } from '@/hooks/useAuth';
+import AgencyCard from '../../../components/cards/AgencyCard';
+import FabButton from '../../../components/layout/FabButton';
+import { AgencyService } from '../../../services/domains/agencyService';
+import { useSearch } from '../../../contexts/SearchContext';
+import { agencyProps } from '../../../interfaces/agency';
+import { useAuth } from '../../../hooks/useAuth';
 
 export default function DashboardAgenciesPage() {
     const { searchValue } = useSearch();

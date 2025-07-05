@@ -12,28 +12,28 @@ import {
 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { CustomButton } from '@/components/forms/CustomButton';
-import { CustomFormInput } from '@/components/forms/CustomFormInput';
-import { PhotoCard } from '@/components/cards/PhotoCard';
-import { PathologyCard } from '@/components/cards/PathologyCard';
+import { CustomButton } from '../../../../../components/forms/CustomButton';
+import { CustomFormInput } from '../../../../../components/forms/CustomFormInput';
+import { PhotoCard } from '../../../../../components/cards/PhotoCard';
+import { PathologyCard } from '../../../../../components/cards/PathologyCard';
 import {
     CustomDropdownInput,
     DropdownOption,
-} from '@/components/forms/CustomDropdownInput';
+} from '../../../../../components/forms/CustomDropdownInput';
 import {
     Pathology,
     PathologyService,
-} from '@/services/domains/pathologyService';
-import { LocationService } from '@/services/domains/locationService';
-import { useUserRole } from '@/hooks/useUserRole';
-import { AddPhotoModal } from '@/components/modals/photoModals/AddPhotoModal';
-import { PathologyPhoto } from '@/interfaces/pathologyPhoto';
-import { formatWithCapitals } from '@/utils/formatters/formatValues';
-import { UpdatePathologyModal } from '@/components/modals/PathologyModal';
+} from '../../../../../services/domains/pathologyService';
+import { LocationService } from '../../../../../services/domains/locationService';
+import { useUserRole } from '../../../../../hooks/useUserRole';
+import { AddPhotoModal } from '../../../../../components/modals/photoModals/AddPhotoModal';
+import { PathologyPhoto } from '../../../../../interfaces/pathologyPhoto';
+import { formatWithCapitals } from '../../../../../utils/formatters/formatValues';
+import { UpdatePathologyModal } from '../../../../../components/modals/PathologyModal';
 import {
     CreatePathologyFormValues,
     createPathologySchema,
-} from '@/validations';
+} from '../../../../../validations';
 
 export default function CreatePathologyPage() {
     const router = useRouter();

@@ -5,11 +5,11 @@ import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import Image from 'next/image';
-import { CustomButton } from '@/components/forms/CustomButton';
-import { CustomAuthInput } from '@/components/forms/CustomAuthInput';
+import { CustomButton } from '../../../components/forms/CustomButton';
+import { CustomAuthInput } from '../../../components/forms/CustomAuthInput';
 import { LockIcon, MailIcon } from 'lucide-react';
-import { LoginFormData, loginSchema } from '@/validations';
-import { AuthService } from '@/services/domains/authService';
+import { LoginFormData, loginSchema } from '../../../validations';
+import { AuthService } from '../../../services/domains/authService';
 import { toast } from 'sonner';
 
 export default function LoginPage() {

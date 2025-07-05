@@ -1,4 +1,4 @@
-import { ProjectType, ProjectStatus } from '@/types/project';
+import { ProjectType, ProjectStatus } from '../types/project';
 
 export interface ProjectProps {
     id: string;

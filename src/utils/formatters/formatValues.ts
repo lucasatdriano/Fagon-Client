@@ -1,4 +1,4 @@
-import { locationOptions, pdfType, projectType } from '@/constants';
+import { locationOptions, pdfType, projectType } from '../../constants';
 
 export function getLocationLabelByValue(value: string): string {
     if (!value) return '';

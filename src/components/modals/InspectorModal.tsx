@@ -5,11 +5,11 @@ import { Fragment, useEffect, useState } from 'react';
 import { CustomFormInput } from '../forms/CustomFormInput';
 import { User2Icon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { InspectorFormData, inspectorSchema } from '@/validations';
+import { InspectorFormData, inspectorSchema } from '../../validations';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CustomButton } from '../forms/CustomButton';
-import { Project, ProjectService } from '@/services/domains/projectService';
+import { Project, ProjectService } from '../../services/domains/projectService';
 
 type InspectorModalProps = {
     isOpen: boolean;

@@ -1,7 +1,7 @@
-import { engineerProps } from '@/interfaces/engineer';
+import { engineerProps } from '../../interfaces/engineer';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
-import { ApiResponse } from '@/types/api';
+import { ApiResponse } from '../../types/api';
 
 interface CreateEngineerData {
     name: string;

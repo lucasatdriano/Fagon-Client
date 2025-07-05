@@ -4,14 +4,17 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { CustomButton } from '../forms/CustomButton';
 import { CustomRadioGroup } from '../forms/CustomRadioGroup';
-import { locationOptions, mappedLocationTypeOptions } from '@/constants';
+import { locationOptions, mappedLocationTypeOptions } from '../../constants';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { CreateLocationFormValues, createLocationSchema } from '@/validations';
+import {
+    CreateLocationFormValues,
+    createLocationSchema,
+} from '../../validations';
 import {
     CreateLocationData,
     LocationService,
-} from '@/services/domains/locationService';
+} from '../../services/domains/locationService';
 import { toast } from 'react-toastify';
 import { usePathname, useRouter } from 'next/navigation';
 

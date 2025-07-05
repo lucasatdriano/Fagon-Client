@@ -1,8 +1,8 @@
-import { CreateAgencyFormValues } from '@/validations';
+import { CreateAgencyFormValues } from '../../validations';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
-import { agencyProps } from '@/interfaces/agency';
-import { ApiResponse } from '@/types/api';
+import { agencyProps } from '../../interfaces/agency';
+import { ApiResponse } from '../../types/api';
 
 interface ListAgenciesParams {
     page?: number;

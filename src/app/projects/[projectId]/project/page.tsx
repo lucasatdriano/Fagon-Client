@@ -3,21 +3,27 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CustomEditInput } from '@/components/forms/CustomEditInput';
-import { CustomButton } from '@/components/forms/CustomButton';
-import { projectStatus, pavements } from '@/constants';
-import { UpdateProjectFormValues, updateProjectSchema } from '@/validations';
-import { Project, ProjectService } from '@/services/domains/projectService';
+import { CustomEditInput } from '../../../../components/forms/CustomEditInput';
+import { CustomButton } from '../../../../components/forms/CustomButton';
+import { projectStatus, pavements } from '../../../../constants';
+import {
+    UpdateProjectFormValues,
+    updateProjectSchema,
+} from '../../../../validations';
+import {
+    Project,
+    ProjectService,
+} from '../../../../services/domains/projectService';
 import { useParams } from 'next/navigation';
 import { Loader2Icon } from 'lucide-react';
 import { toast } from 'sonner';
-import { formatDateForInput } from '@/utils/formatters/formatDate';
-import { getProjectTypeLabel } from '@/utils/formatters/formatValues';
-import { EngineerService } from '@/services/domains/engineerService';
-import { CustomRadioGroup } from '@/components/forms/CustomRadioGroup';
-import { engineerProps } from '@/interfaces/engineer';
-import { CustomCheckboxGroup } from '@/components/forms/CustomCheckbox';
-import { Pavement } from '@/interfaces/pavement';
+import { formatDateForInput } from '../../../../utils/formatters/formatDate';
+import { getProjectTypeLabel } from '../../../../utils/formatters/formatValues';
+import { EngineerService } from '../../../../services/domains/engineerService';
+import { CustomRadioGroup } from '../../../../components/forms/CustomRadioGroup';
+import { engineerProps } from '../../../../interfaces/engineer';
+import { CustomCheckboxGroup } from '../../../../components/forms/CustomCheckbox';
+import { Pavement } from '../../../../interfaces/pavement';
 
 type StatusItem = {
     value: string;

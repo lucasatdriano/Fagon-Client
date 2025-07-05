@@ -2,9 +2,9 @@
 
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
-import { PdfType, PDF } from '@/interfaces/pdf';
+import { PdfType, PDF } from '../../interfaces/pdf';
 import { toast } from 'sonner';
-import { getPdfLabel } from '@/utils/formatters/formatValues';
+import { getPdfLabel } from '../../utils/formatters/formatValues';
 
 interface DeletePdfModalProps {
     pdfType: PdfType;

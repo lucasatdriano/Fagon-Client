@@ -3,18 +3,21 @@
 import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CustomEditInput } from '@/components/forms/CustomEditInput';
-import { CustomButton } from '@/components/forms/CustomButton';
-import { UpdateAgencyFormValues, updateAgencySchema } from '@/validations';
-import { AgencyService } from '@/services/domains/agencyService';
+import { CustomEditInput } from '../../../components/forms/CustomEditInput';
+import { CustomButton } from '../../../components/forms/CustomButton';
+import {
+    UpdateAgencyFormValues,
+    updateAgencySchema,
+} from '../../../validations';
+import { AgencyService } from '../../../services/domains/agencyService';
 import { useParams } from 'next/navigation';
-import { formatCNPJ } from '@/utils/formatters/formatCNPJ';
-import { formatCEP } from '@/utils/formatters/formatCEP';
-import { formatNumberAgency } from '@/utils/formatters/formatNumberAgency';
-import { handleMaskedChange } from '@/utils/helpers/handleMaskedInput';
+import { formatCNPJ } from '../../../utils/formatters/formatCNPJ';
+import { formatCEP } from '../../../utils/formatters/formatCEP';
+import { formatNumberAgency } from '../../../utils/formatters/formatNumberAgency';
+import { handleMaskedChange } from '../../../utils/helpers/handleMaskedInput';
 import { Loader2Icon } from 'lucide-react';
 import { toast } from 'sonner';
-import { fetchAddressByCep } from '@/utils/viacep';
+import { fetchAddressByCep } from '../../../utils/viacep';
 
 export default function AgencyEditPage() {
     const { agencyId } = useParams();

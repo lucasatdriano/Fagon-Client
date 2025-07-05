@@ -1,4 +1,4 @@
-import { pdfType } from '@/constants';
+import { pdfType } from '../constants';
 
 export type PdfType = (typeof pdfType)[number]['value'];
 

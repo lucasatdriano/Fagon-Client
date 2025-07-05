@@ -1,10 +1,10 @@
 import { FileTextIcon } from 'lucide-react';
-import { projectStatus } from '@/constants/projectStatus';
-import { ProjectProps } from '@/interfaces/project';
+import { projectStatus } from '../../constants/projectStatus';
+import { ProjectProps } from '../../interfaces/project';
 import Link from 'next/link';
-import { formatNumberAgency } from '@/utils/formatters/formatNumberAgency';
-import { formatDate } from '@/utils/formatters/formatDate';
-import { getProjectTypeLabel } from '@/utils/formatters/formatValues';
+import { formatNumberAgency } from '../../utils/formatters/formatNumberAgency';
+import { formatDate } from '../../utils/formatters/formatDate';
+import { getProjectTypeLabel } from '../../utils/formatters/formatValues';
 
 export default function ProjectCard({
     id,
