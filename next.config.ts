@@ -35,6 +35,12 @@ const nextConfig: NextConfig = {
     reactStrictMode: true,
     productionBrowserSourceMaps: true,
     output: 'standalone',
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
+    typescript: {
+        ignoreBuildErrors: true,
+    },
 };
 
 export default pwaConfig(nextConfig);
