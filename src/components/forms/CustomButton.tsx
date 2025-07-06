@@ -33,7 +33,7 @@ export function CustomButton({
         ${fontSize}
         ${
             disabled
-                ? 'opacity-50 cursor-not-allowed'
+                ? 'opacity-70 cursor-not-allowed'
                 : 'cursor-pointer hover:shadow-md'
         }
         transition-all 

@@ -98,7 +98,7 @@ export default function LoginPage() {
                             type="button"
                             ghost
                             fontSize="text-sm"
-                            className="hover:border-transparent no-underline hover:underline font-poppins"
+                            className="hover:border-transparent no-underline hover:underline font-poppins hover:shadow-none"
                         >
                             Esqueceu sua senha?
                         </CustomButton>

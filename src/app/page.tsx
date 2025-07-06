@@ -24,7 +24,7 @@ export default function Home() {
     }, [router]);
 
     return (
-        <div className="grid items-center h-screen w-full">
+        <div className="grid items-center h-screen w-screen">
             Redirecionando...
         </div>
     );

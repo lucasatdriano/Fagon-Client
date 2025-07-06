@@ -218,7 +218,11 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
     };
 
     if (loading) {
-        return <div>Carregando PDFs...</div>;
+        return (
+            <div className="grid items-center h-full w-full">
+                Carregando PDFs...
+            </div>
+        );
     }
 
     return (
