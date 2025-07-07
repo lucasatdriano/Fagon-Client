@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { LoaderCircleIcon, SearchXIcon } from 'lucide-react';
+import { Loader2Icon, SearchXIcon } from 'lucide-react';
 
 import AgencyCard from '../../../components/cards/AgencyCard';
 import FabButton from '../../../components/layout/FabButton';
@@ -44,7 +43,6 @@ export default function DashboardAgenciesPage() {
                         : undefined,
                 city: searchValue,
                 district: searchValue,
-                cnpj: searchValue.replace(/\D/g, ''),
             };
 
             const cleanedParams = Object.fromEntries(
@@ -58,7 +56,6 @@ export default function DashboardAgenciesPage() {
                     setAgencies(res.data);
                 })
                 .catch((err) => {
-                    toast.error('Erro ao buscar agências');
                     console.error(err);
                 })
                 .finally(() => setLoading(false));
@@ -76,14 +73,14 @@ export default function DashboardAgenciesPage() {
 
             <div className="w-full grid gap-2 place-items-center">
                 {loading ? (
-                    <p className="flex gap-2 text-foreground mt-10">
-                        <LoaderCircleIcon className="animate-spin" />
+                    <p className="flex gap-2 mt-10 text-primary">
+                        <Loader2Icon className="animate-spin" />
                         {searchValue
                             ? 'Buscando agências...'
                             : 'Carregando agências...'}
                     </p>
                 ) : agencies.length === 0 ? (
-                    <p className="flex gap-2 text-foreground mt-10">
+                    <p className="flex gap-2 text-primary mt-10">
                         <SearchXIcon />
                         {searchValue
                             ? 'Nenhuma agência encontrada para esta busca.'

@@ -11,6 +11,7 @@ import { LockIcon, MailIcon } from 'lucide-react';
 import { LoginFormData, loginSchema } from '../../../validations';
 import { AuthService } from '../../../services/domains/authService';
 import { toast } from 'sonner';
+import { destroyCookie, setCookie } from 'nookies';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -30,12 +31,20 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
+            destroyCookie(null, 'authToken', { path: '/' });
+
             const response = await AuthService.login({
                 ...data,
                 accessKeyToken: undefined,
             });
 
-            document.cookie = `authToken=${response.data.access_token}; path=/;`;
+            setCookie(null, 'authToken', response.data.access_token, {
+                path: '/',
+                maxAge: 24 * 60 * 60,
+                sameSite: 'lax',
+                secure: process.env.NODE_ENV === 'production',
+            });
+
             router.push('/projects');
         } catch (error: unknown) {
             const message =

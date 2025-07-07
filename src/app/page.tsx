@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AuthService } from '../services/domains/authService';
+import { Loader2Icon } from 'lucide-react';
 
 export default function Home() {
     const router = useRouter();
@@ -24,8 +25,8 @@ export default function Home() {
     }, [router]);
 
     return (
-        <div className="grid items-center h-screen w-screen">
-            Redirecionando...
+        <div className="flex justify-center items-center h-screen w-screen">
+            <Loader2Icon className="animate-spin w-16 h-16 text-primary" />
         </div>
     );
 }

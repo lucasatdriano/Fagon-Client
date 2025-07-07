@@ -102,7 +102,7 @@ export function PdfCard({
     };
 
     return (
-        <div className="space-y-3">
+        <div className="grid gap-2">
             <input
                 title="Enviar PDF Assinado"
                 type="file"

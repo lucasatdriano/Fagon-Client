@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { LocationService } from '../../../../services/domains/locationService';
 import { useUserRole } from '../../../../hooks/useUserRole';
+import { Loader2Icon } from 'lucide-react';
 
 export default function CreationLayout({
     children,
@@ -21,6 +22,8 @@ export default function CreationLayout({
         if (loading) return;
 
         const checkPermissions = async () => {
+            console.log('aaaaaaaaaa');
+            console.log(isVisitor);
             if (isVisitor) {
                 setHeaderType('default');
                 return;
@@ -47,7 +50,9 @@ export default function CreationLayout({
     };
 
     if (loading) {
-        return <div>Carregando...</div>;
+        <div className="flex justify-center items-center h-screen w-screen">
+            <Loader2Icon className="animate-spin w-16 h-16 text-primary" />
+        </div>;
     }
 
     return (

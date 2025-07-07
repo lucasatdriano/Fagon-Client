@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { LoaderCircleIcon, SearchXIcon } from 'lucide-react';
+import { Loader2Icon, SearchXIcon } from 'lucide-react';
 
 import ProjectCard from '../../../components/cards/ProjectCard';
 import FabButton from '../../../components/layout/FabButton';
@@ -31,7 +30,6 @@ export default function DashboardProjectsPage() {
                     setProjects(res.data);
                 })
                 .catch((err) => {
-                    toast.error('Erro ao carregar projetos');
                     console.error(err);
                 })
                 .finally(() => setLoading(false));
@@ -63,7 +61,6 @@ export default function DashboardProjectsPage() {
                     setProjects(res.data);
                 })
                 .catch((err) => {
-                    toast.error('Erro ao buscar projetos');
                     console.error(err);
                 })
                 .finally(() => setLoading(false));
@@ -81,14 +78,14 @@ export default function DashboardProjectsPage() {
 
             <div className="w-full grid gap-2 place-items-center">
                 {loading ? (
-                    <p className="flex gap-2 text-foreground mt-10">
-                        <LoaderCircleIcon className="animate-spin" />
+                    <p className="flex gap-2 mt-10 text-primary">
+                        <Loader2Icon className="animate-spin" />
                         {searchValue
                             ? 'Buscando projetos...'
                             : 'Carregando projetos...'}
                     </p>
                 ) : projects.length === 0 ? (
-                    <p className="flex gap-2 text-foreground mt-10">
+                    <p className="flex gap-2 text-primary mt-10">
                         <SearchXIcon />
                         {searchValue
                             ? 'Nenhum projeto encontrado para esta busca.'

@@ -1,6 +1,6 @@
 import { useSearch } from '../../hooks/useSearch';
 import { debounce } from '../../utils/helpers/debounce';
-import { LandmarkIcon, SearchIcon } from 'lucide-react';
+import { LandmarkIcon, Loader2Icon, SearchIcon } from 'lucide-react';
 import { CustomFormInput } from './CustomFormInput';
 import { useState } from 'react';
 import { agencyProps } from '../../interfaces/agency';
@@ -52,7 +52,7 @@ export function SearchCardList({
                 />
                 {isLoading && (
                     <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-600 text-sm">
-                        Carregando...
+                        <Loader2Icon className="animate-spin w-12 h-12 text-primary" />
                     </span>
                 )}
             </div>

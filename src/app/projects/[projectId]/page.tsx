@@ -60,7 +60,7 @@ export default function DashboardProjectPage() {
     if (roleLoading || isChecking) {
         return (
             <div className="flex h-screen items-center justify-center">
-                <Loader2Icon className="h-8 w-8 animate-spin" />
+                <Loader2Icon className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
     }
@@ -68,7 +68,7 @@ export default function DashboardProjectPage() {
     if (loading) {
         return (
             <div className="flex h-screen items-center justify-center">
-                <Loader2Icon className="h-8 w-8 animate-spin" />
+                <Loader2Icon className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
     }
@@ -84,7 +84,7 @@ export default function DashboardProjectPage() {
     }
 
     return (
-        <div className="flex h-screen flex-col items-center pt-20 px-6">
+        <div className="flex h-screen flex-col items-center pt-20 px-3 md:px-6">
             <div className="w-full">
                 <div className="relative flex justify-center py-3">
                     <h1 className="text-3xl font-sans bg-background px-2">
@@ -111,7 +111,7 @@ export default function DashboardProjectPage() {
                         relative
                     />
 
-                    <div className="relative flex justify-start py-2 mt-4">
+                    <div className="relative flex justify-start">
                         <h2 className="text-xl font-sans bg-background px-2 ml-8">
                             PDFs
                         </h2>

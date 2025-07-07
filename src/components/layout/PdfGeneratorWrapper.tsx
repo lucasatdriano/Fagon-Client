@@ -10,6 +10,7 @@ import { getPdfLabel } from '../../utils/formatters/formatValues';
 import ProjectInformationModal from '../modals/ProjectInformationModal';
 import { ProjectService } from '../../services/domains/projectService';
 import { ProjectStatus } from '../../types/project';
+import { Loader2Icon } from 'lucide-react';
 
 interface PdfGeneratorProps {
     projectId: string;
@@ -140,7 +141,6 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
         if (filePath) {
             const pdfUrl = `/${filePath}`;
 
-            toast.info(`Mostrando pré-visualização para ${getPdfLabel(type)}`);
             window.open(pdfUrl, '_blank', 'noopener,noreferrer');
         } else {
             toast.error(
@@ -218,11 +218,9 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
     };
 
     if (loading) {
-        return (
-            <div className="grid items-center h-full w-full">
-                Carregando PDFs...
-            </div>
-        );
+        <div className="flex justify-center items-center h-screen w-screen">
+            <Loader2Icon className="animate-spin w-12 h-12 text-primary" />
+        </div>;
     }
 
     return (

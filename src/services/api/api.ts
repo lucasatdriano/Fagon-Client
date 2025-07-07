@@ -1,10 +1,13 @@
 import axios, { AxiosError } from 'axios';
 
-const isServer = typeof window === 'undefined';
+// const isServer = typeof window === 'undefined';
 
-const API_BASE_URL = isServer
-    ? process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1/'
-    : 'https://fagon-server.onrender.com/api/v1/';
+// const API_BASE_URL = isServer
+//     ? process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1/'
+//     : // : 'https://fagon-server.onrender.com/api/v1/';
+//     'https://fagon-server-production.up.railway.app/api/v1/';
+
+const API_BASE_URL = 'http://localhost:3000/api/v1/';
 
 export const api = axios.create({
     baseURL: API_BASE_URL,

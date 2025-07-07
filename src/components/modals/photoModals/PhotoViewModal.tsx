@@ -101,7 +101,7 @@ export function PhotoViewModal({
                             <Dialog.Panel className="relative w-full max-w-4xl transform overflow-hidden rounded-2xl text-left align-middle shadow-xl transition-all">
                                 {isLoading && (
                                     <div className="flex justify-center items-center h-screen">
-                                        <Loader2Icon className="animate-spin color-primary" />
+                                        <Loader2Icon className="animate-spin text-primary" />
                                     </div>
                                 )}
                                 <button
