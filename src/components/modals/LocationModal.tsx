@@ -63,7 +63,7 @@ export default function LocationModal({
             toast.success('Local criado com sucesso');
 
             const finalHref =
-                `${pathname}/projects/${newLocation.data.id}`.replace(
+                `${pathname}/${newLocation.data.id}/create-location`.replace(
                     '//',
                     '/',
                 );
