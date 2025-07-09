@@ -40,9 +40,8 @@ export function AdminDropdownMenu({
     }, [projectId]);
 
     const handleCopyLink = () => {
-        navigator.clipboard.writeText(
-            `https://fagon-client.onrender.com/accessKey`,
-        );
+        const message = `🔗 Link de acesso à vistoria:\nhttps://fagon-client.vercel.app/accessKey\n\nClique no link acima para abrir a página onde você deve colar a chave de acesso.\n\n👉 A chave que deverá ser copiada será enviada logo em seguida.`;
+        navigator.clipboard.writeText(message);
         toast.success('Link copiado com sucesso!');
     };
 
@@ -86,7 +85,7 @@ export function AdminDropdownMenu({
         navigator.clipboard.writeText(accessKey);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-        toast.success('Chave copiada para a área de transferência!');
+        toast.success('Chave de acesso copiada para a área de transferência!');
     };
 
     const getRemainingTime = () => {

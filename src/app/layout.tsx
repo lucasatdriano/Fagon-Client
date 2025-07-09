@@ -23,7 +23,7 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
     title: 'Sistema Fagon',
-    description: 'Gestão de projetos e agências',
+    description: 'Gestão de projetos e vistorias',
     icons: '/icons/logo-icon.svg',
 };
 
