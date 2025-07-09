@@ -54,9 +54,9 @@ export default function ProjectCard({
 
             <div className="my-auto">
                 <span
-                    className={`${statusData.bg} ${statusData.text} bg-orange-200 px-4 py-2 rounded-full font-medium`}
+                    className={`${statusData?.class} font-bold px-4 py-2 rounded-full`}
                 >
-                    {statusData.label}
+                    {statusData?.label}
                 </span>
             </div>
         </Link>

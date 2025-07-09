@@ -19,10 +19,4 @@ export const ceilingOptions = [
         value: 'mineral_acustico',
         label: 'Mineral Acústico',
     },
-    {
-        id: '5',
-        value: 'outro',
-        label: 'Outro',
-        isOtherOption: true,
-    },
 ];

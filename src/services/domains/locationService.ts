@@ -68,16 +68,9 @@ export const LocationService = {
 
     async update(id: string, data: FormData): Promise<ApiResponse<Location>> {
         try {
-            const config = {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            };
-
             const response = await api.patch(
                 API_ROUTES.LOCATIONS.UPDATE({ id }),
                 data,
-                config,
             );
             return response.data;
         } catch (error) {

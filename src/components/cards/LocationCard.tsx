@@ -67,17 +67,13 @@ export function LocationCard({
                     </div>
                     <div className="flex gap-2 mt-1">
                         <span
-                            className={`text-sm ${
-                                locationTypeData?.bg || 'bg-gray-100'
-                            } ${
-                                locationTypeData?.text || 'text-gray-800'
-                            } px-2 py-1 rounded`}
+                            className={`text-sm ${locationTypeData?.class} font-semibold px-2 py-1 rounded`}
                         >
                             {displayType}
                         </span>
 
                         {height && (
-                            <span className="text-sm bg-gray-100 text-gray-800 px-2 py-1 rounded">
+                            <span className="text-sm bg-gray-100 text-gray-800 font-medium px-2 py-1 rounded">
                                 Altura:{' '}
                                 {height.toLocaleString('pt-BR', {
                                     minimumFractionDigits: 2,

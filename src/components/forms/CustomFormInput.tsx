@@ -11,6 +11,9 @@ interface BasicInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     textColor?: string;
     borderColor?: string;
     error?: string;
+    defaultValue?: string | number;
+    value?: string;
+    onDebouncedChange?: (value: string) => void;
 }
 
 export function CustomFormInput({
@@ -28,18 +31,27 @@ export function CustomFormInput({
     required,
     maxLength,
     minLength,
+    onDebouncedChange,
     ...props
 }: BasicInputProps) {
     const [isFocused, setIsFocused] = useState(false);
-    const [hasValue, setHasValue] = useState(false);
+    const [internalValue, setInternalValue] = useState(defaultValue || '');
 
     useEffect(() => {
         if (value !== undefined) {
-            setHasValue(!!value);
-        } else if (defaultValue !== undefined) {
-            setHasValue(!!defaultValue);
+            setInternalValue(value);
         }
-    }, [value, defaultValue]);
+    }, [value]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (onDebouncedChange) {
+                onDebouncedChange(internalValue.toString());
+            }
+        }, 500); // 500ms de delay
+
+        return () => clearTimeout(timer);
+    }, [internalValue, onDebouncedChange]);
 
     const inputProps = registration
         ? { ...registration, ...props }
@@ -61,11 +73,18 @@ export function CustomFormInput({
         absolute left-0 transition-all duration-200 pointer-events-none 
         ${textColor} 
         ${
-            isFocused || hasValue
+            isFocused || internalValue
                 ? '-top-1/4 opacity-0'
                 : 'top-1/2 -translate-y-1/2 text-base text-gray-400'
         }
     `;
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = e.target.value;
+        setInternalValue(newValue);
+        registration?.onChange?.(e);
+        props.onChange?.(e);
+    };
 
     return (
         <div className="w-full">
@@ -75,17 +94,13 @@ export function CustomFormInput({
                     <input
                         {...inputProps}
                         type={type}
+                        value={internalValue}
                         onFocus={() => setIsFocused(true)}
                         onBlur={(e) => {
                             setIsFocused(false);
-                            setHasValue(!!e.target.value);
                             registration?.onBlur?.(e);
                         }}
-                        onChange={(e) => {
-                            setHasValue(!!e.target.value);
-                            registration?.onChange?.(e);
-                            props.onChange?.(e);
-                        }}
+                        onChange={handleChange}
                         className={inputClasses}
                         placeholder={label}
                         disabled={disabled}

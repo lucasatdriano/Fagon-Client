@@ -7,7 +7,27 @@ const pwaConfig = withPWA({
     disable: process.env.NODE_ENV === 'development',
     register: true,
     skipWaiting: true,
-    buildExcludes: [/middleware-manifest\.json$/],
+    dynamicStartUrl: true,
+    sw: 'custom-worker.js',
+    buildExcludes: [
+        /middleware-manifest\.json$/,
+        /_buildManifest\.js$/,
+        /_ssgManifest\.js$/,
+        /app-build-manifest\.json$/,
+    ],
+    runtimeCaching: [
+        {
+            urlPattern: /\.(?:png|jpg|jpeg|svg|webp)$/,
+            handler: 'CacheFirst',
+            options: {
+                cacheName: 'images',
+                expiration: {
+                    maxEntries: 100,
+                    maxAgeSeconds: 30 * 24 * 60 * 60, // 30 dias
+                },
+            },
+        },
+    ],
 });
 
 const nextConfig: NextConfig = {
@@ -32,8 +52,13 @@ const nextConfig: NextConfig = {
             },
         ],
     },
+
     reactStrictMode: true,
     productionBrowserSourceMaps: true,
+
+    experimental: {
+        optimizeCss: true,
+    },
 };
 
 export default pwaConfig(nextConfig);

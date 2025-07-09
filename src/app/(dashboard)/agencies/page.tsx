@@ -37,10 +37,7 @@ export default function DashboardAgenciesPage() {
                 agencyNumber: !isNaN(Number(searchValue))
                     ? Number(searchValue)
                     : undefined,
-                state:
-                    searchValue.length === 2
-                        ? searchValue.toUpperCase()
-                        : undefined,
+                state: searchValue,
                 city: searchValue,
                 district: searchValue,
             };

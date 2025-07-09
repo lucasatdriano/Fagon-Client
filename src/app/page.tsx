@@ -11,9 +11,7 @@ export default function Home() {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                console.log('Tentando AuthService.getMe()...');
                 await AuthService.getMe();
-                console.log('Autenticado! Redirecionando para /projects');
                 router.push('/projects');
             } catch (error) {
                 console.error('Usuário não autenticado:', error);

@@ -28,8 +28,7 @@ import { Pavement } from '../../../../interfaces/pavement';
 type StatusItem = {
     value: string;
     label: string;
-    bg: string;
-    text: string;
+    class: string;
 };
 
 type FormValues = UpdateProjectFormValues & {
@@ -140,9 +139,13 @@ export default function ProjectEditPage() {
         try {
             setIsLoading(true);
 
+            const formattedInspectionDate = formData.inspectionDate
+                ? new Date(formData.inspectionDate).toISOString()
+                : undefined;
+
             const updateData = {
                 inspectorName: formData.inspectorName || undefined,
-                inspectionDate: formData.inspectionDate || undefined,
+                inspectionDate: formattedInspectionDate,
                 structureType: formData.structureType || undefined,
                 engineerId: formData.engineer?.id,
                 pavement: formData.pavements?.map((pavement) => ({
@@ -183,7 +186,7 @@ export default function ProjectEditPage() {
 
     return (
         <div className="grid place-items-center min-h-screen bg-background pt-20 px-4">
-            <div className="w-3/5 bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="w-4/5 sm:w-3/4 2xl:w-3/5 bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="flex items-center justify-center py-4 px-12">
                     <h1 className="text-2xl font-bold">
                         Projeto - {project?.agency.city} -{' '}
@@ -200,15 +203,15 @@ export default function ProjectEditPage() {
                     })}
                     className="py-4 px-8 space-y-6"
                 >
-                    <div className="flex justify-between pb-4">
+                    <div className="flex flex-col-reverse gap-4 md:flex-row justify-between pb-4">
                         <h2 className="text-xl font-semibold text-gray-800">
                             UPE {project?.upeCode}
                         </h2>
                         {statusData && (
                             <h2
-                                className={`text-xl font-semibold ${statusData.bg} ${statusData.text} px-4 py-1 rounded-xl`}
+                                className={`text-xl font-semibold ${statusData?.class} px-4 py-1 rounded-xl`}
                             >
-                                {statusData.label}
+                                {statusData?.label}
                             </h2>
                         )}
                     </div>
@@ -216,8 +219,10 @@ export default function ProjectEditPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                         <CustomEditInput
                             label="Agência"
-                            registration={register('agency.name')}
-                            error={errors.agency?.name?.message}
+                            registration={register('agency.name', {
+                                required: false,
+                            })}
+                            error={undefined}
                             defaultValue={project?.agency.name}
                             textColor="text-foreground"
                             disabled
@@ -225,8 +230,10 @@ export default function ProjectEditPage() {
 
                         <CustomEditInput
                             label="Número da Agência"
-                            registration={register('agency.agencyNumber')}
-                            error={errors.agency?.agencyNumber?.message}
+                            registration={register('agency.agencyNumber', {
+                                required: false,
+                            })}
+                            error={undefined}
                             defaultValue={project?.agency.agencyNumber}
                             textColor="text-foreground"
                             disabled
@@ -234,8 +241,10 @@ export default function ProjectEditPage() {
 
                         <CustomEditInput
                             label="Estado"
-                            registration={register('agency.state')}
-                            error={errors.agency?.state?.message}
+                            registration={register('agency.state', {
+                                required: false,
+                            })}
+                            error={undefined}
                             defaultValue={project?.agency.state}
                             textColor="text-foreground"
                             disabled
@@ -243,8 +252,10 @@ export default function ProjectEditPage() {
 
                         <CustomEditInput
                             label="Cidade"
-                            registration={register('agency.city')}
-                            error={errors.agency?.city?.message}
+                            registration={register('agency.city', {
+                                required: false,
+                            })}
+                            error={undefined}
                             defaultValue={project?.agency.city}
                             textColor="text-foreground"
                             disabled
@@ -252,8 +263,10 @@ export default function ProjectEditPage() {
 
                         <CustomEditInput
                             label="Bairro"
-                            registration={register('agency.district')}
-                            error={errors.agency?.district?.message}
+                            registration={register('agency.district', {
+                                required: false,
+                            })}
+                            error={undefined}
                             defaultValue={project?.agency.district}
                             textColor="text-foreground"
                             disabled
@@ -261,8 +274,10 @@ export default function ProjectEditPage() {
 
                         <CustomEditInput
                             label="Tipo do Projeto"
-                            registration={register('projectType')}
-                            error={errors.projectType?.message}
+                            registration={register('projectType', {
+                                required: false,
+                            })}
+                            error={undefined}
                             defaultValue={project?.projectType}
                             textColor="text-foreground"
                             disabled
@@ -271,8 +286,10 @@ export default function ProjectEditPage() {
                         <CustomEditInput
                             label="Data do Projeto"
                             type="date"
-                            registration={register('projectDate')}
-                            error={errors.projectDate?.message}
+                            registration={register('projectDate', {
+                                required: false,
+                            })}
+                            error={undefined}
                             defaultValue={project?.createdAt}
                             textColor="text-foreground"
                             disabled

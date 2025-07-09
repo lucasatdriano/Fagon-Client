@@ -4,17 +4,18 @@ import { createProjectSchema } from './projectCreateValidation';
 const baseUpdateSchema = createProjectSchema
     .extend({
         id: z.string().uuid('ID inválido').optional(),
-        name: z.string().min(1, 'Nome é obrigatório').optional(),
+        name: z.string().optional(),
         agency: z
             .object({
                 id: z.string().uuid(),
                 name: z.string(),
-                agencyNumber: z.string(),
+                agencyNumber: z.union([z.string(), z.number()]),
                 state: z.string(),
                 city: z.string(),
                 district: z.string(),
             })
             .optional(),
+        projectType: z.string().optional(),
         projectDate: z.string().optional(),
         status: z.string().optional(),
         inspectorName: z.string().max(100, 'Máximo 100 caracteres').optional(),

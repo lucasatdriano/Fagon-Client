@@ -2,37 +2,31 @@ export const projectStatus = [
     {
         value: 'aguardando_vistoria',
         label: 'Aguardando Vistoria',
-        bg: 'bg-orange-100',
-        text: 'text-orange-800',
+        class: 'bg-orange-100 text-orange-800',
     },
     {
         value: 'vistoria_em_progresso',
         label: 'Vistoria em Progresso',
-        bg: 'bg-blue-100',
-        text: 'text-blue-800',
+        class: 'bg-blue-100 text-blue-800',
     },
     {
         value: 'aguardando_gerar_pdfs',
         label: 'Aguardando Geração de PDFs',
-        bg: 'bg-yellow-100',
-        text: 'text-yellow-800',
+        class: 'bg-yellow-100 text-yellow-800',
     },
     {
         value: 'aguardando_assinatura_de_pdfs',
         label: 'Aguardando Assinatura de PDFs',
-        bg: 'bg-purple-100',
-        text: 'text-purple-800',
+        class: 'bg-purple-100 text-purple-800',
     },
     {
         value: 'finalizado',
         label: 'Finalizado',
-        bg: 'bg-green-100',
-        text: 'text-green-800',
+        class: 'bg-green-100 text-green-800',
     },
     {
         value: 'cancelado',
         label: 'Cancelado',
-        bg: 'bg-red-100',
-        text: 'text-red-800',
+        class: 'bg-red-100 text-red-800',
     },
 ];

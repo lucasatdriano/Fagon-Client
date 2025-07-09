@@ -6,5 +6,4 @@ export const floorOptions = [
     { id: '5', value: 'carpete', label: 'Carpete' },
     { id: '6', value: 'granito', label: 'Granito' },
     { id: '7', value: 'ardosia', label: 'Ardósia' },
-    { id: '8', value: 'outro', label: 'Outro', isOtherOption: true },
 ];

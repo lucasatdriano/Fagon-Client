@@ -23,6 +23,7 @@
         "autoprefixer": "^10.4.21",
         "axios": "^1.9.0",
         "cookies-next": "^5.1.0",
+        "critters": "^0.0.23",
         "eslint": "^9.30.1",
         "eslint-config-next": "15.3.2",
         "fagon-client": "file:",

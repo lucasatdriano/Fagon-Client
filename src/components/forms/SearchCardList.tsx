@@ -1,37 +1,70 @@
-import { useSearch } from '../../hooks/useSearch';
-import { debounce } from '../../utils/helpers/debounce';
+'use client';
+
 import { LandmarkIcon, Loader2Icon, SearchIcon } from 'lucide-react';
 import { CustomFormInput } from './CustomFormInput';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { agencyProps } from '../../interfaces/agency';
 import { formatNumberAgency } from '../../utils/formatters/formatNumberAgency';
+import { AgencyService } from '../../services/domains/agencyService';
 
 interface SearchCardListProps {
     onSelectAgency: (agency: agencyProps) => void;
-    searchAgencies: (query: string) => Promise<agencyProps[]> | agencyProps[];
 }
 
-export function SearchCardList({
-    onSelectAgency,
-    searchAgencies,
-}: SearchCardListProps) {
-    const { query, setQuery, results, isLoading, error } =
-        useSearch<agencyProps>(searchAgencies, 0, 300);
-    const [localQuery, setLocalQuery] = useState(query);
+export function SearchCardList({ onSelectAgency }: SearchCardListProps) {
+    const [query, setQuery] = useState('');
+    const [results, setResults] = useState<agencyProps[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
     const [selectedAgencyId, setSelectedAgencyId] = useState<string | null>(
         null,
     );
 
-    const handleInputChange = debounce((...args: unknown[]) => {
-        const value = args[0] as string;
-        setQuery(value);
-    }, 300);
+    useEffect(() => {
+        const searchAgencies = async () => {
+            setIsLoading(true);
+            try {
+                let agencies: agencyProps[];
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setLocalQuery(value);
-        handleInputChange(value);
-    };
+                if (query.trim() === '') {
+                    const response = await AgencyService.listAll();
+                    agencies = response.data;
+                } else {
+                    const searchParams = {
+                        name: query,
+                        agencyNumber: !isNaN(Number(query))
+                            ? Number(query)
+                            : undefined,
+                        state: query,
+                        city: query,
+                        district: query,
+                    };
+
+                    const cleanedParams = Object.fromEntries(
+                        Object.entries(searchParams).filter(
+                            ([, value]) => value !== undefined,
+                        ),
+                    );
+
+                    const response = await AgencyService.search(cleanedParams);
+                    agencies = response.data;
+                }
+
+                setResults(agencies);
+            } catch (error) {
+                console.error('Erro ao buscar agências:', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        const debounceSearch = setTimeout(() => {
+            if (query.length >= 3 || query.length === 0) {
+                searchAgencies();
+            }
+        }, 300);
+
+        return () => clearTimeout(debounceSearch);
+    }, [query]);
 
     const handleSelectAgency = (agencyId: string) => {
         setSelectedAgencyId(agencyId);
@@ -45,19 +78,17 @@ export function SearchCardList({
         <div className="w-full mx-auto font-sans px-4 py-2 border-2 rounded-md">
             <div className="relative mb-4">
                 <CustomFormInput
-                    icon={<SearchIcon className="w-5 h-5" />}
+                    icon={<SearchIcon className="w-6 h-6" />}
                     label="Pesquisar agência..."
-                    value={localQuery}
-                    onChange={handleChange}
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
                 />
                 {isLoading && (
                     <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-600 text-sm">
-                        <Loader2Icon className="animate-spin w-12 h-12 text-primary" />
+                        <Loader2Icon className="animate-spin w-6 h-6 text-primary" />
                     </span>
                 )}
             </div>
-
-            {error && <div className="text-error mb-4">{error}</div>}
 
             {results.length > 0 ? (
                 <ul className="space-y-2 pt-0 p-1 h-60 overflow-auto">

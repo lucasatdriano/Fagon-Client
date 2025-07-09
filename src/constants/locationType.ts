@@ -3,15 +3,13 @@ export const locationType = [
         id: 'externo',
         value: 'externo',
         label: 'Local Externo',
-        bg: 'bg-blue-100',
-        text: 'text-blue-800',
+        class: 'bg-lime-100 text-lime-800',
     },
     {
         id: 'interno',
         value: 'interno',
         label: 'Local Interno',
-        bg: 'bg-purple-100',
-        text: 'text-purple-800',
+        class: 'bg-sky-100 text-sky-800',
     },
 ] as const;
 

@@ -18,7 +18,6 @@ import {
 } from '../../../validations';
 import { pavements, projectType } from '../../../constants';
 import { EngineerService } from '../../../services/domains/engineerService';
-import { AgencyService } from '../../../services/domains/agencyService';
 import { engineerProps } from '../../../interfaces/engineer';
 import { ProjectService } from '../../../services/domains/projectService';
 import { toast } from 'sonner';
@@ -161,30 +160,6 @@ export default function CreateProjectPage() {
                         <SearchCardList
                             onSelectAgency={(agency) => {
                                 setValue('agencyId', agency.id);
-                            }}
-                            searchAgencies={async (query: string) => {
-                                if (query.length < 1) {
-                                    const response =
-                                        await AgencyService.listAll();
-                                    return response.data;
-                                }
-                                if (/^\d+$/.test(query)) {
-                                    const response = await AgencyService.search(
-                                        {
-                                            agencyNumber: query,
-                                        },
-                                    );
-
-                                    return response.data;
-                                }
-
-                                const response = await AgencyService.search({
-                                    // state: query,
-                                    city: query,
-                                    // district: query,
-                                });
-
-                                return response.data;
                             }}
                         />
                         {errors.agencyId && (

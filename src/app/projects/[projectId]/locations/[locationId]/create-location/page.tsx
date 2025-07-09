@@ -9,6 +9,7 @@ import {
     MapPinIcon,
     RulerIcon,
     SaveIcon,
+    SquarePenIcon,
 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { toast } from 'sonner';
@@ -22,9 +23,18 @@ import {
     wallOptions,
 } from '../../../../../../constants';
 import { PhotoCard } from '../../../../../../components/cards/PhotoCard';
-import { Location, LocationService } from '../../../../../../services/domains/locationService';
-import { UpdateLocationFormSchema, updateLocationSchema } from '../../../../../../validations';
-import { locationType as locationTypes, surfaceType } from '../../../../../../constants';
+import {
+    Location,
+    LocationService,
+} from '../../../../../../services/domains/locationService';
+import {
+    UpdateLocationFormSchema,
+    updateLocationSchema,
+} from '../../../../../../validations';
+import {
+    locationType as locationTypes,
+    surfaceType,
+} from '../../../../../../constants';
 import {
     CustomDropdownInput,
     DropdownOption,
@@ -51,7 +61,13 @@ export default function CreateLocationPage() {
     const [pavements, setPavements] = useState<DropdownOption[]>([]);
     const [location, setLocation] = useState<Location | null>(null);
     const [formKey, setFormKey] = useState(0);
+    const [customFloorFinishing, setCustomFloorFinishing] = useState('');
+    const [customWallFinishing, setCustomWallFinishing] = useState('');
+    const [customCeilingFinishing, setCustomCeilingFinishing] = useState('');
     const [showPhotoOptionsModal, setShowPhotoOptionsModal] = useState(false);
+    const [debounceTimers, setDebounceTimers] = useState<
+        Record<string, NodeJS.Timeout>
+    >({});
 
     const {
         register,
@@ -110,8 +126,6 @@ export default function CreateLocationPage() {
             );
             const locationData = response.data;
 
-            console.log('LOCATION', locationData);
-
             const mappedPhotos =
                 locationData.photo?.map((photo) => ({
                     id: photo.id,
@@ -140,26 +154,46 @@ export default function CreateLocationPage() {
                 (st) => st.label === 'Forro',
             )?.value;
 
-            setValue(
-                'floorFinishing',
+            const floorFinishes =
                 locationData.materialFinishing
                     ?.filter((f) => f.surface === pisoValue)
-                    .map((f) => f.materialFinishing) || [],
+                    .map((f) => f.materialFinishing) || [];
+
+            const standardFloorOptions = floorOptions.map((opt) => opt.value);
+            const customFloorValues = floorFinishes.filter(
+                (value) => !standardFloorOptions.includes(value),
             );
 
-            setValue(
-                'wallFinishing',
+            setCustomFloorFinishing(customFloorValues.join(', '));
+            setValue('floorFinishing', floorFinishes);
+
+            const wallFinishes =
                 locationData.materialFinishing
                     ?.filter((f) => f.surface === paredeValue)
-                    .map((f) => f.materialFinishing) || [],
+                    .map((f) => f.materialFinishing) || [];
+
+            const standardWallOptions = wallOptions.map((opt) => opt.value);
+            const customWallValues = wallFinishes.filter(
+                (value) => !standardWallOptions.includes(value),
             );
 
-            setValue(
-                'ceilingFinishing',
+            setCustomWallFinishing(customWallValues.join(', '));
+            setValue('wallFinishing', wallFinishes);
+
+            const ceilingFinishes =
                 locationData.materialFinishing
                     ?.filter((f) => f.surface === forroValue)
-                    .map((f) => f.materialFinishing) || [],
+                    .map((f) => f.materialFinishing) || [];
+
+            const standardCeilingOptions = ceilingOptions.map(
+                (opt) => opt.value,
             );
+            const customCeilingValues = ceilingFinishes.filter(
+                (value) => !standardCeilingOptions.includes(value),
+            );
+
+            setCustomCeilingFinishing(customCeilingValues.join(', '));
+            setValue('ceilingFinishing', ceilingFinishes);
 
             setFormKey((prev) => prev + 1);
         } catch (error) {
@@ -284,6 +318,51 @@ export default function CreateLocationPage() {
         }
     }, []);
 
+    const handleCustomFinishingChange = (
+        type: 'floor' | 'wall' | 'ceiling',
+        value: string,
+    ) => {
+        if (debounceTimers[type]) {
+            clearTimeout(debounceTimers[type]);
+        }
+
+        const timer = setTimeout(() => {
+            const currentValues = watch(`${type}Finishing`) || [];
+            const standardOptions = {
+                floor: floorOptions.map((opt) => opt.value),
+                wall: wallOptions.map((opt) => opt.value),
+                ceiling: ceilingOptions.map((opt) => opt.value),
+            }[type];
+
+            const standardValues = currentValues.filter((v) =>
+                standardOptions.includes(v),
+            );
+
+            const newCustomValues = value
+                .split(',')
+                .map((v) => v.trim())
+                .filter((v) => v);
+
+            const allValues = [...standardValues, ...newCustomValues];
+
+            setValue(`${type}Finishing`, allValues);
+
+            switch (type) {
+                case 'floor':
+                    setCustomFloorFinishing(newCustomValues.join(', '));
+                    break;
+                case 'wall':
+                    setCustomWallFinishing(newCustomValues.join(', '));
+                    break;
+                case 'ceiling':
+                    setCustomCeilingFinishing(newCustomValues.join(', '));
+                    break;
+            }
+        }, 500);
+
+        setDebounceTimers((prev) => ({ ...prev, [type]: timer }));
+    };
+
     const onSubmit = async (data: UpdateLocationFormSchema) => {
         try {
             setIsLoading(true);
@@ -300,15 +379,27 @@ export default function CreateLocationPage() {
             if (data.height) formData.append('height', data.height);
             if (data.pavementId) formData.append('pavementId', data.pavementId);
 
+            const processFinishes = (finishes: string[]) => {
+                return Array.from(
+                    new Set(
+                        finishes
+                            .filter(Boolean)
+                            .flatMap((f) => f.split(','))
+                            .map((v) => v.trim())
+                            .filter((v) => v),
+                    ),
+                );
+            };
+
             const finishes = {
-                floor: data.floorFinishing || [],
-                wall: data.wallFinishing || [],
-                ceiling: data.ceilingFinishing || [],
+                floor: processFinishes(data.floorFinishing || []),
+                wall: processFinishes(data.wallFinishing || []),
+                ceiling: processFinishes(data.ceilingFinishing || []),
             };
 
             Object.entries(finishes).forEach(([key, values]) => {
-                values.forEach((value, index) => {
-                    formData.append(`finishes[${key}][${index}]`, value);
+                values.forEach((value) => {
+                    formData.append(`finishes[${key}][]`, value);
                 });
             });
 
@@ -471,30 +562,35 @@ export default function CreateLocationPage() {
                         <h3 className="text-xl font-sans mb-2">Piso:</h3>
                         <CustomCheckboxGroup
                             name="floorFinishing"
-                            options={floorOptions.map((f) => ({
-                                value: f.value,
-                                label: f.label,
-                                isOtherOption: f.value === 'outro',
-                            }))}
+                            options={floorOptions}
                             selectedValues={watch('floorFinishing') || []}
                             onChange={(values) =>
                                 setValue('floorFinishing', values)
                             }
                             error={errors.floorFinishing?.message}
                             gridCols={'full'}
-                            placeholder="Especifique o acabamento do piso"
-                            // registration={register('floorFinishing')}
                         />
+                        <div className="mt-4">
+                            <CustomFormInput
+                                label="Outros acabamentos de piso (separados por vírgula)"
+                                value={customFloorFinishing}
+                                onChange={(e) => {
+                                    setCustomFloorFinishing(e.target.value);
+                                    handleCustomFinishingChange(
+                                        'floor',
+                                        e.target.value,
+                                    );
+                                }}
+                                icon={<SquarePenIcon />}
+                            />
+                        </div>
                     </div>
 
                     <div>
                         <h3 className="text-xl font-sans mb-2">Parede:</h3>
                         <CustomCheckboxGroup
                             name="wallFinishing"
-                            options={wallOptions.map((f) => ({
-                                value: f.value,
-                                label: f.label,
-                            }))}
+                            options={wallOptions}
                             selectedValues={watch('wallFinishing') || []}
                             onChange={(values) =>
                                 setValue('wallFinishing', values)
@@ -502,6 +598,20 @@ export default function CreateLocationPage() {
                             error={errors.wallFinishing?.message}
                             gridCols={'full'}
                         />
+                        <div className="mt-4">
+                            <CustomFormInput
+                                label="Outros acabamentos de parede (separados por vírgula)"
+                                value={customWallFinishing}
+                                onChange={(e) => {
+                                    setCustomWallFinishing(e.target.value);
+                                    handleCustomFinishingChange(
+                                        'wall',
+                                        e.target.value,
+                                    );
+                                }}
+                                icon={<SquarePenIcon />}
+                            />
+                        </div>
                     </div>
 
                     {!isFacade && !isExternal && (
@@ -509,10 +619,7 @@ export default function CreateLocationPage() {
                             <h3 className="text-xl font-sans mb-2">Forro:</h3>
                             <CustomCheckboxGroup
                                 name="ceilingFinishing"
-                                options={ceilingOptions.map((f) => ({
-                                    value: f.value,
-                                    label: f.label,
-                                }))}
+                                options={ceilingOptions}
                                 selectedValues={watch('ceilingFinishing') || []}
                                 onChange={(values) =>
                                     setValue('ceilingFinishing', values)
@@ -520,6 +627,22 @@ export default function CreateLocationPage() {
                                 error={errors.ceilingFinishing?.message}
                                 gridCols={'full'}
                             />
+                            <div className="mt-4">
+                                <CustomFormInput
+                                    label="Outros acabamentos de forro (separados por vírgula)"
+                                    value={customCeilingFinishing}
+                                    onChange={(e) => {
+                                        setCustomCeilingFinishing(
+                                            e.target.value,
+                                        );
+                                        handleCustomFinishingChange(
+                                            'ceiling',
+                                            e.target.value,
+                                        );
+                                    }}
+                                    icon={<SquarePenIcon />}
+                                />
+                            </div>
                         </div>
                     )}
                 </div>

@@ -22,8 +22,6 @@ export default function CreationLayout({
         if (loading) return;
 
         const checkPermissions = async () => {
-            console.log('aaaaaaaaaa');
-            console.log(isVisitor);
             if (isVisitor) {
                 setHeaderType('default');
                 return;

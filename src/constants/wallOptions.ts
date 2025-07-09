@@ -20,10 +20,4 @@ export const wallOptions = [
         value: 'mdf',
         label: 'MDF',
     },
-    {
-        id: '6',
-        value: 'outro',
-        label: 'Outro',
-        isOtherOption: true,
-    },
 ];
