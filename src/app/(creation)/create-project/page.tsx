@@ -40,12 +40,12 @@ export default function CreateProjectPage() {
         formState: { errors },
     } = useForm<CreateProjectFormValues>({
         resolver: zodResolver(createProjectSchema),
-        defaultValues: {
-            projectType: '',
-            pavements: [],
-            upeCode: '',
-            agencyId: '',
-        },
+        // defaultValues: {
+        //     projectType: '',
+        //     pavements: [],
+        //     upeCode: '',
+        //     agencyId: '',
+        // },
     });
 
     const onSubmit = async (data: CreateProjectFormValues) => {

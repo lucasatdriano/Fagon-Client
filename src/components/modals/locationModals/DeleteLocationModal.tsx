@@ -1,21 +1,34 @@
 'use client';
 
-import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
-import { Trash2Icon } from 'lucide-react';
 import { CustomButton } from '../../../components/forms/CustomButton';
+import { Dialog, Transition } from '@headlessui/react';
+import { Trash2Icon } from 'lucide-react';
+import { Fragment } from 'react';
+import { toast } from 'sonner';
 
-export function DeletePhotoModal({
+interface DeleteLocationModalProps {
+    locationName: string;
+    isOpen: boolean;
+    onClose: () => void;
+    onConfirm: () => Promise<void>;
+    isLoading?: boolean;
+}
+
+export function DeleteLocationModal({
+    locationName,
     isOpen,
     onClose,
     onConfirm,
     isLoading = false,
-}: {
-    isOpen: boolean;
-    onClose: () => void;
-    onConfirm: () => void;
-    isLoading?: boolean;
-}) {
+}: DeleteLocationModalProps) {
+    const handleDelete = async () => {
+        try {
+            await onConfirm();
+        } catch {
+            toast.error(`Erro ao deletar o local ${locationName}`);
+        }
+    };
+
     return (
         <Transition appear show={isOpen} as={Fragment}>
             <Dialog as="div" className="relative z-50" onClose={onClose}>
@@ -44,19 +57,21 @@ export function DeletePhotoModal({
                         >
                             <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                                 <div className="flex items-center gap-3">
-                                    <Trash2Icon className="h-6 w-6 text-error" />
+                                    <Trash2Icon className="h-10 w-10 text-error" />
                                     <Dialog.Title
                                         as="h3"
                                         className="text-lg font-medium leading-6 text-gray-900"
                                     >
-                                        Confirmar exclusão de foto
-                                    </Dialog.Title>
+                                        Tem certeza que deseja deletar o local -{' '}
+                                        {locationName}?
+                                    </Dialog.Title>{' '}
                                 </div>
 
-                                <div className="mt-4">
+                                <div className="mt-2">
                                     <p className="text-sm text-gray-500">
-                                        Tem certeza que deseja excluir esta
-                                        foto? Esta ação não pode ser desfeita.
+                                        Esta ação não pode ser desfeita. Todos
+                                        os dados associados a este local serão
+                                        permanentemente removidos.
                                     </p>
                                 </div>
 
@@ -73,7 +88,7 @@ export function DeletePhotoModal({
                                     </CustomButton>
                                     <CustomButton
                                         type="button"
-                                        onClick={onConfirm}
+                                        onClick={handleDelete}
                                         disabled={isLoading}
                                         color="bg-error"
                                         className={`rounded-md text-sm text-white hover:bg-red-900 ${
@@ -81,8 +96,8 @@ export function DeletePhotoModal({
                                         }`}
                                     >
                                         {isLoading
-                                            ? 'Excluindo...'
-                                            : 'Excluir Foto'}
+                                            ? 'Deletando...'
+                                            : 'Deletar Local'}
                                     </CustomButton>
                                 </div>
                             </Dialog.Panel>

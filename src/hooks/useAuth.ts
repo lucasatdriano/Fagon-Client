@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { parseCookies } from 'nookies';
 import { AuthService } from '../services/domains/authService';
@@ -14,10 +14,10 @@ type UseAuthOptions = {
 export function useAuth(options?: UseAuthOptions) {
     const router = useRouter();
     const effectRan = useRef(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const abortController = new AbortController();
-
         if (effectRan.current) return;
         effectRan.current = true;
 
@@ -47,6 +47,8 @@ export function useAuth(options?: UseAuthOptions) {
                 if (!abortController.signal.aborted) {
                     router.push(options?.redirectIfUnauthenticated || '/login');
                 }
+            } finally {
+                setIsLoading(false);
             }
         }
 
@@ -54,4 +56,6 @@ export function useAuth(options?: UseAuthOptions) {
 
         return () => abortController.abort();
     }, [router, options]);
+
+    return { isLoading };
 }

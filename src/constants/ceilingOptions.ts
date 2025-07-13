@@ -1,21 +1,21 @@
 export const ceilingOptions = [
     {
-        id: '1',
+        id: 'gesso_acartonado',
         value: 'gesso_acartonado',
         label: 'Gesso Acartonado',
     },
     {
-        id: '2',
+        id: 'laje',
         value: 'laje',
         label: 'Laje',
     },
     {
-        id: '3',
+        id: 'amadeirado',
         value: 'amadeirado',
         label: 'Amadeirado',
     },
     {
-        id: '4',
+        id: 'mineral_acustico',
         value: 'mineral_acustico',
         label: 'Mineral Acústico',
     },

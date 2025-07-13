@@ -1,3 +1,3 @@
 export const projectType = [
-    { id: '1', value: 'laudo_cmar', label: 'Laudo CMAR' },
+    { id: 'laudo_cmar', value: 'laudo_cmar', label: 'Laudo CMAR' },
 ];

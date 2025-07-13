@@ -1,24 +1,44 @@
 'use client';
 
-import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
-import { Trash2Icon } from 'lucide-react';
 import { CustomButton } from '../../../components/forms/CustomButton';
+import { PdfType, PDF } from '../../../interfaces/pdf';
+import { getPdfLabel } from '../../../utils/formatters/formatValues';
+import { Dialog, Transition } from '@headlessui/react';
+import { Loader2Icon, Trash2Icon } from 'lucide-react';
+import { Fragment } from 'react';
+import { toast } from 'sonner';
 
-export function DeletePhotoModal({
-    isOpen,
+interface DeletePdfModalProps {
+    pdfType: PdfType;
+    pdfs: PDF[];
+    setPdfs: (newPdfs: PDF[]) => void;
+    onClose: () => void;
+    onConfirm: () => Promise<void>;
+    isLoading?: boolean;
+}
+
+export function DeletePdfModal({
+    pdfType,
     onClose,
     onConfirm,
     isLoading = false,
-}: {
-    isOpen: boolean;
-    onClose: () => void;
-    onConfirm: () => void;
-    isLoading?: boolean;
-}) {
+}: DeletePdfModalProps) {
+    const handleDelete = async () => {
+        try {
+            await onConfirm();
+            onClose();
+        } catch {
+            toast.error(`Erro ao deletar PDF ${getPdfLabel(pdfType)}`);
+        }
+    };
+
     return (
-        <Transition appear show={isOpen} as={Fragment}>
-            <Dialog as="div" className="relative z-50" onClose={onClose}>
+        <Transition appear show={true} as={Fragment}>
+            <Dialog
+                as="div"
+                className="relative z-50"
+                onClose={isLoading ? () => {} : onClose}
+            >
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"
@@ -44,19 +64,21 @@ export function DeletePhotoModal({
                         >
                             <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                                 <div className="flex items-center gap-3">
-                                    <Trash2Icon className="h-6 w-6 text-error" />
+                                    <Trash2Icon className="h-8 w-8 text-error" />
                                     <Dialog.Title
                                         as="h3"
                                         className="text-lg font-medium leading-6 text-gray-900"
                                     >
-                                        Confirmar exclusão de foto
+                                        Tem certeza que deseja deletar o PDF -{' '}
+                                        {getPdfLabel(pdfType)}?
                                     </Dialog.Title>
                                 </div>
 
-                                <div className="mt-4">
+                                <div className="mt-2">
                                     <p className="text-sm text-gray-500">
-                                        Tem certeza que deseja excluir esta
-                                        foto? Esta ação não pode ser desfeita.
+                                        Esta ação não pode ser desfeita. Todos
+                                        os dados associados serão
+                                        permanentemente removidos.
                                     </p>
                                 </div>
 
@@ -67,22 +89,35 @@ export function DeletePhotoModal({
                                         disabled={isLoading}
                                         color="bg-white"
                                         textColor="text-foreground"
-                                        className="rounded-md border border-foreground text-sm text-gray-700 hover:bg-zinc-200"
+                                        className={`rounded-md border border-foreground text-sm hover:bg-zinc-200 ${
+                                            isLoading
+                                                ? 'opacity-50 cursor-not-allowed'
+                                                : ''
+                                        }`}
                                     >
                                         Cancelar
                                     </CustomButton>
                                     <CustomButton
                                         type="button"
-                                        onClick={onConfirm}
+                                        onClick={handleDelete}
                                         disabled={isLoading}
-                                        color="bg-error"
-                                        className={`rounded-md text-sm text-white hover:bg-red-900 ${
-                                            isLoading && 'bg-zinc-400'
+                                        color={
+                                            isLoading
+                                                ? 'bg-gray-400'
+                                                : 'bg-error'
+                                        }
+                                        className={`rounded-md text-sm text-white ${
+                                            isLoading ? '' : 'hover:bg-red-900'
                                         }`}
                                     >
-                                        {isLoading
-                                            ? 'Excluindo...'
-                                            : 'Excluir Foto'}
+                                        {isLoading ? (
+                                            <span className="flex items-center justify-center gap-2">
+                                                <Loader2Icon className="animate-spin h-4 w-4" />
+                                                Deletando...
+                                            </span>
+                                        ) : (
+                                            'Deletar PDF'
+                                        )}
                                     </CustomButton>
                                 </div>
                             </Dialog.Panel>

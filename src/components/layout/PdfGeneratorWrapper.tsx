@@ -7,10 +7,10 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { PdfCard } from '../cards/PdfCard';
 import { getPdfLabel } from '../../utils/formatters/formatValues';
-import ProjectInformationModal from '../modals/ProjectInformationModal';
 import { ProjectService } from '../../services/domains/projectService';
 import { ProjectStatus } from '../../types/project';
 import { Loader2Icon } from 'lucide-react';
+import AddInfoToPdfModal from '../modals/pdfModals/AddInfoToPdfModal';
 
 interface PdfGeneratorProps {
     projectId: string;
@@ -21,6 +21,7 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
     const [loading, setLoading] = useState(true);
     const [generating, setGenerating] = useState<PdfType | null>(null);
     const [deletingPdf, setDeletingPdf] = useState<PdfType | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
     const [showProjectInfoModal, setShowProjectInfoModal] = useState(false);
     const [projectStatus, setProjectStatus] = useState<ProjectStatus>();
 
@@ -90,12 +91,24 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
 
     const handleGenerate = async (type: PdfType) => {
         setGenerating(type);
+        setIsLoading(true);
         try {
             if (type === 'laudo_avaliacao') {
                 const project = await ProjectService.getById(projectId);
 
-                if (!project.data.structureType || !project.data.floorHeight) {
+                const hasMissingArea = project.data.pavement.some(
+                    (pavement) =>
+                        pavement.area === null || pavement.area === undefined,
+                );
+
+                if (
+                    !project.data.structureType ||
+                    !project.data.floorHeight ||
+                    hasMissingArea
+                ) {
                     setShowProjectInfoModal(true);
+                    setGenerating(null);
+                    setIsLoading(false);
                     return;
                 }
             }
@@ -113,6 +126,7 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
         } finally {
             if (type !== 'laudo_avaliacao') {
                 setGenerating(null);
+                setIsLoading(false);
             }
         }
     };
@@ -163,6 +177,7 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
 
     const handleDelete = async (type: PdfType) => {
         setDeletingPdf(type);
+        setIsLoading(true);
         try {
             const pdfToDelete = pdfDocuments.find(
                 (pdf) => pdf.pdfType === type,
@@ -180,10 +195,12 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
             toast.error(`Erro ao deletar PDF ${getPdfLabel(type)}`);
         } finally {
             setDeletingPdf(null);
+            setIsLoading(false);
         }
     };
 
     const handleUploadSigned = async (type: PdfType, file: File) => {
+        setIsLoading(true);
         try {
             const pdfToUpdate = pdfDocuments.find(
                 (pdf) => pdf.pdfType === type,
@@ -206,21 +223,32 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
         } catch (error) {
             toast.error(`Erro ao enviar PDF assinado ${getPdfLabel(type)}`);
             throw error;
+        } finally {
+            setIsLoading(false);
         }
     };
 
     const handleProjectInfoSuccess = () => {
+        setIsLoading(true);
         PdfService.getByProject(projectId)
-            .then((response) => setPdfDocuments(response.data))
-            .catch((error) => console.error(error));
+            .then((response) => {
+                setPdfDocuments(response.data);
+                setIsLoading(false);
+            })
+            .catch((error) => {
+                console.error(error);
+                setIsLoading(false);
+            });
 
         setGenerating(null);
     };
 
     if (loading) {
-        <div className="flex justify-center items-center h-screen w-screen">
-            <Loader2Icon className="animate-spin w-12 h-12 text-primary" />
-        </div>;
+        return (
+            <div className="flex justify-center items-center h-screen w-screen">
+                <Loader2Icon className="animate-spin w-12 h-12 text-primary" />
+            </div>
+        );
     }
 
     return (
@@ -250,9 +278,10 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
                     });
                     setPdfDocuments(updatedDocuments);
                 }}
+                isLoading={isLoading}
             />
 
-            <ProjectInformationModal
+            <AddInfoToPdfModal
                 projectId={projectId}
                 isOpen={showProjectInfoModal}
                 onClose={() => {
@@ -260,6 +289,7 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
                     setGenerating(null);
                 }}
                 onSuccess={handleProjectInfoSuccess}
+                isLoading={isLoading}
             />
         </>
     );

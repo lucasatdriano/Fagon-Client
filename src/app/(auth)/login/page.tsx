@@ -32,6 +32,9 @@ export default function LoginPage() {
 
         try {
             destroyCookie(null, 'authToken', { path: '/' });
+            destroyCookie(null, 'accessToken', { path: '/' });
+            destroyCookie(null, 'projectId', { path: '/' });
+            destroyCookie(null, 'cameraType', { path: '/' });
 
             const response = await AuthService.login({
                 ...data,
@@ -39,9 +42,9 @@ export default function LoginPage() {
             });
 
             setCookie(null, 'authToken', response.data.access_token, {
-                path: '/',
-                maxAge: 24 * 60 * 60,
+                maxAge: 24 * 60 * 60, // 24h
                 sameSite: 'lax',
+                path: '/',
                 secure: process.env.NODE_ENV === 'production',
             });
 

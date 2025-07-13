@@ -3,15 +3,8 @@ import { z } from 'zod';
 const pavementSchema = z.object({
     id: z.string(),
     pavement: z.string(),
-    height: z.string().refine((val) => /^\d*\.?\d+$/.test(val), {
-        message: 'A altura deve ser um número válido',
-    }),
-    area: z
-        .string()
-        .min(1, 'Área é obrigatória')
-        .refine((val) => /^\d*\.?\d+$/.test(val), {
-            message: 'A área deve ser um número válido',
-        }),
+    height: z.number(),
+    area: z.number().min(1, 'Área é obrigatória'),
 });
 
 export const projectInfoSchema = z.object({

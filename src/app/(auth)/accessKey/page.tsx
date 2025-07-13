@@ -13,6 +13,8 @@ import {
     AuthService,
     LoginResponse,
 } from '../../../services/domains/authService';
+import { toast } from 'sonner';
+import { destroyCookie, setCookie } from 'nookies';
 
 export default function AccessKeyPage() {
     const [loading, setLoading] = useState(false);
@@ -33,14 +35,36 @@ export default function AccessKeyPage() {
         setLoading(true);
 
         try {
+            destroyCookie(null, 'authToken', { path: '/' });
+            destroyCookie(null, 'accessToken', { path: '/' });
+            destroyCookie(null, 'projectId', { path: '/' });
+            destroyCookie(null, 'cameraType', { path: '/' });
+
             const response = await AuthService.login({
                 accessKeyToken: data.accessKey,
             });
 
             setLoginData(response.data);
 
-            document.cookie = `authToken=${response.data.access_token}; path=/;`;
-            document.cookie = `projectId=${response.data.projectId}; path=/;`;
+            setCookie(null, 'accessToken', response.data.access_token, {
+                maxAge: 24 * 60 * 60, // 24h
+                sameSite: 'lax',
+                path: '/',
+                secure: process.env.NODE_ENV === 'production',
+            });
+            setCookie(null, 'projectId', response.data.projectId, {
+                maxAge: 24 * 60 * 60,
+                sameSite: 'lax',
+                path: '/',
+                secure: process.env.NODE_ENV === 'production',
+            });
+            setCookie(null, 'cameraType', response.data.user.cameraType, {
+                maxAge: 24 * 60 * 60,
+                sameSite: 'lax',
+                path: '/',
+                secure: process.env.NODE_ENV === 'production',
+            });
+
             setIsModalOpen(true);
         } catch (error: unknown) {
             if (error instanceof Error) {
@@ -48,11 +72,7 @@ export default function AccessKeyPage() {
                     type: 'manual',
                     message: error.message,
                 });
-            } else {
-                setError('root', {
-                    type: 'manual',
-                    message: 'Erro desconhecido',
-                });
+                toast.error('Chave de acesso expirada ou não existente');
             }
         } finally {
             setLoading(false);
@@ -88,12 +108,6 @@ export default function AccessKeyPage() {
                             required
                         />
                     </div>
-
-                    {errors.root && (
-                        <p className="text-error text-sm mt-2 text-center">
-                            {errors.root.message}
-                        </p>
-                    )}
 
                     <div className="pt-6">
                         <CustomButton

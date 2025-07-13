@@ -1,4 +1,9 @@
-import { locationOptions, pdfType, projectType } from '../../constants';
+import {
+    locationOptions,
+    pavements,
+    pdfType,
+    projectType,
+} from '../../constants';
 
 export function getLocationLabelByValue(value: string): string {
     if (!value) return '';
@@ -31,6 +36,16 @@ export function getPdfLabel(type: string): string {
 export const getProjectTypeLabel = (value: string) => {
     return projectType.find((type) => type.value === value)?.label || value;
 };
+
+export function getPavementValueByLabel(pavementValue: string): string {
+    const predefined = pavements.find((p) => p.value === pavementValue);
+    if (predefined) return predefined.label;
+
+    return pavementValue
+        .replace(/_/g, ' ')
+        .replace(/(\d+)_(\w+)/, '$1º $2')
+        .replace(/\b\w/g, (char) => char.toUpperCase());
+}
 
 export function formatWithCapitals(value: string): string {
     if (!value) return '';

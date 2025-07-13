@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Dialog, Transition } from '@headlessui/react';
+import { Fragment, useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -202,125 +203,185 @@ export function UpdatePathologyModal({
         }
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl lg:max-w-4xl max-h-[90vh] overflow-y-auto">
-                <div className="flex justify-between items-center border-b p-4">
-                    <h2 className="text-xl font-bold">Editar Patologia</h2>
-                    <button
-                        title="Fechar Modal"
-                        onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700 hover:bg-gray-200 p-2 rounded-full "
-                        disabled={isLoading}
-                    >
-                        <XIcon className="w-6 h-6" />
-                    </button>
+        <Transition appear show={isOpen} as={Fragment}>
+            <Dialog as="div" className="relative z-50" onClose={onClose}>
+                <Transition.Child
+                    as={Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0"
+                    enterTo="opacity-100"
+                    leave="ease-in duration-200"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                >
+                    <div className="fixed inset-0 bg-black/25" />
+                </Transition.Child>
+
+                <div className="fixed inset-0 overflow-y-auto">
+                    <div className="flex min-h-full items-center justify-center p-4 text-center">
+                        <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0 scale-95"
+                            enterTo="opacity-100 scale-100"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100 scale-100"
+                            leaveTo="opacity-0 scale-95"
+                        >
+                            <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                <div className="flex justify-between items-center border-b pb-4">
+                                    <Dialog.Title
+                                        as="h3"
+                                        className="text-lg font-medium leading-6 text-gray-900"
+                                    >
+                                        Editar Patologia
+                                    </Dialog.Title>
+                                    <button
+                                        title="Fechar Modal"
+                                        onClick={onClose}
+                                        className="text-gray-500 hover:text-gray-700 hover:bg-gray-200 p-2 rounded-full"
+                                        disabled={isLoading}
+                                    >
+                                        <XIcon className="w-6 h-6" />
+                                    </button>
+                                </div>
+
+                                <form
+                                    onSubmit={handleSubmit(
+                                        onSubmit,
+                                        (errors) => {
+                                            console.error(
+                                                'Form validation errors:',
+                                                errors,
+                                            );
+                                        },
+                                    )}
+                                    className="mt-4 space-y-6"
+                                >
+                                    <div>
+                                        <h3 className="text-lg font-semibold mb-4">
+                                            Fotos ({photos.length}/2 mínimo)
+                                        </h3>
+                                        <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
+                                            <button
+                                                type="button"
+                                                className="bg-white flex items-center justify-center gap-2 rounded-md shadow-sm border border-gray-200 text-primary py-4 px-6 hover:shadow-md cursor-pointer"
+                                                onClick={() =>
+                                                    setShowPhotoModal(true)
+                                                }
+                                                disabled={isLoading}
+                                            >
+                                                <CameraIcon className="w-6 h-6" />
+                                                <span>Adicionar Foto</span>
+                                            </button>
+
+                                            {photos.map((photo, index) => (
+                                                <PhotoCard
+                                                    key={photo.id}
+                                                    photo={{
+                                                        id: photo.id,
+                                                        filePath:
+                                                            photo.tempUrl ||
+                                                            photo.filePath,
+                                                        name: photo.name || '',
+                                                        file: photo.file,
+                                                    }}
+                                                    onDelete={handleRemovePhoto}
+                                                    isPathologyPhoto={true}
+                                                    index={index}
+                                                    isVisitor={isVisitor}
+                                                    disabled={isLoading}
+                                                />
+                                            ))}
+                                        </div>
+                                        {photos.length < 2 && (
+                                            <p className="text-red-500 text-sm mt-2">
+                                                Pelo menos 2 fotos são
+                                                necessárias
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <CustomDropdownInput
+                                                options={locations}
+                                                selectedOptionValue={
+                                                    selectedLocationId
+                                                }
+                                                onOptionSelected={
+                                                    handleLocationSelect
+                                                }
+                                                icon={<MapPinIcon />}
+                                                placeholder="Selecione o local"
+                                                error={
+                                                    errors.referenceLocation
+                                                        ?.message
+                                                }
+                                            />
+                                        </div>
+
+                                        <CustomFormInput
+                                            icon={<TypeIcon />}
+                                            label="Título*"
+                                            {...register('title')}
+                                            error={errors.title?.message}
+                                            disabled={isLoading}
+                                            defaultValue={pathology.title}
+                                        />
+
+                                        <CustomFormInput
+                                            icon={<TextIcon />}
+                                            label="Descrição"
+                                            {...register('description')}
+                                            error={errors.description?.message}
+                                            disabled={isLoading}
+                                            defaultValue={
+                                                pathology.description || ''
+                                            }
+                                        />
+                                    </div>
+
+                                    <div className="flex justify-end space-x-3 pt-4 border-t">
+                                        <CustomButton
+                                            type="button"
+                                            onClick={onClose}
+                                            disabled={isLoading}
+                                            color="bg-white"
+                                            textColor="text-foreground"
+                                            className="rounded-md border border-foreground text-gray-700 hover:bg-zinc-200"
+                                        >
+                                            Cancelar
+                                        </CustomButton>
+                                        <CustomButton
+                                            type="submit"
+                                            icon={
+                                                <SaveIcon className="w-4 h-4" />
+                                            }
+                                            disabled={
+                                                isLoading || photos.length < 2
+                                            }
+                                            className="hover:bg-secondary-hover"
+                                        >
+                                            {isLoading
+                                                ? 'Salvando...'
+                                                : 'Salvar Alterações'}
+                                        </CustomButton>
+                                    </div>
+                                </form>
+                            </Dialog.Panel>
+                        </Transition.Child>
+                    </div>
                 </div>
 
-                <form
-                    onSubmit={handleSubmit(onSubmit, (errors) => {
-                        console.error('Form validation errors:', errors);
-                    })}
-                    className="p-6 space-y-6"
-                >
-                    <div>
-                        <h3 className="text-lg font-semibold mb-4">
-                            Fotos ({photos.length}/2 mínimo)
-                        </h3>
-                        <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
-                            <button
-                                type="button"
-                                className="bg-white flex items-center justify-center gap-2 rounded-md shadow-sm border border-gray-200 text-primary py-4 px-6 hover:shadow-md cursor-pointer"
-                                onClick={() => setShowPhotoModal(true)}
-                                disabled={isLoading}
-                            >
-                                <CameraIcon className="w-6 h-6" />
-                                <span>Adicionar Foto</span>
-                            </button>
-
-                            {photos.map((photo, index) => (
-                                <PhotoCard
-                                    key={photo.id}
-                                    photo={{
-                                        id: photo.id,
-                                        filePath:
-                                            photo.tempUrl || photo.filePath,
-                                        name: photo.name || '',
-                                        file: photo.file,
-                                    }}
-                                    onDelete={handleRemovePhoto}
-                                    isPathologyPhoto={true}
-                                    index={index}
-                                    isVisitor={isVisitor}
-                                    disabled={isLoading}
-                                />
-                            ))}
-                        </div>
-                        {photos.length < 2 && (
-                            <p className="text-red-500 text-sm mt-2">
-                                Pelo menos 2 fotos são necessárias
-                            </p>
-                        )}
-                    </div>
-
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <CustomDropdownInput
-                                options={locations}
-                                selectedOptionValue={selectedLocationId}
-                                onOptionSelected={handleLocationSelect}
-                                icon={<MapPinIcon />}
-                                placeholder="Selecione o local"
-                                error={errors.referenceLocation?.message}
-                            />
-                        </div>
-
-                        <CustomFormInput
-                            icon={<TypeIcon />}
-                            label="Título*"
-                            {...register('title')}
-                            error={errors.title?.message}
-                            disabled={isLoading}
-                            defaultValue={pathology.title}
-                        />
-
-                        <CustomFormInput
-                            icon={<TextIcon />}
-                            label="Descrição"
-                            {...register('description')}
-                            error={errors.description?.message}
-                            disabled={isLoading}
-                            defaultValue={pathology.description || ''}
-                        />
-                    </div>
-
-                    <div className="flex justify-end space-x-3 pt-4 border-t">
-                        <CustomButton
-                            type="button"
-                            onClick={onClose}
-                            disabled={isLoading}
-                        >
-                            Cancelar
-                        </CustomButton>
-                        <CustomButton
-                            type="submit"
-                            icon={<SaveIcon className="w-4 h-4" />}
-                            disabled={isLoading || photos.length < 2}
-                        >
-                            {isLoading ? 'Salvando...' : 'Salvar Alterações'}
-                        </CustomButton>
-                    </div>
-                </form>
-            </div>
-
-            <AddPhotoModal
-                isOpen={showPhotoModal}
-                onClose={() => setShowPhotoModal(false)}
-                onPhotosAdded={handleAddPhotos}
-                isLoading={isLoading}
-            />
-        </div>
+                <AddPhotoModal
+                    isOpen={showPhotoModal}
+                    onClose={() => setShowPhotoModal(false)}
+                    onPhotosAdded={handleAddPhotos}
+                    isLoading={isLoading}
+                />
+            </Dialog>
+        </Transition>
     );
 }

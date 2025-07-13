@@ -1,7 +1,8 @@
 'use client';
 
+import { Dialog, Transition } from '@headlessui/react';
+import { Fragment, useRef, useState } from 'react';
 import { CameraIcon, ImageIcon } from 'lucide-react';
-import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
 interface AddPhotoModalProps {
@@ -86,76 +87,97 @@ export function AddPhotoModal({
         }
     };
 
-    if (!isOpen) return null;
-
     return (
-        <>
-            <div className="fixed inset-0 z-50 flex items-end justify-center">
-                <div
-                    className="absolute inset-0 bg-black bg-opacity-50"
-                    onClick={onClose}
-                />
+        <Transition appear show={isOpen} as={Fragment}>
+            <Dialog as="div" className="relative z-50" onClose={onClose}>
+                <Transition.Child
+                    as={Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0"
+                    enterTo="opacity-100"
+                    leave="ease-in duration-200"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                >
+                    <div className="fixed inset-0 bg-black/25" />
+                </Transition.Child>
 
-                <div className="relative bg-white w-full rounded-t-lg shadow-xl z-[60]">
-                    <div className="p-4 space-y-2">
-                        <button
-                            onClick={openCamera}
-                            disabled={isLoading || uploading}
-                            className="flex items-center justify-center w-full py-3 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
+                <div className="fixed inset-0 overflow-y-auto">
+                    <div className="flex min-h-full items-end justify-center text-center">
+                        <Transition.Child
+                            as={Fragment}
+                            enter="ease-out duration-300"
+                            enterFrom="opacity-0 translate-y-4"
+                            enterTo="opacity-100 translate-y-0"
+                            leave="ease-in duration-200"
+                            leaveFrom="opacity-100 translate-y-0"
+                            leaveTo="opacity-0 translate-y-4"
                         >
-                            <CameraIcon className="w-5 h-5 mr-2" />
-                            <span>
-                                {uploading ? 'Enviando...' : 'Tirar foto'}
-                            </span>
-                        </button>
-                        <button
-                            onClick={openGallery}
-                            disabled={isLoading || uploading}
-                            className="flex items-center justify-center w-full py-3 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
-                        >
-                            <ImageIcon className="w-5 h-5 mr-2" />
-                            <span>
-                                {uploading
-                                    ? 'Enviando...'
-                                    : 'Escolher da galeria'}
-                            </span>
-                        </button>
-                    </div>
-                    <div className="p-4 border-t border-gray-200">
-                        <button
-                            onClick={onClose}
-                            disabled={uploading}
-                            className="w-full px-4 rounded-lg font-medium text-center"
-                        >
-                            Cancelar
-                        </button>
+                            <Dialog.Panel className="w-full transform rounded-t-lg bg-white p-4 text-left align-middle shadow-xl transition-all">
+                                <div className="space-y-2">
+                                    <button
+                                        onClick={openCamera}
+                                        disabled={isLoading || uploading}
+                                        className="flex items-center justify-center w-full py-3 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
+                                    >
+                                        <CameraIcon className="w-5 h-5 mr-2" />
+                                        <span>
+                                            {uploading
+                                                ? 'Enviando...'
+                                                : 'Tirar foto'}
+                                        </span>
+                                    </button>
+                                    <button
+                                        onClick={openGallery}
+                                        disabled={isLoading || uploading}
+                                        className="flex items-center justify-center w-full py-3 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
+                                    >
+                                        <ImageIcon className="w-5 h-5 mr-2" />
+                                        <span>
+                                            {uploading
+                                                ? 'Enviando...'
+                                                : 'Escolher da galeria'}
+                                        </span>
+                                    </button>
+                                </div>
+                                <div className="mt-4 pt-4 border-t border-gray-200">
+                                    <button
+                                        onClick={onClose}
+                                        disabled={uploading}
+                                        className="w-full py-2 rounded-lg font-medium text-center text-gray-700 hover:bg-gray-100"
+                                    >
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </Dialog.Panel>
+                        </Transition.Child>
                     </div>
                 </div>
-            </div>
 
-            <input
-                key={`file`}
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                title="Adicionar fotos da galeria"
-                className="hidden"
-                onChange={handleAddPhoto}
-                disabled={isLoading || uploading}
-            />
+                <input
+                    key={`file`}
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    title="Adicionar fotos da galeria"
+                    className="hidden"
+                    onChange={handleAddPhoto}
+                    disabled={isLoading || uploading}
+                />
 
-            <input
-                key={`camera`}
-                ref={cameraInputRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                title="Tirar foto com a câmera"
-                className="hidden"
-                onChange={handleAddPhoto}
-                disabled={isLoading || uploading}
-            />
-        </>
+                <input
+                    key={`camera`}
+                    ref={cameraInputRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    title="Tirar foto com a câmera"
+                    className="hidden"
+                    onChange={handleAddPhoto}
+                    disabled={isLoading || uploading}
+                />
+            </Dialog>
+        </Transition>
     );
 }

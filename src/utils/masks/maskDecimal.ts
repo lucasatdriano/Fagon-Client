@@ -1,10 +1,15 @@
 export const decimalMask = (value: string): string => {
-    value = value.replace(/[^\d.,]/g, '');
-    value = value.replace(',', '.');
+    value = value.replace(/[^\d,.]/g, '');
 
-    const parts = value.split('.');
+    value = value.replace('.', ',');
+
+    const parts = value.split(',');
     if (parts.length > 2) {
-        return parts[0] + '.' + parts.slice(1).join('');
+        value = parts[0] + ',' + parts.slice(1).join('');
+    }
+
+    if (parts.length > 1) {
+        value = parts[0] + ',' + parts[1].slice(0, 2);
     }
 
     return value;

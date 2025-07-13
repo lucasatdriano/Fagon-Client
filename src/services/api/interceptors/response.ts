@@ -1,4 +1,5 @@
 import { AxiosInstance } from 'axios';
+import { parseCookies } from 'nookies';
 
 export const setupResponseInterceptor = (api: AxiosInstance) => {
     api.interceptors.response.use(
@@ -9,7 +10,7 @@ export const setupResponseInterceptor = (api: AxiosInstance) => {
             console.info('Response:', {
                 status: response.status,
                 statusText: response.statusText,
-                data: response.data,
+                data: response.data.data,
                 headers: response.headers,
                 config: {
                     method: response.config.method,
@@ -26,6 +27,7 @@ export const setupResponseInterceptor = (api: AxiosInstance) => {
 
             if (error.response) {
                 console.error('Detalhes do erro:', {
+                    response: error.response,
                     status: error.response.status,
                     data: error.response.data,
                     headers: error.response.headers,
@@ -36,6 +38,17 @@ export const setupResponseInterceptor = (api: AxiosInstance) => {
                         params: error.config.params,
                     },
                 });
+
+                if (error.response?.status === 401) {
+                    const cookies = parseCookies();
+
+                    if (cookies.accessToken) {
+                        window.location.href = '/accessKey';
+                    } else if (cookies.authToken) {
+                        window.location.href = '/login';
+                    }
+                }
+                return Promise.reject(error);
             } else if (error.request) {
                 console.error('Erro de rede/timeout:', {
                     message: error.message,

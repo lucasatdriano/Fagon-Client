@@ -11,8 +11,8 @@ import {
     DownloadIcon,
 } from 'lucide-react';
 import { DropdownMenu } from '../dropdownMenus/DropdownMenu';
-import { DeletePdfModal } from '../modals/DeletePdfModal';
 import { useRef, useState } from 'react';
+import { DeletePdfModal } from '../modals/pdfModals/DeletePdfModal';
 
 const PDF_TITLES: Record<PdfType, string> = {
     atestado: 'Atestado de Emprego dos Materiais de Acabamento e Revestimento',
@@ -30,6 +30,7 @@ interface PdfCardProps {
     pdfs: PDF[];
     generating: PdfType | null;
     deletingPdf: PdfType | null;
+    isLoading: boolean;
     onGenerate: (type: PdfType) => Promise<void>;
     onView: (pdfId: string) => void;
     onDownload: (pdfId: string) => void;
@@ -42,6 +43,7 @@ interface PdfCardProps {
 export function PdfCard({
     pdfs,
     generating,
+    isLoading,
     onGenerate,
     onView,
     onDownload,
@@ -119,6 +121,7 @@ export function PdfCard({
                     setPdfs={setPdfDocuments}
                     onClose={() => setPdfToDelete(null)}
                     onConfirm={() => onDelete(pdfToDelete)}
+                    isLoading={isLoading}
                 />
             )}
 
@@ -178,14 +181,16 @@ export function PdfCard({
                                         e.stopPropagation();
                                         onGenerate(pdf.type);
                                     }}
-                                    disabled={generating === pdf.type}
-                                    className={`px-3 py-1 rounded-md text-sm text-white ${
-                                        generating === pdf.type
+                                    disabled={
+                                        generating === pdf.type || isLoading
+                                    }
+                                    className={`px-3 py-1 rounded-md text-sm text-white hover:bg-primary-hover ${
+                                        generating === pdf.type || isLoading
                                             ? 'bg-gray-400 cursor-not-allowed'
                                             : 'bg-primary hover:bg-primary-dark'
                                     }`}
                                 >
-                                    {generating === pdf.type
+                                    {generating === pdf.type || isLoading
                                         ? 'Gerando...'
                                         : 'Gerar PDF'}
                                 </button>

@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { UseFormRegisterReturn } from 'react-hook-form';
+import { dateMask, unformatDate } from '../../utils/masks/maskDate';
+import { formatDateForDisplay } from '../../utils/formatters/formatDate';
 
 interface CustomEditInputProps
     extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -11,6 +13,7 @@ interface CustomEditInputProps
     error?: string;
     className?: string;
     textColor?: string;
+    isDate?: boolean;
 }
 
 export function CustomEditInput({
@@ -20,17 +23,61 @@ export function CustomEditInput({
     registration,
     error,
     className = '',
-    textColor = 'text-white',
+    textColor = 'text-foreground',
+    isDate = false,
+    defaultValue = '',
     ...props
 }: CustomEditInputProps) {
     const [isFocused, setIsFocused] = useState(false);
     const [hasValue, setHasValue] = useState(false);
-
-    const { defaultValue, ...inputProps } = props;
+    const [displayValue, setDisplayValue] = useState('');
 
     useEffect(() => {
-        setHasValue(!!defaultValue || !!props.value);
-    }, [defaultValue, props.value]);
+        if (isDate && defaultValue) {
+            const formatted = formatDateForDisplay(defaultValue.toString());
+            setDisplayValue(formatted);
+            setHasValue(!!formatted);
+        } else {
+            setHasValue(!!defaultValue || !!props.value);
+        }
+    }, [defaultValue, isDate, props.value]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (isDate) {
+            const maskedValue = dateMask(e.target.value);
+            setDisplayValue(maskedValue);
+            setHasValue(!!maskedValue);
+
+            // Atualiza o valor do formulário sem máscara
+            const unmaskedValue = unformatDate(maskedValue);
+            e.target.value = unmaskedValue;
+        } else {
+            setHasValue(!!e.target.value);
+        }
+
+        registration?.onChange?.(e);
+        props.onChange?.(e);
+    };
+
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+        setIsFocused(false);
+
+        if (isDate && displayValue) {
+            const parts = displayValue.split('/');
+            if (parts.length === 3) {
+                const [day, month, year] = parts;
+                if (
+                    day.length === 2 &&
+                    month.length === 2 &&
+                    year.length === 4
+                ) {
+                    setDisplayValue(`${day}/${month}/${year}`);
+                }
+            }
+        }
+
+        registration?.onBlur?.(e);
+    };
 
     return (
         <div className={`relative w-full ${className}`}>
@@ -42,23 +89,35 @@ export function CustomEditInput({
                 {icon && <div className={`mr-2 ${textColor}`}>{icon}</div>}
 
                 <div className="relative w-full pt-2">
-                    <input
-                        type={type}
-                        {...inputProps}
-                        {...registration}
-                        onFocus={() => setIsFocused(true)}
-                        onBlur={(e) => {
-                            setIsFocused(false);
-                            registration?.onBlur?.(e);
-                        }}
-                        onChange={(e) => {
-                            setHasValue(!!e.target.value);
-                            registration?.onChange?.(e);
-                            props.onChange?.(e);
-                        }}
-                        className={`w-full bg-transparent outline-none placeholder-transparent pb-2 ${textColor}`}
-                        placeholder={label}
-                    />
+                    {isDate ? (
+                        <input
+                            type="text"
+                            {...props}
+                            {...registration}
+                            value={displayValue}
+                            onChange={handleChange}
+                            onFocus={() => setIsFocused(true)}
+                            onBlur={handleBlur}
+                            className={`w-full bg-transparent outline-none placeholder-transparent pb-2 ${textColor}`}
+                        />
+                    ) : (
+                        <input
+                            type={type}
+                            {...props}
+                            {...registration}
+                            onFocus={() => setIsFocused(true)}
+                            onBlur={(e) => {
+                                setIsFocused(false);
+                                registration?.onBlur?.(e);
+                            }}
+                            onChange={(e) => {
+                                setHasValue(!!e.target.value);
+                                registration?.onChange?.(e);
+                                props.onChange?.(e);
+                            }}
+                            className={`w-full bg-transparent outline-none placeholder-transparent pb-2 ${textColor}`}
+                        />
+                    )}
                     <label
                         className={`absolute left-0 top-0 transition-all duration-200 pointer-events-none ${
                             isFocused || hasValue

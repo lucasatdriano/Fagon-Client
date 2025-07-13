@@ -197,7 +197,6 @@ export default function AgencyEditPage() {
                             registration={register('agencyNumber')}
                             error={errors.agencyNumber?.message}
                             defaultValue={agency?.agencyNumber}
-                            textColor="text-foreground"
                         />
 
                         <CustomEditInput
@@ -209,7 +208,6 @@ export default function AgencyEditPage() {
                             }
                             error={errors.cnpj?.message}
                             maxLength={18}
-                            textColor="text-foreground"
                         />
 
                         <CustomEditInput
@@ -221,7 +219,6 @@ export default function AgencyEditPage() {
                             }
                             error={errors.cep?.message}
                             maxLength={9}
-                            textColor="text-foreground"
                         />
 
                         <CustomEditInput
@@ -229,7 +226,6 @@ export default function AgencyEditPage() {
                             registration={register('state')}
                             error={errors.state?.message}
                             value={watch('state')}
-                            textColor="text-foreground"
                         />
 
                         <CustomEditInput
@@ -237,7 +233,6 @@ export default function AgencyEditPage() {
                             registration={register('city')}
                             error={errors.city?.message}
                             value={watch('city')}
-                            textColor="text-foreground"
                         />
 
                         <CustomEditInput
@@ -245,7 +240,6 @@ export default function AgencyEditPage() {
                             registration={register('district')}
                             error={errors.district?.message}
                             value={watch('district')}
-                            textColor="text-foreground"
                         />
 
                         <CustomEditInput
@@ -253,7 +247,6 @@ export default function AgencyEditPage() {
                             registration={register('street')}
                             error={errors.street?.message}
                             value={watch('street')}
-                            textColor="text-foreground"
                         />
 
                         <CustomEditInput
@@ -261,7 +254,6 @@ export default function AgencyEditPage() {
                             registration={register('number')}
                             error={errors.number?.message}
                             defaultValue={agency?.number}
-                            textColor="text-foreground"
                         />
                     </div>
 

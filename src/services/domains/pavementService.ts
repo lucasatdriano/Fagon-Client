@@ -8,8 +8,6 @@ export interface Pavement {
     pavement: string;
     height: number;
     area: number;
-    createdAt: string;
-    updatedAt: string;
 }
 
 export interface PavementItem {

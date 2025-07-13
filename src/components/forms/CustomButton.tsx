@@ -45,16 +45,12 @@ export function CustomButton({
     `;
 
     const variantClasses = ghost
-        ? `bg-transparent ${textColor} underline border ${
+        ? `bg-transparent ${textColor} underline ${
               disabled
-                  ? 'border-gray-300'
-                  : 'border-transparent hover:border-current'
+                  ? 'border border-gray-300'
+                  : 'border border-transparent hover:border-current'
           }`
-        : `${color} ${textColor} border ${
-              disabled
-                  ? 'border-gray-300'
-                  : 'border-transparent hover:opacity-90'
-          }`;
+        : `${color} ${textColor} ${disabled ? 'border border-gray-300' : ''}`;
 
     return (
         <button

@@ -11,7 +11,7 @@ import {
     SaveIcon,
     SquarePenIcon,
 } from 'lucide-react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { CustomButton } from '../../../../../../components/forms/CustomButton';
 import { CustomFormInput } from '../../../../../../components/forms/CustomFormInput';
@@ -43,19 +43,23 @@ import { CustomRadioGroup } from '../../../../../../components/forms/CustomRadio
 import {
     getLocationLabelByValue,
     getLocationValueByLabel,
+    getPavementValueByLabel,
 } from '../../../../../../utils/formatters/formatValues';
 import { PavementService } from '../../../../../../services/domains/pavementService';
-import { pavements as pavementOptions } from '../../../../../../constants/pavements';
 import { Pavement } from '../../../../../../interfaces/pavement';
 import { handleMaskedChange } from '../../../../../../utils/helpers/handleMaskedInput';
 import { Photo } from '../../../../../../interfaces/photo';
 import { PhotoService } from '../../../../../../services/domains/photoService';
 import { useUserRole } from '../../../../../../hooks/useUserRole';
 import { AddPhotoModal } from '../../../../../../components/modals/photoModals/AddPhotoModal';
+import { parseCookies } from 'nookies';
+import { sortPavements } from '../../../../../../utils/sorts/sortPavements';
+import { formatDecimalValue } from '../../../../../../utils/formatters/formatDecimal';
 
 export default function CreateLocationPage() {
     const { projectId, locationId } = useParams();
     const { isVisitor } = useUserRole();
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
     const [allPhotos, setAllPhotos] = useState<Photo[]>([]);
     const [pavements, setPavements] = useState<DropdownOption[]>([]);
@@ -65,6 +69,7 @@ export default function CreateLocationPage() {
     const [customWallFinishing, setCustomWallFinishing] = useState('');
     const [customCeilingFinishing, setCustomCeilingFinishing] = useState('');
     const [showPhotoOptionsModal, setShowPhotoOptionsModal] = useState(false);
+    const [is360Camera, setIs360Camera] = useState(false);
     const [debounceTimers, setDebounceTimers] = useState<
         Record<string, NodeJS.Timeout>
     >({});
@@ -90,15 +95,13 @@ export default function CreateLocationPage() {
         locationTypes.find((lt) => lt.value === 'externo')?.value;
 
     const mapPavementToDropdownOptions = (pavementsFromApi: Pavement[]) => {
-        return pavementsFromApi.map((pavement) => {
-            const matchedOption = pavementOptions.find(
-                (opt) => opt.value === pavement.pavement,
-            );
+        const sortedPavements = sortPavements(pavementsFromApi);
 
+        return sortedPavements.map((pavement) => {
             return {
                 id: pavement.id,
                 value: pavement.id,
-                label: matchedOption ? matchedOption.label : pavement.pavement,
+                label: getPavementValueByLabel(pavement.pavement),
             };
         });
     };
@@ -110,7 +113,6 @@ export default function CreateLocationPage() {
             );
 
             const mappedPavements = mapPavementToDropdownOptions(response.data);
-
             setPavements(mappedPavements);
         } catch (error) {
             toast.error('Erro ao carregar pavimentos');
@@ -142,7 +144,14 @@ export default function CreateLocationPage() {
             setValue('name', getLocationLabelByValue(locationData.name));
             setValue('locationType', locationData.locationType);
             setValue('pavementId', locationData.pavement?.id || '');
-            setValue('height', locationData.height?.toString() || '');
+            if (locationData.height) {
+                const formattedHeight = formatDecimalValue(locationData.height);
+                setValue('height', formattedHeight);
+            }
+            setValue(
+                'facadeObservation',
+                locationData.facadeObservation?.toString() || '',
+            );
 
             const pisoValue = surfaceType.find(
                 (st) => st.label === 'Piso',
@@ -208,6 +217,11 @@ export default function CreateLocationPage() {
         if (locationId) loadLocationData();
         loadPavements();
     }, [locationId, loadLocationData, loadPavements]);
+
+    useEffect(() => {
+        const cookies = parseCookies();
+        setIs360Camera(cookies.cameraType === 'camera_360');
+    }, []);
 
     useEffect(() => {
         return () => {
@@ -367,7 +381,7 @@ export default function CreateLocationPage() {
         try {
             setIsLoading(true);
 
-            if (allPhotos.length < 5) {
+            if (!is360Camera && allPhotos.length < 5) {
                 toast.error('É necessário enviar pelo menos 5 fotos');
                 return;
             }
@@ -376,7 +390,14 @@ export default function CreateLocationPage() {
             formData.append('projectId', projectId as string);
             formData.append('name', getLocationValueByLabel(data.name));
             formData.append('locationType', data.locationType);
-            if (data.height) formData.append('height', data.height);
+            if (data.facadeObservation)
+                formData.append('facadeObservation', data.facadeObservation);
+            if (data.height) {
+                const heightValue = data.height.replace(',', '.');
+                const heightNumber = parseFloat(heightValue);
+
+                formData.append('height', heightNumber.toString());
+            }
             if (data.pavementId) formData.append('pavementId', data.pavementId);
 
             const processFinishes = (finishes: string[]) => {
@@ -404,6 +425,7 @@ export default function CreateLocationPage() {
             });
 
             await LocationService.update(locationId as string, formData);
+            router.push(`/projects/${projectId}/locations`);
             toast.success('Local atualizado com sucesso!');
         } catch (error) {
             console.error('Error:', error);
@@ -462,7 +484,8 @@ export default function CreateLocationPage() {
                 <div>
                     <div className="w-full relative flex justify-start py-3">
                         <h2 className="text-2xl font-sans bg-background px-2 ml-8">
-                            Fotos ({allPhotos.length}/5 mínimo)
+                            Fotos{' '}
+                            {!is360Camera && ` (${allPhotos.length}/5 mínimo)`}
                         </h2>
                         <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
                     </div>
@@ -499,7 +522,7 @@ export default function CreateLocationPage() {
                             />
                         ))}
                     </div>
-                    {allPhotos.length < 5 && (
+                    {!is360Camera && allPhotos.length < 5 && (
                         <p className="text-error mt-2">
                             É necessário enviar pelo menos 5 fotos
                         </p>
@@ -528,27 +551,48 @@ export default function CreateLocationPage() {
                     </div>
                 )}
 
-                <div>
-                    <div className="w-full relative flex justify-start py-3">
-                        <h2 className="text-2xl font-sans bg-background px-2 ml-8">
-                            Altura (m)
-                        </h2>
-                        <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
+                {isFacade && (
+                    <div>
+                        <div className="w-full relative flex justify-start py-3">
+                            <h2 className="text-2xl font-sans bg-background px-2 ml-8">
+                                Observação da Fachada
+                            </h2>
+                            <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
+                        </div>
+                        <CustomFormInput
+                            icon={<SquarePenIcon />}
+                            label="Observações sobre a fachada"
+                            registration={register('facadeObservation')}
+                            defaultValue={location?.facadeObservation || ''}
+                            error={errors.facadeObservation?.message}
+                            disabled={isLoading}
+                        />
                     </div>
-                    <CustomFormInput
-                        icon={<RulerIcon />}
-                        label="Altura (Pé direito)*"
-                        registration={register('height')}
-                        onChange={(e) =>
-                            handleMaskedChange('height', e, setValue)
-                        }
-                        defaultValue={location?.height || ''}
-                        error={errors.height?.message}
-                        inputMode="numeric"
-                        disabled={isLoading}
-                        maxLength={6}
-                    />
-                </div>
+                )}
+
+                {!isFacade && (
+                    <div>
+                        <div className="w-full relative flex justify-start py-3">
+                            <h2 className="text-2xl font-sans bg-background px-2 ml-8">
+                                Altura (m)
+                            </h2>
+                            <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
+                        </div>
+                        <CustomFormInput
+                            icon={<RulerIcon />}
+                            label="Altura (Pé direito)*"
+                            registration={register('height')}
+                            onChange={(e) =>
+                                handleMaskedChange('height', e, setValue)
+                            }
+                            defaultValue={location?.height || ''}
+                            error={errors.height?.message}
+                            inputMode="numeric"
+                            disabled={isLoading}
+                            maxLength={6}
+                        />
+                    </div>
+                )}
 
                 <div className="space-y-6">
                     <div className="w-full relative flex justify-start">

@@ -2,35 +2,35 @@
 
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
-import { CustomButton } from '../forms/CustomButton';
-import { CustomRadioGroup } from '../forms/CustomRadioGroup';
-import { locationOptions, mappedLocationTypeOptions } from '../../constants';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import {
-    CreateLocationFormValues,
-    createLocationSchema,
-} from '../../validations';
+import { toast } from 'react-toastify';
+import { usePathname, useRouter } from 'next/navigation';
+import { CustomButton } from '../../../components/forms/CustomButton';
+import { CustomRadioGroup } from '../../../components/forms/CustomRadioGroup';
+import { mappedLocationTypeOptions, locationOptions } from '../../../constants';
 import {
     CreateLocationData,
     LocationService,
-} from '../../services/domains/locationService';
-import { toast } from 'react-toastify';
-import { usePathname, useRouter } from 'next/navigation';
+} from '../../../services/domains/locationService';
+import {
+    CreateLocationFormValues,
+    createLocationSchema,
+} from '../../../validations';
 
-type LocationModalProps = {
+type CreateLocationModalProps = {
     isOpen: boolean;
     onClose: () => void;
     projectId: string;
     onSuccess?: () => void;
 };
 
-export default function LocationModal({
+export default function CreateLocationModal({
     isOpen,
     onClose,
     projectId,
     onSuccess,
-}: LocationModalProps) {
+}: CreateLocationModalProps) {
     const router = useRouter();
     const pathname = usePathname();
 
@@ -75,7 +75,7 @@ export default function LocationModal({
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
-            <Dialog as="div" className="relative z-10" onClose={onClose}>
+            <Dialog as="div" className="relative z-50" onClose={onClose}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"
@@ -99,7 +99,7 @@ export default function LocationModal({
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                            <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                                 <Dialog.Title
                                     as="h2"
                                     className="text-xl text-center font-bold leading-6 border-b pb-2"

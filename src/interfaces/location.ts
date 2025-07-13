@@ -9,4 +9,7 @@ export interface LocationProps {
     pavement?: string;
     height?: number;
     hasPhotosSelected?: boolean;
+    onDelete?: (id: string) => void;
+    disabled?: boolean;
+    isVisitor?: boolean;
 }

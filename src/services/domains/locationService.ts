@@ -9,6 +9,7 @@ export interface Location {
     pavementId?: string;
     name: string;
     locationType: LocationType;
+    facadeObservation?: string;
     height?: number;
     pavement: {
         id: string;

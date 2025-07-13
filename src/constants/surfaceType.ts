@@ -1,16 +1,16 @@
 export const surfaceType = [
     {
-        id: '1',
+        id: 'piso',
         value: 'piso',
         label: 'Piso',
     },
     {
-        id: '2',
+        id: 'parede',
         value: 'parede',
         label: 'Parede',
     },
     {
-        id: '3',
+        id: 'forro',
         value: 'forro',
         label: 'Forro',
     },

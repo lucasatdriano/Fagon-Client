@@ -1,10 +1,10 @@
 'use client';
 
-import { Header } from '../../../../components/layout/Header';
+import { Header } from '../../../../../../components/layout/Header';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { LocationService } from '../../../../services/domains/locationService';
-import { useUserRole } from '../../../../hooks/useUserRole';
+import { LocationService } from '../../../../../../services/domains/locationService';
+import { useUserRole } from '../../../../../../hooks/useUserRole';
 import { Loader2Icon } from 'lucide-react';
 
 export default function CreationLayout({
@@ -45,7 +45,7 @@ export default function CreationLayout({
 
     const handleBack = () => {
         const projectId = params?.projectId as string;
-        router.push(`/projects/${projectId}`);
+        router.push(`/projects/${projectId}/locations`);
     };
 
     if (loading) {

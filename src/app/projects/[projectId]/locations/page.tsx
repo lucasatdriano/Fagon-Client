@@ -3,7 +3,6 @@
 import { LocationCard } from '../../../../components/cards/LocationCard';
 import { NavigationCard } from '../../../../components/cards/NavigationCard';
 import { AlertTriangleIcon, MapPinPlusIcon } from 'lucide-react';
-import LocationModal from '../../../../components/modals/LocationModal';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
@@ -11,11 +10,15 @@ import {
     Location,
     LocationService,
 } from '../../../../services/domains/locationService';
+import CreateLocationModal from '../../../../components/modals/locationModals/CreateLocationModal';
+import { toast } from 'sonner';
+import { useUserRole } from '../../../../hooks/useUserRole';
 
 export default function DashboardInspectorPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [locations, setLocations] = useState<Location[]>([]);
     const [loading, setLoading] = useState(true);
+    const { isVisitor } = useUserRole();
     const [error, setError] = useState<string | null>(null);
     const params = useParams();
     const projectId = params.projectId as string;
@@ -46,6 +49,18 @@ export default function DashboardInspectorPage() {
             setLocations(response.data);
         } catch (err) {
             setError('Erro ao atualizar lista de locais');
+            console.error(err);
+        }
+    };
+
+    const handleDeleteLocation = async (locationId: string) => {
+        try {
+            await LocationService.delete(locationId);
+            toast.success('Local deletado com sucesso');
+            const response = await LocationService.listAll(projectId);
+            setLocations(response.data);
+        } catch (err) {
+            toast.error('Erro ao deletar local');
             console.error(err);
         }
     };
@@ -84,6 +99,8 @@ export default function DashboardInspectorPage() {
                                         (photo) => photo.selectedForPdf,
                                     ) || false
                                 }
+                                onDelete={handleDeleteLocation}
+                                isVisitor={isVisitor}
                             />
                         ))}
 
@@ -106,7 +123,7 @@ export default function DashboardInspectorPage() {
                             cardClassName="border-primary"
                         />
 
-                        <LocationModal
+                        <CreateLocationModal
                             isOpen={isModalOpen}
                             projectId={projectId}
                             onClose={() => setIsModalOpen(false)}

@@ -1,22 +1,22 @@
 export const wallOptions = [
-    { id: '1', value: 'alvenaria', label: 'Cerâmico' },
+    { id: 'alvenaria', value: 'alvenaria', label: 'Alvenaria' },
     {
-        id: '2',
+        id: 'drywall',
         value: 'drywall',
-        label: 'Drywall(Gesso)',
+        label: 'Drywall (Gesso)',
     },
     {
-        id: '3',
+        id: 'vidros',
         value: 'vidros',
         label: 'Vidros',
     },
     {
-        id: '4',
+        id: 'grades',
         value: 'grades',
         label: 'Grades',
     },
     {
-        id: '5',
+        id: 'mdf',
         value: 'mdf',
         label: 'MDF',
     },

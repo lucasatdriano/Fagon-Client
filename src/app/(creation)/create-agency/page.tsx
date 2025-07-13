@@ -154,7 +154,6 @@ export default function CreateAgencyPage() {
                             label="Estado*"
                             registration={register('state')}
                             value={watch('state')}
-                            disabled
                             error={errors.state?.message}
                         />
 
@@ -163,7 +162,6 @@ export default function CreateAgencyPage() {
                             label="Município*"
                             registration={register('city')}
                             value={watch('city')}
-                            disabled
                             error={errors.city?.message}
                         />
 
@@ -172,7 +170,6 @@ export default function CreateAgencyPage() {
                             label="Bairro*"
                             registration={register('district')}
                             value={watch('district')}
-                            disabled
                             error={errors.district?.message}
                         />
 
@@ -181,7 +178,6 @@ export default function CreateAgencyPage() {
                             label="Rua*"
                             registration={register('street')}
                             value={watch('street')}
-                            disabled
                             error={errors.street?.message}
                         />
 

@@ -83,7 +83,19 @@ export function CustomRadioGroup({
         if (gridCols === 'full') {
             return `grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 ${className}`;
         }
-        return `grid grid-cols-${gridCols} gap-4 ${className}`;
+
+        const colsMap = {
+            1: 'grid-cols-1',
+            2: 'grid-cols-2',
+            3: 'grid-cols-3',
+            4: 'grid-cols-4',
+            5: 'grid-cols-5',
+            6: 'grid-cols-6',
+        };
+
+        return `grid ${
+            colsMap[gridCols as keyof typeof colsMap] || 'grid-cols-1'
+        } gap-4 ${className}`;
     };
 
     return (

@@ -185,7 +185,7 @@ export default function ProjectEditPage() {
     }
 
     return (
-        <div className="grid place-items-center min-h-screen bg-background pt-20 px-4">
+        <div className="grid place-items-center min-h-screen bg-background pt-24 px-4">
             <div className="w-4/5 sm:w-3/4 2xl:w-3/5 bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="flex items-center justify-center py-4 px-12">
                     <h1 className="text-2xl font-bold">
@@ -224,7 +224,6 @@ export default function ProjectEditPage() {
                             })}
                             error={undefined}
                             defaultValue={project?.agency.name}
-                            textColor="text-foreground"
                             disabled
                         />
 
@@ -235,7 +234,6 @@ export default function ProjectEditPage() {
                             })}
                             error={undefined}
                             defaultValue={project?.agency.agencyNumber}
-                            textColor="text-foreground"
                             disabled
                         />
 
@@ -246,7 +244,6 @@ export default function ProjectEditPage() {
                             })}
                             error={undefined}
                             defaultValue={project?.agency.state}
-                            textColor="text-foreground"
                             disabled
                         />
 
@@ -257,7 +254,6 @@ export default function ProjectEditPage() {
                             })}
                             error={undefined}
                             defaultValue={project?.agency.city}
-                            textColor="text-foreground"
                             disabled
                         />
 
@@ -268,7 +264,6 @@ export default function ProjectEditPage() {
                             })}
                             error={undefined}
                             defaultValue={project?.agency.district}
-                            textColor="text-foreground"
                             disabled
                         />
 
@@ -279,7 +274,6 @@ export default function ProjectEditPage() {
                             })}
                             error={undefined}
                             defaultValue={project?.projectType}
-                            textColor="text-foreground"
                             disabled
                         />
 
@@ -291,7 +285,6 @@ export default function ProjectEditPage() {
                             })}
                             error={undefined}
                             defaultValue={project?.createdAt}
-                            textColor="text-foreground"
                             disabled
                         />
 
@@ -300,16 +293,22 @@ export default function ProjectEditPage() {
                             registration={register('inspectorName')}
                             error={errors.inspectorName?.message}
                             defaultValue={project?.inspectorName}
-                            textColor="text-foreground"
                         />
 
                         <CustomEditInput
                             label="Data da Vistoria"
-                            type="date"
-                            registration={register('inspectionDate')}
+                            registration={register('inspectionDate', {
+                                validate: (value) => {
+                                    if (!value) return 'Data é obrigatória';
+                                    const parts = value.split('/');
+                                    if (parts.length !== 3)
+                                        return 'Data inválida';
+                                    return true;
+                                },
+                            })}
                             error={errors.inspectionDate?.message}
-                            defaultValue={project?.inspectionDate?.toString()}
-                            textColor="text-foreground"
+                            defaultValue={project?.inspectionDate || ''}
+                            isDate={true}
                         />
 
                         <CustomEditInput
@@ -317,7 +316,6 @@ export default function ProjectEditPage() {
                             registration={register('structureType')}
                             error={errors.structureType?.message}
                             defaultValue={project?.structureType}
-                            textColor="text-foreground"
                         />
                     </div>
 

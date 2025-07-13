@@ -6,11 +6,15 @@ import { getCookie } from 'cookies-next';
 export const setupRequestInterceptor = (api: AxiosInstance) => {
     api.interceptors.request.use(
         async (config) => {
-            const token = getCookie('authToken');
+            const authToken = getCookie('authToken');
+            const accessToken = getCookie('accessToken');
 
-            if (token) {
+            if (authToken) {
                 config.headers = config.headers || {};
-                config.headers.Authorization = `Bearer ${token}`;
+                config.headers.Authorization = `Bearer ${authToken}`;
+            } else if (accessToken) {
+                config.headers = config.headers || {};
+                config.headers.Authorization = `Bearer ${accessToken}`;
             }
 
             console.group(

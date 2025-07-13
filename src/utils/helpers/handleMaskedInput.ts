@@ -17,7 +17,7 @@ export function handleMaskedChange<T extends FieldValues>(
         value = cepMask(value);
     } else if (field === 'number' || field === 'upeCode') {
         value = numberMask(value);
-    } else if (field === 'height') {
+    } else if (field === 'height' || field.includes('area')) {
         value = decimalMask(value);
     }
 
