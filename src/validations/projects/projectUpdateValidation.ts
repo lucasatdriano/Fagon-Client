@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createProjectSchema } from './projectCreateValidation';
+import { pavementSchema } from '../pavements/pavementValidation';
 
 const baseUpdateSchema = createProjectSchema
     .extend({
@@ -21,7 +22,8 @@ const baseUpdateSchema = createProjectSchema
         inspectorName: z.string().max(100, 'Máximo 100 caracteres').optional(),
         inspectionDate: z.string().optional(),
         structureType: z.string().max(100, 'Máximo 100 caracteres').optional(),
-        // floorHeight: z.number().optional()
+        floorHeight: z.string().optional(),
+        pavements: z.array(pavementSchema).optional(),
     })
     .partial();
 

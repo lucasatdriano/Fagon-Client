@@ -48,7 +48,7 @@ export function CustomFormInput({
             if (onDebouncedChange) {
                 onDebouncedChange(internalValue.toString());
             }
-        }, 500); // 500ms de delay
+        }, 500);
 
         return () => clearTimeout(timer);
     }, [internalValue, onDebouncedChange]);

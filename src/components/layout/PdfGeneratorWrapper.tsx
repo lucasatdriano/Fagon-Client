@@ -96,9 +96,9 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
             if (type === 'laudo_avaliacao') {
                 const project = await ProjectService.getById(projectId);
 
-                const hasMissingArea = project.data.pavement.some(
-                    (pavement) =>
-                        pavement.area === null || pavement.area === undefined,
+                const hasMissingArea = project.data.pavements.some(
+                    (pavements) =>
+                        pavements.area === null || pavements.area === undefined,
                 );
 
                 if (
@@ -146,8 +146,8 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
             atestado: 'docs/atestado.pdf',
             anexo_m3: 'docs/anexo_m3.pdf',
             anexo_m4: 'docs/anexo_m4.pdf',
-            relatorio_fotografico: 'docs/relatorio_fotografico.pdf',
             laudo_avaliacao: 'docs/laudo_avaliacao.pdf',
+            relatorio_fotografico: 'docs/relatorio_fotografico.pdf',
         };
 
         const filePath = pdfFileMap[type];
@@ -252,7 +252,7 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
     }
 
     return (
-        <>
+        <div className="pb-12">
             <PdfCard
                 pdfs={pdfs}
                 generating={generating}
@@ -291,6 +291,6 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
                 onSuccess={handleProjectInfoSuccess}
                 isLoading={isLoading}
             />
-        </>
+        </div>
     );
 }

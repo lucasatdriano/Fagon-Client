@@ -16,10 +16,16 @@ import { ProjectService } from '../../../services/domains/projectService';
 import { PdfService } from '../../../services/domains/pdfService';
 import { toast } from 'sonner';
 import { PavementService } from '../../../services/domains/pavementService';
-import { getPavementValueByLabel } from '@/utils/formatters/formatValues';
-import { sortPavements } from '@/utils/sorts/sortPavements';
-import { Pavement } from '@/interfaces/pavement';
-import { CustomEditInput } from '@/components/forms/CustomEditInput';
+import { getPavementValueByLabel } from '../../../utils/formatters/formatValues';
+import { sortPavements } from '../../../utils/sorts/sortPavements';
+import { Pavement } from '../../../interfaces/pavement';
+import { CustomEditInput } from '../../../components/forms/CustomEditInput';
+import { formatFloorHeight } from '../../../utils/formatters/formatFloorHeight';
+import {
+    formatDecimalValue,
+    parseDecimalValue,
+} from '../../../utils/formatters/formatDecimal';
+import { handleMaskedChange } from '../../../utils/helpers/handleMaskedInput';
 
 interface AddInfoToPdfModalProps {
     projectId: string;
@@ -39,6 +45,7 @@ export default function AddInfoToPdfModal({
     const [isLoading, setIsLoading] = useState(false);
 
     const {
+        register,
         handleSubmit,
         setValue,
         reset,
@@ -46,17 +53,22 @@ export default function AddInfoToPdfModal({
         formState: { errors },
     } = useForm<ProjectInfoFormData>({
         resolver: zodResolver(projectInfoSchema),
+        defaultValues: {
+            pavements: [],
+        },
     });
 
     const structureTypeValue = watch('structureType');
     const floorHeightValue = watch('floorHeight');
 
     useEffect(() => {
-        const loadPavements = async () => {
+        const loadData = async () => {
             setIsLoading(true);
             try {
-                const response = await PavementService.getByProject(projectId);
-                const pavementsData = response.data;
+                const pavementsResponse = await PavementService.getByProject(
+                    projectId,
+                );
+                const pavementsData = pavementsResponse.data;
 
                 const formattedPavements = pavementsData.map((p) => ({
                     id: p.id,
@@ -66,61 +78,73 @@ export default function AddInfoToPdfModal({
                 }));
 
                 const sortedPavements = sortPavements(formattedPavements);
-
                 setPavements(sortedPavements);
+
+                const projectResponse = await ProjectService.getById(projectId);
+                const projectData = projectResponse.data;
+
+                setValue('structureType', projectData.structureType || '');
                 setValue(
-                    'pavements',
-                    sortedPavements.map((p) => ({
-                        id: p.id,
-                        pavement: p.pavement,
-                        area: p.area,
-                        height: p.height,
-                    })),
+                    'floorHeight',
+                    projectData.floorHeight?.toString() || '',
                 );
+
+                sortedPavements.forEach((p, index) => {
+                    setValue(`pavements.${index}.id`, p.id);
+                    setValue(`pavements.${index}.pavement`, p.pavement);
+                    setValue(`pavements.${index}.height`, p.height);
+                    setValue(
+                        `pavements.${index}.area`,
+                        p.area
+                            ? formatDecimalValue(p.area.toString())
+                            : undefined,
+                    );
+                });
             } catch (error) {
-                console.error('Erro ao carregar pavimentos:', error);
-                toast.error('Erro ao carregar informações dos pavimentos');
+                console.error('Erro ao carregar dados:', error);
+                toast.error('Erro ao carregar informações do projeto');
             } finally {
                 setIsLoading(false);
             }
         };
 
         if (isOpen) {
-            loadPavements();
+            loadData();
         }
     }, [projectId, isOpen, setValue]);
-
-    const handleAreaChange = (id: string, value: string) => {
-        const updatedPavements = pavements.map((pav) =>
-            pav.id === id ? { ...pav, area: value ? Number(value) : 0 } : pav,
-        );
-        setPavements(updatedPavements);
-        setValue(
-            'pavements',
-            updatedPavements.map((p) => ({
-                id: p.id,
-                pavement: p.pavement,
-                area: p.area,
-                height: p.height,
-            })),
-        );
-    };
 
     const onSubmit = async (data: ProjectInfoFormData) => {
         setIsLoading(true);
         try {
-            const floorHeightNumber = parseFloat(data.floorHeight);
-
-            await ProjectService.update(projectId, {
+            const updateData = {
                 structureType: data.structureType,
-                floorHeight: floorHeightNumber,
-                pavement: data.pavements?.map((p) => ({
-                    id: p.id,
-                    pavement: p.pavement,
-                    area: p.area,
-                    height: p.height,
+                floorHeight: data.floorHeight
+                    ? formatFloorHeight(data.floorHeight)
+                    : undefined,
+                pavement: data.pavements?.map((pavement) => ({
+                    id: pavement.id,
+                    pavement: pavement.pavement,
+                    area: pavement.area
+                        ? parseFloat(pavement.area.replace(',', '.'))
+                        : 0,
+                    height: pavement.height || 0,
                 })),
-            });
+            };
+
+            await ProjectService.update(projectId, updateData);
+
+            if (data.pavements && data.pavements.length > 0) {
+                await Promise.all(
+                    data.pavements.map((pavement) =>
+                        PavementService.update(pavement.id, {
+                            area: pavement.area
+                                ? parseDecimalValue(pavement.area.toString())
+                                : 0,
+                            height: pavement.height || 0,
+                        }),
+                    ),
+                );
+            }
 
             await PdfService.generate({
                 projectId,
@@ -132,8 +156,8 @@ export default function AddInfoToPdfModal({
             onClose();
             reset();
         } catch (error) {
-            toast.error('Erro ao gerar laudo de avaliação');
             console.error(error);
+            toast.error('Erro ao processar a solicitação');
         } finally {
             setIsLoading(false);
         }
@@ -174,15 +198,7 @@ export default function AddInfoToPdfModal({
                                 </Dialog.Title>
 
                                 <form
-                                    onSubmit={handleSubmit(
-                                        onSubmit,
-                                        (errors) => {
-                                            console.error(
-                                                'Form validation errors:',
-                                                errors,
-                                            );
-                                        },
-                                    )}
+                                    onSubmit={handleSubmit(onSubmit)}
                                     className="mt-8 space-y-4"
                                 >
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -191,14 +207,10 @@ export default function AddInfoToPdfModal({
                                                 <BrickWall className="h-5 w-5" />
                                             }
                                             label="Tipo da estrutura"
-                                            value={structureTypeValue || ''}
-                                            onChange={(e) =>
-                                                setValue(
-                                                    'structureType',
-                                                    e.target.value,
-                                                    { shouldValidate: true },
-                                                )
-                                            }
+                                            registration={register(
+                                                'structureType',
+                                            )}
+                                            defaultValue={structureTypeValue}
                                             error={
                                                 errors.structureType?.message
                                             }
@@ -210,16 +222,11 @@ export default function AddInfoToPdfModal({
                                                 <UnfoldVerticalIcon className="h-5 w-5" />
                                             }
                                             label="Valor Piso a Piso (m)"
-                                            value={floorHeightValue || ''}
-                                            onChange={(e) =>
-                                                setValue(
-                                                    'floorHeight',
-                                                    e.target.value,
-                                                    { shouldValidate: true },
-                                                )
-                                            }
+                                            registration={register(
+                                                'floorHeight',
+                                            )}
+                                            defaultValue={floorHeightValue}
                                             error={errors.floorHeight?.message}
-                                            inputMode="decimal"
                                             required
                                         />
                                     </div>
@@ -229,7 +236,7 @@ export default function AddInfoToPdfModal({
                                             Áreas dos Pavimentos (m²)
                                         </h4>
                                         {pavements.length > 0 ? (
-                                            pavements.map((pavement) => (
+                                            pavements.map((pavement, index) => (
                                                 <CustomEditInput
                                                     key={pavement.id}
                                                     icon={
@@ -237,18 +244,25 @@ export default function AddInfoToPdfModal({
                                                     }
                                                     label={`Área do ${getPavementValueByLabel(
                                                         pavement.pavement,
-                                                    )}`}
-                                                    value={pavement.area.toString()}
+                                                    )} (m²)`}
+                                                    registration={register(
+                                                        `pavements.${index}.area`,
+                                                    )}
+                                                    defaultValue={pavement.area}
                                                     onChange={(e) =>
-                                                        handleAreaChange(
-                                                            pavement.id,
-                                                            e.target.value,
+                                                        handleMaskedChange(
+                                                            `pavements.${index}.area`,
+                                                            e,
+                                                            setValue,
                                                         )
                                                     }
-                                                    error={`A área do ${getPavementValueByLabel(
-                                                        pavement.pavement,
-                                                    )} é obrigatória`}
+                                                    error={
+                                                        errors.pavements?.[
+                                                            index
+                                                        ]?.area?.message
+                                                    }
                                                     inputMode="decimal"
+                                                    maxLength={7}
                                                     required
                                                 />
                                             ))

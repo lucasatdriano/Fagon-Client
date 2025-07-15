@@ -40,12 +40,6 @@ export default function CreateProjectPage() {
         formState: { errors },
     } = useForm<CreateProjectFormValues>({
         resolver: zodResolver(createProjectSchema),
-        // defaultValues: {
-        //     projectType: '',
-        //     pavements: [],
-        //     upeCode: '',
-        //     agencyId: '',
-        // },
     });
 
     const onSubmit = async (data: CreateProjectFormValues) => {
@@ -57,7 +51,7 @@ export default function CreateProjectPage() {
             const payload = {
                 projectType: data.projectType as ProjectType,
                 upeCode: Number(data.upeCode),
-                pavement: pavementsArray.map((p) => ({
+                pavements: pavementsArray.map((p) => ({
                     pavement:
                         typeof p === 'string'
                             ? p

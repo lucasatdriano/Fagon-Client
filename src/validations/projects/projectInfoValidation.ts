@@ -1,11 +1,5 @@
 import { z } from 'zod';
-
-const pavementSchema = z.object({
-    id: z.string(),
-    pavement: z.string(),
-    height: z.number(),
-    area: z.number().min(1, 'Área é obrigatória'),
-});
+import { pavementSchema } from '../pavements/pavementValidation';
 
 export const projectInfoSchema = z.object({
     structureType: z
@@ -16,13 +10,9 @@ export const projectInfoSchema = z.object({
         .array(pavementSchema)
         .min(1, 'Pelo menos um pavimento deve ser informado'),
 
-    floorHeight: z
-        .string({ required_error: 'Valor piso a piso é obrigatório' })
-        .min(1, 'Valor piso a piso é obrigatório')
-        .regex(
-            /^\d+(\.\d+)?$/,
-            'o valor piso a piso deve ser um número válido',
-        ),
+    floorHeight: z.string({
+        required_error: 'Valor piso a piso é obrigatório',
+    }),
 });
 
 export type ProjectInfoFormData = z.infer<typeof projectInfoSchema>;

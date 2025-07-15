@@ -10,7 +10,7 @@ export interface ProjectProps {
     engineer: string;
     status: ProjectStatus;
     structureType?: string;
-    floorHeight?: number;
+    floorHeight?: string;
     inspectorName?: string;
     inspectionDate?: string;
 }

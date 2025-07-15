@@ -12,13 +12,15 @@ export interface Pavement {
 
 export interface PavementItem {
     pavement: string;
+    height?: number;
+    area?: number;
 }
 
 export interface CreatePavementData {
     projectId: string;
     pavement: string;
-    height: number;
-    area: number;
+    height?: number;
+    area?: number;
 }
 
 export const PavementService = {

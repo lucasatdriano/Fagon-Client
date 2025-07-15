@@ -47,7 +47,6 @@ export default function AccessKeyPage() {
             setLoginData(response.data);
 
             setCookie(null, 'accessToken', response.data.access_token, {
-                maxAge: 24 * 60 * 60, // 24h
                 sameSite: 'lax',
                 path: '/',
                 secure: process.env.NODE_ENV === 'production',

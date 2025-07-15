@@ -34,12 +34,12 @@ export interface Project {
         id: string;
         name: string;
     };
-    pavement: Pavement[];
+    pavements: Pavement[];
 }
 interface CreateProjectData {
     projectType: ProjectType;
     upeCode: number;
-    pavement: PavementItem[];
+    pavements: PavementItem[];
     agencyId: string;
     engineerId: string;
 }
@@ -47,11 +47,11 @@ interface CreateProjectData {
 interface UpdateProjectData {
     status?: ProjectStatus;
     structureType?: string;
-    floorHeight?: number;
+    floorHeight?: string;
     inspectorName?: string;
     inspectionDate?: string;
     engineerId?: string;
-    pavement?: PavementItem[];
+    pavements?: PavementItem[];
 }
 
 interface SearchProjectsParams {

@@ -15,7 +15,7 @@ export default function ProjectLayout({
     const id = projectId as string;
 
     const handleBack = () => {
-        router.back();
+        router.push('/projects');
     };
 
     return (

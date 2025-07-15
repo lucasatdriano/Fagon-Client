@@ -14,6 +14,7 @@ interface CustomEditInputProps
     className?: string;
     textColor?: string;
     isDate?: boolean;
+    inputRef?: React.Ref<HTMLInputElement>;
 }
 
 export function CustomEditInput({
@@ -48,7 +49,6 @@ export function CustomEditInput({
             setDisplayValue(maskedValue);
             setHasValue(!!maskedValue);
 
-            // Atualiza o valor do formulário sem máscara
             const unmaskedValue = unformatDate(maskedValue);
             e.target.value = unmaskedValue;
         } else {

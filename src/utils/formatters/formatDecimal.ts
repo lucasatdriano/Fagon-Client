@@ -1,17 +1,23 @@
 export const formatDecimalValue = (value: number | string): string => {
+    if (!value && value !== 0) return '';
+
     const stringValue = typeof value === 'number' ? value.toString() : value;
 
-    let formattedValue = stringValue.replace('.', ',');
+    let cleanedValue = stringValue.replace(/[^\d,.]/g, '');
 
-    if (!formattedValue.includes(',')) {
-        formattedValue += ',00';
-    } else {
-        const [integerPart, decimalPart] = formattedValue.split(',');
-        const paddedDecimal = (decimalPart || '')
-            .padEnd(2, '0')
-            .substring(0, 2);
-        formattedValue = `${integerPart},${paddedDecimal}`;
+    if (!cleanedValue) return '';
+
+    cleanedValue = cleanedValue.replace('.', ',');
+
+    if (!cleanedValue.includes(',')) {
+        return `${cleanedValue},00`;
     }
 
-    return formattedValue;
+    const [integerPart, decimalPart] = cleanedValue.split(',');
+    const paddedDecimal = (decimalPart || '').padEnd(2, '0').substring(0, 2);
+    return `${integerPart},${paddedDecimal}`;
+};
+
+export const parseDecimalValue = (value: string): number => {
+    return parseFloat(value.replace(',', '.'));
 };

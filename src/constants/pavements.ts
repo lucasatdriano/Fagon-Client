@@ -10,9 +10,9 @@ export const pavements = [
         label: '2º Subsolo',
     },
     {
-        id: '1_subsolo',
-        value: '1_subsolo',
-        label: '1º Subsolo',
+        id: 'subsolo',
+        value: 'subsolo',
+        label: 'Subsolo',
     },
     {
         id: 'terreo',

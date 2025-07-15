@@ -15,7 +15,7 @@ import { formatCNPJ } from '../../../utils/formatters/formatCNPJ';
 import { formatCEP } from '../../../utils/formatters/formatCEP';
 import { formatNumberAgency } from '../../../utils/formatters/formatNumberAgency';
 import { handleMaskedChange } from '../../../utils/helpers/handleMaskedInput';
-import { Loader2Icon } from 'lucide-react';
+import { Loader2Icon, SaveIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { fetchAddressByCep } from '../../../utils/viacep';
 
@@ -23,7 +23,6 @@ export default function AgencyEditPage() {
     const { agencyId } = useParams();
     const id = agencyId as string;
     const [isLoading, setIsLoading] = useState(true);
-    const [apiError, setApiError] = useState('');
     const [agency, setAgency] = useState<UpdateAgencyFormValues | null>(null);
     const [isFormModified, setIsFormModified] = useState(false);
 
@@ -106,7 +105,6 @@ export default function AgencyEditPage() {
                     number: data.number,
                 });
             } catch (error) {
-                setApiError('Falha ao carregar dados da agência');
                 console.error(error);
             } finally {
                 setIsLoading(false);
@@ -140,7 +138,6 @@ export default function AgencyEditPage() {
                 setIsFormModified(false);
             }
         } catch (error) {
-            setApiError('Erro ao salvar as alterações');
             console.error(error);
         } finally {
             setIsLoading(false);
@@ -160,7 +157,7 @@ export default function AgencyEditPage() {
             <div className="w-4/5 md:w-3/5 bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="flex items-center justify-center py-4 px-12">
                     <h1 className="text-2xl font-bold">
-                        Agência - {agency?.city} - {agency?.district}
+                        Agência - {agency?.name}
                     </h1>
                 </div>
                 <div className="flex items-center justify-center">
@@ -173,12 +170,6 @@ export default function AgencyEditPage() {
                     })}
                     className="py-4 px-8 space-y-6"
                 >
-                    {apiError && (
-                        <div className="bg-red-100 border border-red-400 text-error px-4 py-3 rounded">
-                            {apiError}
-                        </div>
-                    )}
-
                     <div className="flex justify-between pb-4">
                         <h2 className="text-xl font-semibold text-gray-800">
                             Itaú Unibanco S/A
@@ -260,6 +251,7 @@ export default function AgencyEditPage() {
                     <div className="flex justify-center pt-4">
                         <CustomButton
                             type="submit"
+                            icon={<SaveIcon />}
                             disabled={!isFormModified || isLoading}
                         >
                             {isLoading ? 'Salvando...' : 'Salvar Informações'}

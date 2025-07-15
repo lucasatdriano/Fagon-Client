@@ -3,6 +3,7 @@ import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
 import { ApiResponse } from '../../types/api';
 import { ProjectService } from './projectService';
+import { getPdfFileName } from '../../utils/helpers/pdfNaming';
 
 interface GeneratePdfData {
     projectId: string;
@@ -86,14 +87,19 @@ export const PdfService = {
                 },
             );
 
-            const pdf = await this.getById(pdfId);
-            const project = await ProjectService.getById(pdf.data.projectId);
+            const pdfResponse = await this.getById(pdfId);
+            const projectResponse = await ProjectService.getById(
+                pdfResponse.data.projectId,
+            );
+
+            const pdf = pdfResponse.data;
+            const project = projectResponse.data;
 
             const contentDisposition = response.headers['content-disposition'];
             const filenameMatch = contentDisposition?.match(/filename="(.+)"/);
-            const filename = filenameMatch
-                ? filenameMatch[1]
-                : `${project.data.agency.agencyNumber}-${pdf.data.pdfType}-${project.data.upeCode}.pdf`;
+            const filename =
+                filenameMatch?.[1] ||
+                getPdfFileName(pdf.pdfType, project.agency.agencyNumber);
 
             const url = window.URL.createObjectURL(new Blob([response.data]));
             const link = document.createElement('a');

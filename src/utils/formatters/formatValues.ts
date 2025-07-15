@@ -5,7 +5,7 @@ import {
     projectType,
 } from '../../constants';
 
-export function getLocationLabelByValue(value: string): string {
+export const getLocationLabelByValue = (value: string): string => {
     if (!value) return '';
 
     const option = locationOptions.find((opt) => opt.value === value);
@@ -22,22 +22,22 @@ export function getLocationLabelByValue(value: string): string {
         .replace(/ E /g, ' e ');
 
     return formatted;
-}
+};
 
-export function getLocationValueByLabel(label: string): string {
+export const getLocationValueByLabel = (label: string): string => {
     const option = locationOptions.find((opt) => opt.label === label);
     return option ? option.value : label.toLowerCase().replace(/ /g, '_');
-}
+};
 
-export function getPdfLabel(type: string): string {
+export const getPdfLabel = (type: string): string => {
     return pdfType.find((item) => item.value === type)?.label || type;
-}
+};
 
 export const getProjectTypeLabel = (value: string) => {
     return projectType.find((type) => type.value === value)?.label || value;
 };
 
-export function getPavementValueByLabel(pavementValue: string): string {
+export const getPavementValueByLabel = (pavementValue: string): string => {
     const predefined = pavements.find((p) => p.value === pavementValue);
     if (predefined) return predefined.label;
 
@@ -45,9 +45,9 @@ export function getPavementValueByLabel(pavementValue: string): string {
         .replace(/_/g, ' ')
         .replace(/(\d+)_(\w+)/, '$1º $2')
         .replace(/\b\w/g, (char) => char.toUpperCase());
-}
+};
 
-export function formatWithCapitals(value: string): string {
+export const formatWithCapitals = (value: string): string => {
     if (!value) return '';
 
     return value
@@ -64,4 +64,4 @@ export function formatWithCapitals(value: string): string {
                 : word.toLowerCase();
         })
         .join(' ');
-}
+};

@@ -10,6 +10,8 @@ export * from './projects/projectInfoValidation';
 export * from './projects/inspectorValidation';
 export * from './projects/projectUpdateValidation';
 
+export * from './pavements/pavementValidation';
+
 export * from './locations/locationCreateValidation';
 export * from './locations/locationUpdateValidation';
 export * from './locations/locationFormValidation';

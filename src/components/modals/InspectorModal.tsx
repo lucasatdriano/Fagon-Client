@@ -3,7 +3,7 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useState } from 'react';
 import { CustomFormInput } from '../forms/CustomFormInput';
-import { User2Icon } from 'lucide-react';
+import { SaveIcon, User2Icon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { InspectorFormData, inspectorSchema } from '../../validations';
 import { useForm } from 'react-hook-form';
@@ -164,6 +164,7 @@ export default function InspectorModal({
                                     <div className="flex justify-center space-x-3 pt-4">
                                         <CustomButton
                                             type="submit"
+                                            icon={<SaveIcon />}
                                             disabled={loading || !project}
                                         >
                                             {loading
