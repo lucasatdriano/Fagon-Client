@@ -2,10 +2,9 @@
 
 import { LocationCard } from '../../../../components/cards/LocationCard';
 import { NavigationCard } from '../../../../components/cards/NavigationCard';
-import { AlertTriangleIcon, MapPinPlusIcon } from 'lucide-react';
+import { AlertTriangleIcon, Loader2Icon, MapPinPlusIcon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
 import {
     Location,
     LocationService,
@@ -66,7 +65,7 @@ export default function DashboardInspectorPage() {
     };
 
     return (
-        <div className="h-svh flex flex-col items-center pt-20 px-6">
+        <div className="h-svh flex flex-col items-center pt-16 px-2 pb-24 md:pt-20 md:px-6 md:pb-4">
             <div className="w-full relative flex justify-center py-3">
                 <h2 className="text-3xl font-sans bg-background px-2">
                     Vistoria
@@ -76,7 +75,7 @@ export default function DashboardInspectorPage() {
 
             {loading ? (
                 <div className="flex-1 flex items-center justify-center">
-                    <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                    <Loader2Icon className="animate-spin h-12 w-12 text-primary" />
                 </div>
             ) : error ? (
                 <div className="flex-1 flex items-center justify-center">

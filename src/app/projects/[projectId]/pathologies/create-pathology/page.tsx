@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
     CameraIcon,
+    Loader2Icon,
     MapPinIcon,
     SaveIcon,
     TextIcon,
@@ -28,18 +29,23 @@ import { LocationService } from '../../../../../services/domains/locationService
 import { useUserRole } from '../../../../../hooks/useUserRole';
 import { AddPhotoModal } from '../../../../../components/modals/photoModals/AddPhotoModal';
 import { PathologyPhoto } from '../../../../../interfaces/pathologyPhoto';
-import { formatWithCapitals } from '../../../../../utils/formatters/formatValues';
+import {
+    formatWithCapitals,
+    getLocationLabelByValue,
+} from '../../../../../utils/formatters/formatValues';
 import { UpdatePathologyModal } from '../../../../../components/modals/PathologyModal';
 import {
     CreatePathologyFormValues,
     createPathologySchema,
 } from '../../../../../validations';
+import { locationOptions } from '../../../../../constants';
 
 export default function CreatePathologyPage() {
     const router = useRouter();
     const { projectId } = useParams<{ projectId: string }>();
     const { isVisitor } = useUserRole();
     const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingPathologies, setIsLoadingPathologies] = useState(false);
     const [photos, setPhotos] = useState<PathologyPhoto[]>([]);
     const [locations, setLocations] = useState<DropdownOption[]>([]);
     const [pathologies, setPathologies] = useState<Pathology[]>([]);
@@ -60,11 +66,14 @@ export default function CreatePathologyPage() {
 
     const loadPathologies = useCallback(async () => {
         try {
+            setIsLoadingPathologies(true);
             const pats = await PathologyService.listAll({ projectId });
             setPathologies(pats.data);
         } catch (error) {
             toast.error('Erro ao carregar patologias');
             console.error(error);
+        } finally {
+            setIsLoadingPathologies(true);
         }
     }, [projectId]);
 
@@ -78,7 +87,11 @@ export default function CreatePathologyPage() {
                     locs.data.map((l) => ({
                         id: l.id,
                         value: l.id,
-                        label: formatWithCapitals(l.name),
+                        label: locationOptions.some(
+                            (opt) => opt.value === l.name,
+                        )
+                            ? getLocationLabelByValue(l.name)
+                            : formatWithCapitals(l.name),
                     })),
                 );
 
@@ -179,7 +192,6 @@ export default function CreatePathologyPage() {
 
             await PathologyService.create(formData);
             toast.success('Patologia criada com sucesso!');
-            await loadPathologies();
             setPhotos([]);
             setSelectedLocationId('');
             router.push(`/projects/${projectId}/pathologies/create-pathology`);
@@ -192,7 +204,7 @@ export default function CreatePathologyPage() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto p-6">
+        <div className="max-w-7xl mx-auto py-2 md:py-4 px-4 md:px-6">
             <div className="w-full relative flex justify-center py-3 mt-16">
                 <h1 className="text-3xl font-sans bg-background px-2">
                     Patologia
@@ -328,20 +340,26 @@ export default function CreatePathologyPage() {
                     <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                    {pathologies.map((p) => (
-                        <div
-                            key={p.id}
-                            onClick={() => handleCardClick(p)}
-                            className="cursor-pointer"
-                        >
-                            <PathologyCard
-                                id={p.id}
-                                title={p.title}
-                                location={p.referenceLocation}
-                                photoCount={p.pathologyPhoto?.length}
-                            />
+                    {isLoadingPathologies ? (
+                        <div className="flex justify-center items-center h-48 col-span-2">
+                            <Loader2Icon className="animate-spin h-10 w-10 text-primary" />
                         </div>
-                    ))}
+                    ) : (
+                        pathologies.map((p) => (
+                            <div
+                                key={p.id}
+                                onClick={() => handleCardClick(p)}
+                                className="cursor-pointer"
+                            >
+                                <PathologyCard
+                                    id={p.id}
+                                    title={p.title}
+                                    location={p.referenceLocation}
+                                    photoCount={p.pathologyPhoto?.length}
+                                />
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
 

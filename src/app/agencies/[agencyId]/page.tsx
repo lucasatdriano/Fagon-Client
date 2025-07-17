@@ -153,10 +153,10 @@ export default function AgencyEditPage() {
     }
 
     return (
-        <div className="grid place-items-center min-h-screen bg-background py-8 px-4">
-            <div className="w-4/5 md:w-3/5 bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="grid place-items-center min-h-svh bg-background pt-20 md:pt-24 px-2">
+            <div className="w-full md:w-4/5 lg:w-3/4 2xl:w-2/4 bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="flex items-center justify-center py-4 px-12">
-                    <h1 className="text-2xl font-bold">
+                    <h1 className="text-2xl font-bold text-center">
                         Agência - {agency?.name}
                     </h1>
                 </div>
@@ -170,7 +170,7 @@ export default function AgencyEditPage() {
                     })}
                     className="py-4 px-8 space-y-6"
                 >
-                    <div className="flex justify-between pb-4">
+                    <div className="flex flex-col md:flex-row justify-between md:pb-4 gap-2">
                         <h2 className="text-xl font-semibold text-gray-800">
                             Itaú Unibanco S/A
                         </h2>

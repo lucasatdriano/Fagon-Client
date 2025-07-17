@@ -87,19 +87,19 @@ export default function CreateAgencyPage() {
     };
 
     return (
-        <div className="h-screen w-full flex items-center justify-center">
+        <div className="h-screen w-full flex items-center px-2 justify-center">
             <form
                 onSubmit={handleSubmit(onSubmit, (errors) => {
                     console.error('Form validation errors:', errors);
                 })}
-                className="space-y-4 bg-white grid place-items-center shadow-md p-6 rounded-lg w-full max-w-sm md:max-w-4xl"
+                className="space-y-4 bg-white grid place-items-center shadow-md p-6 rounded-lg w-full max-w-sm xs:max-w-xl md:max-w-4xl"
             >
                 <h1 className="text-2xl text-foreground mb-4 text-center font-sans">
                     Adicionar Nova Agência
                 </h1>
 
                 <div className="w-full grid place-items-center gap-4">
-                    <div className="grid grid-cols-2 w-full gap-6">
+                    <div className="grid md:grid-cols-2 w-full gap-6">
                         <CustomFormInput
                             icon={<LandmarkIcon />}
                             label="Nome da Agência*"
@@ -135,7 +135,7 @@ export default function CreateAgencyPage() {
                         </h2>
                     </div>
 
-                    <div className="grid grid-cols-2 w-full gap-6">
+                    <div className="grid md:grid-cols-2 w-full gap-6">
                         <CustomFormInput
                             icon={<MapPinIcon />}
                             label="CEP*"

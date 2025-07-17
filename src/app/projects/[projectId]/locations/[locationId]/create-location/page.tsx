@@ -436,7 +436,7 @@ export default function CreateLocationPage() {
     };
 
     return (
-        <div className="max-w-7xl mx-auto p-6">
+        <div className="max-w-7xl mx-auto py-2 md:py-4 px-4 md:px-6">
             <div className="w-full relative flex justify-center py-3 mt-16">
                 <h1 className="text-3xl font-sans bg-background px-2">Local</h1>
                 <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
@@ -616,7 +616,7 @@ export default function CreateLocationPage() {
                         />
                         <div className="mt-4">
                             <CustomFormInput
-                                label="Outros acabamentos de piso (separados por vírgula)"
+                                label="Outros acabamentos de piso"
                                 value={customFloorFinishing}
                                 onChange={(e) => {
                                     setCustomFloorFinishing(e.target.value);
@@ -627,6 +627,10 @@ export default function CreateLocationPage() {
                                 }}
                                 icon={<SquarePenIcon />}
                             />
+                            <p className="text-sm indent-4">
+                                Separe múltiplos valores por vírgula (ex:
+                                Cerâmico, Cimentado)
+                            </p>
                         </div>
                     </div>
 
@@ -644,7 +648,7 @@ export default function CreateLocationPage() {
                         />
                         <div className="mt-4">
                             <CustomFormInput
-                                label="Outros acabamentos de parede (separados por vírgula)"
+                                label="Outros acabamentos de parede"
                                 value={customWallFinishing}
                                 onChange={(e) => {
                                     setCustomWallFinishing(e.target.value);
@@ -655,6 +659,10 @@ export default function CreateLocationPage() {
                                 }}
                                 icon={<SquarePenIcon />}
                             />
+                            <p className="text-sm indent-4">
+                                Separe múltiplos valores por vírgula (ex:
+                                Alvenaria, Drywall)
+                            </p>
                         </div>
                     </div>
 
@@ -673,7 +681,7 @@ export default function CreateLocationPage() {
                             />
                             <div className="mt-4">
                                 <CustomFormInput
-                                    label="Outros acabamentos de forro (separados por vírgula)"
+                                    label="Outros acabamentos de forro"
                                     value={customCeilingFinishing}
                                     onChange={(e) => {
                                         setCustomCeilingFinishing(
@@ -686,6 +694,10 @@ export default function CreateLocationPage() {
                                     }}
                                     icon={<SquarePenIcon />}
                                 />
+                                <p className="text-sm indent-4">
+                                    Separe múltiplos valores por vírgula (ex:
+                                    Gesso Acartonado, Laje)
+                                </p>
                             </div>
                         </div>
                     )}

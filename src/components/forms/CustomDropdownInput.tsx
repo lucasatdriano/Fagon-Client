@@ -47,7 +47,7 @@ export function CustomDropdownInput({
                 <button
                     type="button"
                     onClick={toggleDropdown}
-                    className="w-full px-4 py-3 text-left border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none flex justify-between items-center"
+                    className="w-full px-4 py-3 text-left border-2 border-gray-200 rounded-lg shadow-sm bg-white focus:outline-none flex justify-between items-center"
                 >
                     <span className="text-gray-700 flex items-center gap-2">
                         {icon && <span>{icon}</span>}

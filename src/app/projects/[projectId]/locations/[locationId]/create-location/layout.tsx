@@ -15,28 +15,30 @@ export default function CreationLayout({
     const router = useRouter();
     const params = useParams();
     const { loading, isVisitor } = useUserRole();
-    const [canShowBack, setCanShowBack] = useState(true);
     const [headerType, setHeaderType] = useState<'back' | 'default'>('back');
 
     useEffect(() => {
         if (loading) return;
 
         const checkPermissions = async () => {
-            if (isVisitor) {
-                setHeaderType('default');
+            if (!isVisitor) {
+                setHeaderType('back');
                 return;
             }
+
+            setHeaderType('default');
 
             const locationId = params?.locationId as string;
             if (!locationId) return;
 
             try {
                 const response = await LocationService.getById(locationId);
-                const hasPhotos = response.data?.photo?.length > 0;
-                setCanShowBack(hasPhotos);
+                const hasData =
+                    response.data?.photo?.length > 5 &&
+                    response.data.materialFinishing.length > 1;
+                if (hasData) setHeaderType('back');
             } catch (error) {
                 console.error('Erro ao buscar location:', error);
-                setCanShowBack(false);
             }
         };
 
@@ -50,20 +52,13 @@ export default function CreationLayout({
 
     if (loading) {
         <div className="flex justify-center items-center h-screen w-screen">
-            <Loader2Icon className="animate-spin w-16 h-16 text-primary" />
+            <Loader2Icon className="animate-spin h-12 w-12 text-primary" />
         </div>;
     }
 
     return (
         <div className="w-full">
-            <Header
-                type={headerType}
-                onBack={
-                    headerType === 'back' && canShowBack
-                        ? handleBack
-                        : undefined
-                }
-            />
+            <Header type={headerType} onBack={handleBack} />
             {children}
         </div>
     );

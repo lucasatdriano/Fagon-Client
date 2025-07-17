@@ -86,7 +86,6 @@ export default function AccessKeyPage() {
                     height={200}
                     src="/images/logo-vertical.svg"
                     alt="Logo Fagon"
-                    priority
                 />
                 <form
                     onSubmit={handleSubmit(onSubmit, (errors) => {

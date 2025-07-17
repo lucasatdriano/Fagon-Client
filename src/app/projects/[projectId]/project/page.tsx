@@ -24,9 +24,9 @@ import { CustomRadioGroup } from '../../../../components/forms/CustomRadioGroup'
 import { engineerProps } from '../../../../interfaces/engineer';
 import { CustomCheckboxGroup } from '../../../../components/forms/CustomCheckbox';
 import { Pavement } from '../../../../interfaces/pavement';
-import { formatNumberAgency } from '@/utils/formatters/formatNumberAgency';
-import { handleMaskedChange } from '@/utils/helpers/handleMaskedInput';
-import { formatDecimalValue } from '@/utils/formatters/formatDecimal';
+import { formatNumberAgency } from '../../../../utils/formatters/formatNumberAgency';
+import { handleMaskedChange } from '../../../../utils/helpers/handleMaskedInput';
+import { formatDecimalValue } from '../../../../utils/formatters/formatDecimal';
 
 type StatusItem = {
     value: string;
@@ -258,10 +258,10 @@ export default function ProjectEditPage() {
     }
 
     return (
-        <div className="grid place-items-center min-h-screen bg-background pt-24 px-4">
-            <div className="w-4/5 sm:w-3/4 2xl:w-3/5 bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="grid place-items-center min-h-svh bg-background pt-20 md:pt-24 px-2">
+            <div className="w-full md:w-4/5 lg:w-3/4 2xl:w-2/4 bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="flex items-center justify-center py-4 px-12">
-                    <h1 className="text-2xl font-bold">
+                    <h1 className="text-2xl font-bold text-center">
                         Projeto - {project?.agency.city} -{' '}
                         {project?.agency.district}
                     </h1>
@@ -282,7 +282,7 @@ export default function ProjectEditPage() {
                         </h2>
                         {statusData && (
                             <h2
-                                className={`text-xl font-semibold ${statusData?.class} px-4 py-1 rounded-xl`}
+                                className={`text-lg md:text-xl font-semibold ${statusData?.class} px-4 py-1 rounded-xl`}
                             >
                                 {statusData?.label}
                             </h2>
@@ -418,7 +418,7 @@ export default function ProjectEditPage() {
                             selectedValue={watch('engineer.id')}
                             onChange={(val) => setValue('engineer.id', val)}
                             className="p-4 border-2 rounded-lg mt-6"
-                            gridCols={2}
+                            gridCols={'2B'}
                         />
                     </div>
 
@@ -462,7 +462,7 @@ export default function ProjectEditPage() {
                             gridCols={'full'}
                         />
 
-                        <div className="w-full grid grid-cols-2 gap-10 mt-8">
+                        <div className="w-full grid md:grid-cols-2 gap-10 mt-8">
                             {watch('pavements')?.map((pavement, index) => (
                                 <CustomEditInput
                                     key={index}

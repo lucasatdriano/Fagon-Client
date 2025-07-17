@@ -153,7 +153,7 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
         const filePath = pdfFileMap[type];
 
         if (filePath) {
-            const pdfUrl = `/${filePath}`;
+            const pdfUrl = `/${filePath}?v=${Date.now()}`;
 
             window.open(pdfUrl, '_blank', 'noopener,noreferrer');
         } else {
@@ -245,14 +245,14 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-screen w-screen">
-                <Loader2Icon className="animate-spin w-12 h-12 text-primary" />
+            <div className="flex justify-center items-center h-56 w-screen">
+                <Loader2Icon className="animate-spin w-10 h-10 text-primary" />
             </div>
         );
     }
 
     return (
-        <div className="pb-12">
+        <div className="pb-6 md:pb-8">
             <PdfCard
                 pdfs={pdfs}
                 generating={generating}

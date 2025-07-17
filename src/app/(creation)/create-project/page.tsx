@@ -89,19 +89,19 @@ export default function CreateProjectPage() {
     }, []);
 
     return (
-        <div className="h-screen w-full flex items-center justify-center">
+        <div className="h-screen w-full flex items-center justify-center pt-48 px-2 sm:pt-16">
             <form
                 onSubmit={handleSubmit(onSubmit, (errors) => {
                     console.error('Form validation errors:', errors);
                 })}
-                className="space-y-4 bg-white grid place-items-center shadow-md p-6 rounded-lg w-full max-w-sm md:max-w-4xl"
+                className="space-y-4 bg-white grid place-items-center shadow-md p-6 rounded-lg w-full max-w-sm xs:max-w-xl md:max-w-4xl"
             >
-                <h1 className="text-2xl text-foreground mb-4 text-center font-sans">
+                <h1 className="text-2xl text-foreground md:mb-4 text-center font-sans">
                     Adicionar Novo Projeto
                 </h1>
 
                 <div className="w-full grid place-items-center gap-4">
-                    <div className="grid grid-cols-2 w-full gap-4">
+                    <div className="grid md:grid-cols-2 w-full gap-4">
                         <CustomDropdownInput
                             placeholder="Selecione o Tipo do projeto*"
                             options={projectType}
@@ -112,15 +112,7 @@ export default function CreateProjectPage() {
                                 }
                             }}
                             error={errors.projectType?.message}
-                        />
-
-                        <CustomRadioGroup
-                            name="engineer"
-                            options={engineers}
-                            selectedValue={watch('engineer.id')}
-                            onChange={(val) => setValue('engineer.id', val)}
-                            className="p-4 border-2 rounded-lg row-span-2"
-                            gridCols={1}
+                            className="col-span-2 md:col-span-1"
                         />
 
                         <CustomFormInput
@@ -134,6 +126,16 @@ export default function CreateProjectPage() {
                             inputMode="numeric"
                             maxLength={6}
                             minLength={6}
+                            className="col-span-2 md:col-span-1"
+                        />
+
+                        <CustomRadioGroup
+                            name="engineer"
+                            options={engineers}
+                            selectedValue={watch('engineer.id')}
+                            onChange={(val) => setValue('engineer.id', val)}
+                            gridCols={'2B'}
+                            className="p-4 border-2 rounded-lg col-span-2"
                         />
 
                         <CustomCheckboxGroup

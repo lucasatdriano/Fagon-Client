@@ -23,13 +23,13 @@ export default function SidebarNav() {
     const pathname = usePathname();
 
     return (
-        <div className="absolute z-20 hidden md:flex w-32 h-svh flex-col items-center bg-primary py-6 px-2 text-background rounded-r-2xl">
+        <div className="fixed z-20 hidden md:flex w-32 h-svh flex-col items-center bg-primary py-6 px-2 text-background rounded-r-2xl">
             <div className="mb-10">
                 <Image
-                    src="/icons/logo-icon-alternative.svg"
-                    alt="Logo"
                     width={50}
                     height={50}
+                    src="/icons/logo-icon-alternative.svg"
+                    alt="Logo Fagon"
                     className="text-secondary"
                 />
             </div>

@@ -98,10 +98,10 @@ export function PhotoViewModal({
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="relative w-full max-w-4xl transform overflow-hidden rounded-2xl text-left align-middle shadow-xl transition-all">
+                            <Dialog.Panel className="relative w-full h-full max-w-4xl transform overflow-hidden rounded-2xl text-left align-middle shadow-xl transition-all">
                                 {isLoading && (
                                     <div className="flex justify-center items-center h-screen">
-                                        <Loader2Icon className="animate-spin text-primary" />
+                                        <Loader2Icon className="animate-spin h-12 w-12 text-primary" />
                                     </div>
                                 )}
                                 <button
@@ -112,7 +112,7 @@ export function PhotoViewModal({
                                     <XIcon className="h-6 w-6" />
                                 </button>
 
-                                <div className="relative aspect-[4/3] w-full">
+                                <div className="relative aspect-[4/4] w-full h-full">
                                     {imageUrl ? (
                                         <Image
                                             src={imageUrl}
@@ -130,8 +130,8 @@ export function PhotoViewModal({
                                     ) : (
                                         <div className="flex items-center justify-center h-full text-white">
                                             {isLoading
-                                                ? 'Loading...'
-                                                : 'Could not load image'}
+                                                ? 'Carregando imagem...'
+                                                : 'Imagem não encontrada'}
                                         </div>
                                     )}
                                 </div>

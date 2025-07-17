@@ -20,7 +20,7 @@ interface CustomRadioGroupProps {
     name: string;
     placeholder?: string;
     className?: string;
-    gridCols?: number | 'full';
+    gridCols?: number | 'full' | '2B';
     textColor?: string;
     borderColor?: string;
     checkedBorderColor?: string;
@@ -82,6 +82,10 @@ export function CustomRadioGroup({
     const getGridClasses = () => {
         if (gridCols === 'full') {
             return `grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 ${className}`;
+        }
+
+        if (gridCols === '2B') {
+            return `grid grid-cols-1 md:grid-cols-2 gap-4 ${className}`;
         }
 
         const colsMap = {

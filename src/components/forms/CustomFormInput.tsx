@@ -13,6 +13,7 @@ interface BasicInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     error?: string;
     defaultValue?: string | number;
     value?: string;
+    className?: string;
     onDebouncedChange?: (value: string) => void;
 }
 
@@ -31,6 +32,7 @@ export function CustomFormInput({
     required,
     maxLength,
     minLength,
+    className,
     onDebouncedChange,
     ...props
 }: BasicInputProps) {
@@ -40,8 +42,12 @@ export function CustomFormInput({
     useEffect(() => {
         if (value !== undefined) {
             setInternalValue(value);
+        } else if (defaultValue !== undefined) {
+            setInternalValue(defaultValue);
+        } else {
+            setInternalValue('');
         }
-    }, [value]);
+    }, [value, defaultValue]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -59,7 +65,7 @@ export function CustomFormInput({
 
     const containerClasses = `
         flex items-center border-2 ${borderColor} px-4 py-2 md:py-3 rounded-lg transition-all duration-200 
-        ${colorBg} 
+        ${colorBg}
         ${disabled ? 'bg-gray-200/90 border-gray-100 cursor-not-allowed' : ''}
     `;
 
@@ -87,7 +93,7 @@ export function CustomFormInput({
     };
 
     return (
-        <div className="w-full">
+        <div className={`w-full ${className}`}>
             <div className={containerClasses}>
                 <div className={`mr-3 ${textColor}`}>{icon}</div>
                 <div className="w-full relative">

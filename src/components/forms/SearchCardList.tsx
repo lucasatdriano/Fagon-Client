@@ -104,7 +104,7 @@ export function SearchCardList({ onSelectAgency }: SearchCardListProps) {
                                 onClick={() => handleSelectAgency(agency.id)}
                             >
                                 <div className="flex items-center">
-                                    <LandmarkIcon className="w-6 h-6 text-primary" />
+                                    <LandmarkIcon className="hidden sm:block w-6 h-6 text-primary" />
                                     <span className="ml-2 text-gray-600">
                                         {agency.name} - AG.{' '}
                                         {formatNumberAgency(

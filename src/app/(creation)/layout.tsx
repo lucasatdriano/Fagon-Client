@@ -45,7 +45,7 @@ export default function CreationLayout({
     }
 
     return (
-        <div className="w-full">
+        <div className="min-h-svh w-full">
             <Header type="back" onBack={handleBack} />
             {children}
         </div>

@@ -57,18 +57,10 @@ export default function DashboardProjectPage() {
         fetchProject();
     }, [projectId, id, isVisitor]);
 
-    if (roleLoading || isChecking) {
+    if (roleLoading || isChecking || loading) {
         return (
             <div className="flex h-screen items-center justify-center">
-                <Loader2Icon className="h-8 w-8 animate-spin text-primary" />
-            </div>
-        );
-    }
-
-    if (loading) {
-        return (
-            <div className="flex h-screen items-center justify-center">
-                <Loader2Icon className="h-8 w-8 animate-spin text-primary" />
+                <Loader2Icon className="animate-spin h-12 w-12 text-primary" />
             </div>
         );
     }
@@ -86,8 +78,8 @@ export default function DashboardProjectPage() {
     return (
         <div className="flex h-screen flex-col items-center pt-20 px-3 md:px-6">
             <div className="w-full">
-                <div className="relative flex justify-center py-3">
-                    <h1 className="text-3xl font-sans bg-background px-2">
+                <div className="relative flex justify-center py-0 md:py-2">
+                    <h1 className="text-3xl font-sans bg-background px-2 text-center">
                         UPE {project.upeCode} - {project.agency.city} -{' '}
                         {project.agency.district}
                     </h1>

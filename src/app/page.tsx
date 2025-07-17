@@ -24,7 +24,7 @@ export default function Home() {
 
     return (
         <div className="flex justify-center items-center h-screen w-screen">
-            <Loader2Icon className="animate-spin w-16 h-16 text-primary" />
+            <Loader2Icon className="animate-spin w-12 h-12 text-primary" />
         </div>
     );
 }

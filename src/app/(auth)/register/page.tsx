@@ -64,7 +64,6 @@ export default function RegisterPage() {
                 height={0}
                 src="/images/logo-vertical.svg"
                 alt="Logo Fagon"
-                priority
                 className="w-44 h-44 md:w-56 md:h-56"
             />
             <form

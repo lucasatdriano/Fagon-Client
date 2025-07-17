@@ -50,12 +50,11 @@ export function Header({
             {type !== 'search' && (
                 <div className="flex w-full justify-center items-center self-center">
                     <Image
+                        height={150}
+                        width={150}
                         src="/images/logo-horizontal.svg"
                         alt="Logo Fagon"
-                        width={150}
-                        height={150}
-                        priority
-                        className="items-center"
+                        className="items-center w-auto h-auto"
                     />
                 </div>
             )}
@@ -65,12 +64,11 @@ export function Header({
             {type === 'search' && (
                 <div className="flex items-center justify-center gap-8 w-full px-4 md:px-16">
                     <Image
-                        src="/icons/logo-icon.svg"
-                        alt="Logo Fagon"
                         width={50}
                         height={50}
+                        src="/icons/logo-icon.svg"
+                        alt="Logo Fagon"
                         className="md:hidden"
-                        priority
                     />
                     <CustomFormInput
                         icon={<SearchIcon />}

@@ -26,7 +26,7 @@ export default function ProjectCard({
         <Link
             href={`/projects/${id}`}
             passHref
-            className="grid gap-4 sm:flex sm:justify-between w-full p-4 border rounded-lg shadow-sm hover:shadow-md bg-white transition-shadow duration-200"
+            className="grid gap-4 ml:flex sm:justify-between w-full p-4 border rounded-lg shadow-sm hover:shadow-md bg-white transition-shadow duration-200"
         >
             <div>
                 <div className="flex items-center gap-2 mb-3">

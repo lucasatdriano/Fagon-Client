@@ -1,10 +1,12 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 
-const isServer = typeof window === 'undefined';
+// const isServer = typeof window === 'undefined';
 
-const API_BASE_URL = isServer
-    ? process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1/'
-    : 'https://fagon-server-production.up.railway.app/api/v1/';
+// const API_BASE_URL = isServer
+//     ? process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1/'
+//     : 'https://fagon-server-production.up.railway.app/api/v1/';
+
+const API_BASE_URL = 'http://localhost:3000/api/v1/';
 
 const axiosConfig: AxiosRequestConfig = {
     baseURL: API_BASE_URL,
