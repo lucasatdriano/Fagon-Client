@@ -59,7 +59,7 @@ export default function DashboardProjectPage() {
 
     if (roleLoading || isChecking || loading) {
         return (
-            <div className="flex h-screen items-center justify-center">
+            <div className="flex h-svh items-center justify-center">
                 <Loader2Icon className="animate-spin h-12 w-12 text-primary" />
             </div>
         );
@@ -67,7 +67,7 @@ export default function DashboardProjectPage() {
 
     if (error || !project) {
         return (
-            <div className="flex h-screen items-center justify-center">
+            <div className="flex h-svh items-center justify-center">
                 <p className="text-error">
                     {error || 'Projeto não encontrado'}
                 </p>
@@ -76,7 +76,7 @@ export default function DashboardProjectPage() {
     }
 
     return (
-        <div className="flex h-screen flex-col items-center pt-20 px-3 md:px-6">
+        <div className="flex h-svh flex-col items-center pt-20 px-3 md:px-6">
             <div className="w-full">
                 <div className="relative flex justify-center py-0 md:py-2">
                     <h1 className="text-3xl font-sans bg-background px-2 text-center">

@@ -35,7 +35,7 @@ export default function CreationLayout({
     };
 
     if (loading) {
-        <div className="flex justify-center items-center h-screen w-screen">
+        <div className="flex justify-center items-center h-svh w-screen">
             <Loader2Icon className="animate-spin h-12 w-12 text-primary" />
         </div>;
     }

@@ -89,7 +89,7 @@ export default function CreateProjectPage() {
     }, []);
 
     return (
-        <div className="h-screen w-full flex items-center justify-center pt-48 px-2 sm:pt-16">
+        <div className="h-svh w-full flex items-center justify-center pt-48 px-2 sm:pt-16">
             <form
                 onSubmit={handleSubmit(onSubmit, (errors) => {
                     console.error('Form validation errors:', errors);

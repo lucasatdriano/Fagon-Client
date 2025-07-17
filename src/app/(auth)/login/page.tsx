@@ -68,7 +68,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="h-screen w-full flex flex-col gap-10 items-center justify-start pt-6 md:pt-20">
+        <div className="h-svh w-full flex flex-col gap-10 items-center justify-start pt-6 md:pt-20">
             <Image
                 width={200}
                 height={200}

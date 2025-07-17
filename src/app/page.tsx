@@ -23,7 +23,7 @@ export default function Home() {
     }, [router]);
 
     return (
-        <div className="flex justify-center items-center h-screen w-screen">
+        <div className="flex justify-center items-center h-svh w-screen">
             <Loader2Icon className="animate-spin w-12 h-12 text-primary" />
         </div>
     );

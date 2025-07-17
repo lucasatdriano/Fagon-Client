@@ -58,7 +58,7 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="h-screen w-full flex flex-col gap-10 items-center justify-start pt-6 md:pt-12">
+        <div className="h-svh w-full flex flex-col gap-10 items-center justify-start pt-6 md:pt-12">
             <Image
                 width={0}
                 height={0}

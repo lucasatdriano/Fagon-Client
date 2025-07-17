@@ -146,7 +146,7 @@ export default function AgencyEditPage() {
 
     if (isLoading && !agency) {
         return (
-            <div className="flex justify-center items-center h-screen">
+            <div className="flex justify-center items-center h-svh">
                 <Loader2Icon className="animate-spin w-12 h-12 text-primary" />
             </div>
         );

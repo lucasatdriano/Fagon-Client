@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import {
     CameraIcon,
     Layers2Icon,
+    Loader2Icon,
     MapPinIcon,
     RulerIcon,
     SaveIcon,
@@ -427,6 +428,13 @@ export default function CreateLocationPage() {
         }
     };
 
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center h-svh w-screen">
+                <Loader2Icon className="animate-spin w-12 h-12 text-primary" />
+            </div>
+        );
+    }
     return (
         <div className="max-w-7xl mx-auto py-2 md:py-4 px-4 md:px-6">
             <div className="w-full relative flex justify-center py-3 mt-16">
