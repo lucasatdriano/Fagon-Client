@@ -106,27 +106,20 @@ export default function CreateLocationPage() {
         });
     };
 
-    const loadPavements = useCallback(async () => {
-        try {
-            const response = await PavementService.getByProject(
-                projectId as string,
-            );
-
-            const mappedPavements = mapPavementToDropdownOptions(response.data);
-            setPavements(mappedPavements);
-        } catch (error) {
-            toast.error('Erro ao carregar pavimentos');
-            console.error('Erro detalhado:', error);
-        }
-    }, [projectId]);
-
     const loadLocationData = useCallback(async () => {
         try {
             setIsLoading(true);
-            const response = await LocationService.getById(
-                locationId as string,
+            const [locationResponse, pavementsResponse] = await Promise.all([
+                LocationService.getById(locationId as string),
+                PavementService.getByProject(projectId as string),
+            ]);
+
+            const locationData = locationResponse.data;
+
+            const mappedPavements = mapPavementToDropdownOptions(
+                pavementsResponse.data,
             );
-            const locationData = response.data;
+            setPavements(mappedPavements);
 
             const mappedPhotos =
                 locationData.photo?.map((photo) => ({
@@ -211,12 +204,11 @@ export default function CreateLocationPage() {
         } finally {
             setIsLoading(false);
         }
-    }, [locationId, setValue]);
+    }, [projectId, locationId, setValue]);
 
     useEffect(() => {
-        if (locationId) loadLocationData();
-        loadPavements();
-    }, [locationId, loadLocationData, loadPavements]);
+        if (projectId && locationId) loadLocationData();
+    }, [projectId, locationId, loadLocationData]);
 
     useEffect(() => {
         const cookies = parseCookies();

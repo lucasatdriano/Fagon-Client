@@ -15,7 +15,7 @@ export default function CreationLayout({
     const router = useRouter();
     const params = useParams();
     const { loading, isVisitor } = useUserRole();
-    const [headerType, setHeaderType] = useState<'back' | 'default'>('back');
+    const [headerType, setHeaderType] = useState<'back' | 'default'>('default');
 
     useEffect(() => {
         if (loading) return;
@@ -34,8 +34,8 @@ export default function CreationLayout({
             try {
                 const response = await LocationService.getById(locationId);
                 const hasData =
-                    response.data?.photo?.length > 5 &&
-                    response.data.materialFinishing.length > 1;
+                    response.data?.photo?.length >= 5 &&
+                    response.data?.materialFinishing?.length > 1;
                 if (hasData) setHeaderType('back');
             } catch (error) {
                 console.error('Erro ao buscar location:', error);
