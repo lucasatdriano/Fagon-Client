@@ -6,6 +6,10 @@ import { useState, useEffect } from 'react';
 import { agencyProps } from '../../interfaces/agency';
 import { formatNumberAgency } from '../../utils/formatters/formatNumberAgency';
 import { AgencyService } from '../../services/domains/agencyService';
+import { AgenciesApiResponse, ApiResponse } from '@/types/api';
+import { ITEMS_PER_PAGE } from '@/constants/pagination';
+import { useSearchParams } from 'next/navigation';
+import { Pagination } from '@/components/layout/Pagination';
 
 interface SearchCardListProps {
     onSelectAgency: (agency: agencyProps) => void;
@@ -18,16 +22,33 @@ export function SearchCardList({ onSelectAgency }: SearchCardListProps) {
     const [selectedAgencyId, setSelectedAgencyId] = useState<string | null>(
         null,
     );
+    const [pagination, setPagination] = useState({
+        total: 0,
+        page: 1,
+        totalPages: 1,
+    });
+    const searchParams = useSearchParams();
+    const currentPage = Number(searchParams.get('page')) || 1;
 
     useEffect(() => {
         const searchAgencies = async () => {
             setIsLoading(true);
             try {
-                let agencies: agencyProps[];
+                let response: ApiResponse<AgenciesApiResponse>;
 
                 if (query.trim() === '') {
-                    const response = await AgencyService.listAll();
-                    agencies = response.data;
+                    response = await AgencyService.listAll({
+                        page: currentPage,
+                        limit: ITEMS_PER_PAGE,
+                    });
+                    const newAgencies = response.data.agencies;
+                    setResults(newAgencies);
+                    setPagination({
+                        total: response.data.meta?.resource?.total || 0,
+                        page: currentPage,
+                        totalPages:
+                            response.data.meta?.resource?.totalPages || 1,
+                    });
                 } else {
                     const searchParams = {
                         name: query,
@@ -37,6 +58,8 @@ export function SearchCardList({ onSelectAgency }: SearchCardListProps) {
                         state: query,
                         city: query,
                         district: query,
+                        page: currentPage,
+                        limit: ITEMS_PER_PAGE,
                     };
 
                     const cleanedParams = Object.fromEntries(
@@ -45,11 +68,16 @@ export function SearchCardList({ onSelectAgency }: SearchCardListProps) {
                         ),
                     );
 
-                    const response = await AgencyService.search(cleanedParams);
-                    agencies = response.data;
+                    response = await AgencyService.search(cleanedParams);
+                    const newAgencies = response.data.agencies;
+                    setResults(newAgencies);
+                    setPagination({
+                        total: response.data.meta?.resource?.total || 0,
+                        page: currentPage,
+                        totalPages:
+                            response.data.meta?.resource?.totalPages || 1,
+                    });
                 }
-
-                setResults(agencies);
             } catch (error) {
                 console.error('Erro ao buscar agências:', error);
             } finally {
@@ -64,7 +92,7 @@ export function SearchCardList({ onSelectAgency }: SearchCardListProps) {
         }, 300);
 
         return () => clearTimeout(debounceSearch);
-    }, [query]);
+    }, [query, currentPage]);
 
     const handleSelectAgency = (agencyId: string) => {
         setSelectedAgencyId(agencyId);
@@ -91,32 +119,42 @@ export function SearchCardList({ onSelectAgency }: SearchCardListProps) {
             </div>
 
             {results.length > 0 ? (
-                <ul className="space-y-2 pt-0 p-1 h-60 overflow-auto">
-                    {results.map((agency) => {
-                        return (
-                            <li
-                                key={agency.id}
-                                className={`bg-background px-4 py-3 rounded-md cursor-pointer border shadow-sm transition-all duration-100 ${
-                                    selectedAgencyId === agency.id
-                                        ? 'border-primary bg-orange-300/20'
-                                        : 'border-transparent hover:border-primary hover:bg-gray-100/60'
-                                }`}
-                                onClick={() => handleSelectAgency(agency.id)}
-                            >
-                                <div className="flex items-center">
-                                    <LandmarkIcon className="hidden sm:block w-6 h-6 text-primary" />
-                                    <span className="ml-2 text-gray-600">
-                                        {agency.name} - AG.{' '}
-                                        {formatNumberAgency(
-                                            agency.agencyNumber.toString(),
-                                        )}{' '}
-                                        - {agency.city} - {agency.district}
-                                    </span>
-                                </div>
-                            </li>
-                        );
-                    })}
-                </ul>
+                <>
+                    <ul className="space-y-2 pt-0 p-1 h-60 overflow-auto">
+                        {results.map((agency) => {
+                            return (
+                                <li
+                                    key={agency.id}
+                                    className={`bg-background px-4 py-3 rounded-md cursor-pointer border shadow-sm transition-all duration-100 ${
+                                        selectedAgencyId === agency.id
+                                            ? 'border-primary bg-orange-300/20'
+                                            : 'border-transparent hover:border-primary hover:bg-gray-100/60'
+                                    }`}
+                                    onClick={() =>
+                                        handleSelectAgency(agency.id)
+                                    }
+                                >
+                                    <div className="flex items-center">
+                                        <LandmarkIcon className="hidden sm:block w-6 h-6 text-primary" />
+                                        <span className="ml-2 text-gray-600">
+                                            {agency.name} - AG.{' '}
+                                            {formatNumberAgency(
+                                                agency.agencyNumber.toString(),
+                                            )}{' '}
+                                            - {agency.city} - {agency.district}
+                                        </span>
+                                    </div>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                    <div className="mt-4">
+                        <Pagination
+                            currentPage={pagination.page}
+                            totalPages={pagination.totalPages}
+                        />
+                    </div>
+                </>
             ) : query.length >= 3 && !isLoading ? (
                 <div className="p-4 text-gray-600 text-center">
                     Nenhuma agência encontrada
