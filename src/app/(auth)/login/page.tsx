@@ -12,6 +12,7 @@ import { LoginFormData, loginSchema } from '../../../validations';
 import { AuthService } from '../../../services/domains/authService';
 import { toast } from 'sonner';
 import { destroyCookie, setCookie } from 'nookies';
+import axios from 'axios';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -21,7 +22,6 @@ export default function LoginPage() {
         register,
         handleSubmit,
         formState: { errors },
-        setError,
     } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
         mode: 'onTouched',
@@ -34,7 +34,6 @@ export default function LoginPage() {
             destroyCookie(null, 'authToken', { path: '/' });
             destroyCookie(null, 'accessToken', { path: '/' });
             destroyCookie(null, 'projectId', { path: '/' });
-            destroyCookie(null, 'cameraType', { path: '/' });
 
             const response = await AuthService.login({
                 ...data,
@@ -49,15 +48,18 @@ export default function LoginPage() {
 
             router.push('/projects');
         } catch (error: unknown) {
-            const message =
-                error instanceof Error ? error.message : 'Erro desconhecido';
-            setError('root', {
-                type: 'manual',
-                message,
-            });
-            toast.error(
-                error instanceof Error ? error.message : 'Erro desconhecido',
-            );
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 401) {
+                    const errorData = error.response.data;
+
+                    const errorMessage =
+                        errorData.message ||
+                        errorData.error ||
+                        'Credenciais inválidas';
+
+                    toast.error(errorMessage);
+                }
+            }
         } finally {
             setLoading(false);
         }
@@ -114,12 +116,6 @@ export default function LoginPage() {
                         </CustomButton>
                     </div>
                 </div>
-
-                {errors.root && (
-                    <p className="text-error text-sm mt-2 text-center">
-                        {errors.root.message}
-                    </p>
-                )}
 
                 <div className="grid gap-4 pt-4">
                     <CustomButton

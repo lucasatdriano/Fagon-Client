@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CustomEditInput } from '../../../components/forms/CustomEditInput';
 import { CustomButton } from '../../../components/forms/CustomButton';
@@ -32,7 +32,6 @@ export default function AgencyEditPage() {
         setValue,
         watch,
         formState: { errors },
-        reset,
     } = useForm<UpdateAgencyFormValues>({
         resolver: zodResolver(updateAgencySchema),
     });
@@ -46,11 +45,11 @@ export default function AgencyEditPage() {
                 try {
                     const address = await fetchAddressByCep(cleanedCep);
                     if (address) {
-                        setValue('state', address.state);
-                        setValue('city', address.city);
-                        setValue('district', address.district);
-                        setValue('street', address.street);
-
+                        if (address.state) setValue('state', address.state);
+                        if (address.city) setValue('city', address.city);
+                        if (address.district)
+                            setValue('district', address.district);
+                        if (address.street) setValue('street', address.street);
                         setIsFormModified(true);
                     }
                 } catch (error) {
@@ -63,28 +62,11 @@ export default function AgencyEditPage() {
     }, [cepValue, setValue]);
 
     useEffect(() => {
-        const checkFormChanges = (currentValues: UpdateAgencyFormValues) => {
-            if (!agency) return false;
-
-            return (
-                currentValues.agencyNumber !== agency.agencyNumber ||
-                (currentValues.cnpj || '') !== (agency.cnpj || '') ||
-                (currentValues.cep || '') !== (agency.cep || '') ||
-                (currentValues.state || '') !== (agency.state || '') ||
-                (currentValues.city || '') !== (agency.city || '') ||
-                (currentValues.district || '') !== (agency.district || '') ||
-                (currentValues.street || '') !== (agency.street || '') ||
-                (currentValues.number || '') !== (agency.number || '')
-            );
-        };
-
-        const subscription = watch((value) => {
-            setIsFormModified(
-                checkFormChanges(value as UpdateAgencyFormValues),
-            );
+        const subscription = watch(() => {
+            setIsFormModified(true);
         });
         return () => subscription.unsubscribe();
-    }, [watch, agency]);
+    }, [watch]);
 
     useEffect(() => {
         const fetchAgencyData = async () => {
@@ -94,16 +76,17 @@ export default function AgencyEditPage() {
                 const data = response.data;
                 setAgency(data);
 
-                reset({
-                    agencyNumber: data.agencyNumber,
-                    cnpj: data.cnpj || '',
-                    cep: data.cep || '',
-                    state: data.state || '',
-                    city: data.city || '',
-                    district: data.district || '',
-                    street: data.street || '',
-                    number: data.number,
-                });
+                setValue(
+                    'agencyNumber',
+                    formatNumberAgency(data.agencyNumber.toString()),
+                );
+                setValue('cnpj', data.cnpj || '');
+                setValue('cep', data.cep || '');
+                setValue('state', data.state || '');
+                setValue('city', data.city || '');
+                setValue('district', data.district || '');
+                setValue('street', data.street || '');
+                setValue('number', data.number);
             } catch (error) {
                 console.error(error);
             } finally {
@@ -112,9 +95,11 @@ export default function AgencyEditPage() {
         };
 
         fetchAgencyData();
-    }, [id, reset]);
+    }, [id, setValue]);
 
-    const onSubmit = async (formData: UpdateAgencyFormValues) => {
+    const onSubmit: SubmitHandler<UpdateAgencyFormValues> = async (
+        formData,
+    ) => {
         try {
             setIsLoading(true);
 
@@ -139,6 +124,7 @@ export default function AgencyEditPage() {
             }
         } catch (error) {
             console.error(error);
+            toast.error('Erro ao atualizar agência');
         } finally {
             setIsLoading(false);
         }
@@ -165,9 +151,7 @@ export default function AgencyEditPage() {
                 </div>
 
                 <form
-                    onSubmit={handleSubmit(onSubmit, (errors) => {
-                        console.error('Form validation errors:', errors);
-                    })}
+                    onSubmit={handleSubmit(onSubmit)}
                     className="py-4 px-8 space-y-6"
                 >
                     <div className="flex flex-col md:flex-row justify-between md:pb-4 gap-2">
@@ -176,9 +160,10 @@ export default function AgencyEditPage() {
                         </h2>
                         <h2 className="text-xl font-semibold text-gray-800">
                             Ag.{' '}
-                            {formatNumberAgency(
-                                String(agency?.agencyNumber || ''),
-                            )}
+                            {agency?.agencyNumber &&
+                                formatNumberAgency(
+                                    agency.agencyNumber.toString(),
+                                )}
                         </h2>
                     </div>
 
@@ -187,7 +172,7 @@ export default function AgencyEditPage() {
                             label="Número da Agência"
                             registration={register('agencyNumber')}
                             error={errors.agencyNumber?.message}
-                            defaultValue={agency?.agencyNumber}
+                            defaultValue={watch('agencyNumber')}
                         />
 
                         <CustomEditInput
@@ -244,7 +229,7 @@ export default function AgencyEditPage() {
                             label="Número"
                             registration={register('number')}
                             error={errors.number?.message}
-                            defaultValue={agency?.number}
+                            value={watch('number')}
                         />
                     </div>
 

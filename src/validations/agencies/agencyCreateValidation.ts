@@ -4,7 +4,7 @@ export const createAgencySchema = z.object({
     name: z.string().min(1, 'Nome da agência é obrigatório').max(100),
 
     agencyNumber: z.coerce
-        .number({
+        .string({
             invalid_type_error: 'Número da agência deve ser um número',
         })
         .min(1, 'Número da agência é obrigatório'),
@@ -19,8 +19,10 @@ export const createAgencySchema = z.object({
 
     cep: z
         .string()
-        .min(9, 'CEP deve ter 8 dígitos')
-        .max(9, 'CEP deve ter 8 dígitos'),
+        .refine(
+            (val) => val === '' || val.replace(/\D/g, '').length === 8,
+            'CEP deve ter 8 dígitos',
+        ),
 
     state: z.string().min(1, 'Estado é obrigatório').max(50),
     city: z.string().min(1, 'Cidade é obrigatória').max(100),

@@ -1,6 +1,6 @@
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
-import { ApiResponse } from '../../types/api';
+import { ApiResponse, PathologiesApiResponse } from '../../types/api';
 import { Location } from './locationService';
 import { Project } from './projectService';
 import { PathologyPhoto } from './pathologyPhotoService';
@@ -29,6 +29,8 @@ export type CreatePathologyData =
 
 export interface ListPathologiesParams {
     projectId?: string;
+    page?: number;
+    limit?: number;
 }
 
 export interface SearchPathologiesParams {
@@ -58,7 +60,7 @@ export const PathologyService = {
 
     async listAll(
         params?: ListPathologiesParams,
-    ): Promise<ApiResponse<Pathology[]>> {
+    ): Promise<ApiResponse<PathologiesApiResponse>> {
         try {
             const response = await api.get(API_ROUTES.PATHOLOGIES.BASE, {
                 params,
@@ -71,7 +73,7 @@ export const PathologyService = {
 
     async search(
         params: SearchPathologiesParams,
-    ): Promise<ApiResponse<Pathology[]>> {
+    ): Promise<ApiResponse<PathologiesApiResponse>> {
         try {
             const response = await api.get(API_ROUTES.PATHOLOGIES.SEARCH, {
                 params,

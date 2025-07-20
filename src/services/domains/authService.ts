@@ -1,5 +1,5 @@
 import { ApiResponse } from '../../types/api';
-import { api, extractAxiosError } from '../api';
+import { api } from '../api';
 import API_ROUTES from '../api/routes';
 
 interface LoginData {
@@ -45,7 +45,7 @@ export const AuthService = {
             const response = await api.get(API_ROUTES.AUTH.ME);
             return response.data;
         } catch (error) {
-            throw new Error(extractAxiosError(error));
+            throw error;
         }
     },
 
@@ -54,7 +54,7 @@ export const AuthService = {
             const response = await api.post(API_ROUTES.AUTH.LOGIN, loginData);
             return response.data;
         } catch (error) {
-            throw new Error(extractAxiosError(error));
+            throw error;
         }
     },
 
@@ -66,7 +66,7 @@ export const AuthService = {
             );
             return response.data;
         } catch (error) {
-            throw new Error(extractAxiosError(error));
+            throw error;
         }
     },
 
@@ -78,7 +78,7 @@ export const AuthService = {
             );
             return response.data;
         } catch (error) {
-            throw new Error(extractAxiosError(error));
+            throw error;
         }
     },
 };

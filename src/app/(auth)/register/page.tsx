@@ -10,6 +10,8 @@ import { CustomAuthInput } from '../../../components/forms/CustomAuthInput';
 import { LockIcon, MailIcon, UserIcon } from 'lucide-react';
 import { RegisterFormData, registerSchema } from '../../../validations';
 import { AuthService } from '../../../services/domains/authService';
+import axios from 'axios';
+import { toast } from 'sonner';
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -19,7 +21,6 @@ export default function RegisterPage() {
         register,
         handleSubmit,
         formState: { errors },
-        setError,
     } = useForm<RegisterFormData>({
         resolver: zodResolver(registerSchema),
         mode: 'onBlur',
@@ -35,18 +36,18 @@ export default function RegisterPage() {
                 password: data.password,
             });
 
+            toast.success('Usuário cadastrado com sucesso');
             router.push('/login');
         } catch (error: unknown) {
             if (error instanceof Error) {
-                setError('root', {
-                    type: 'manual',
-                    message: error.message,
-                });
-            } else {
-                setError('root', {
-                    type: 'manual',
-                    message: 'Erro desconhecido',
-                });
+                toast.error(error.message);
+            } else if (axios.isAxiosError(error)) {
+                if (error.response?.status === 401) {
+                    const errorData = error.response.data;
+
+                    const errorMessage = errorData.message || errorData.error;
+                    toast.error(errorMessage);
+                }
             }
         } finally {
             setLoading(false);
@@ -113,12 +114,6 @@ export default function RegisterPage() {
                         required
                     />
                 </div>
-
-                {errors.root && (
-                    <p className="text-error text-sm mt-2 text-center">
-                        {errors.root.message}
-                    </p>
-                )}
 
                 <div className="grid gap-4 pt-8">
                     <CustomButton

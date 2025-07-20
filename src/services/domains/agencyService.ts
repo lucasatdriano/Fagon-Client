@@ -2,7 +2,7 @@ import { CreateAgencyFormValues } from '../../validations';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
 import { agencyProps } from '../../interfaces/agency';
-import { ApiResponse } from '../../types/api';
+import { AgenciesApiResponse, ApiResponse } from '../../types/api';
 
 interface ListAgenciesParams {
     page?: number;
@@ -29,7 +29,7 @@ export const AgencyService = {
 
     async listAll(
         params?: ListAgenciesParams,
-    ): Promise<{ data: agencyProps[] }> {
+    ): Promise<{ data: AgenciesApiResponse }> {
         try {
             const response = await api.get(API_ROUTES.AGENCIES.BASE, {
                 params: params,
@@ -42,7 +42,7 @@ export const AgencyService = {
 
     async search(
         params: SearchAgenciesParams,
-    ): Promise<ApiResponse<agencyProps[]>> {
+    ): Promise<ApiResponse<AgenciesApiResponse>> {
         try {
             const cleanedParams = Object.fromEntries(
                 Object.entries(params).filter(

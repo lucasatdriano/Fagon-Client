@@ -25,7 +25,6 @@ export default function AccessKeyPage() {
         register,
         handleSubmit,
         formState: { errors },
-        setError,
     } = useForm<AccessKeyFormData>({
         resolver: zodResolver(accessKeySchema),
         mode: 'onBlur',
@@ -38,7 +37,6 @@ export default function AccessKeyPage() {
             destroyCookie(null, 'authToken', { path: '/' });
             destroyCookie(null, 'accessToken', { path: '/' });
             destroyCookie(null, 'projectId', { path: '/' });
-            destroyCookie(null, 'cameraType', { path: '/' });
 
             const response = await AuthService.login({
                 accessKeyToken: data.accessKey,
@@ -57,22 +55,10 @@ export default function AccessKeyPage() {
                 path: '/',
                 secure: process.env.NODE_ENV === 'production',
             });
-            setCookie(null, 'cameraType', response.data.user.cameraType, {
-                maxAge: 24 * 60 * 60,
-                sameSite: 'lax',
-                path: '/',
-                secure: process.env.NODE_ENV === 'production',
-            });
 
             setIsModalOpen(true);
-        } catch (error: unknown) {
-            if (error instanceof Error) {
-                setError('root', {
-                    type: 'manual',
-                    message: error.message,
-                });
-                toast.error('Chave de acesso expirada ou não existente');
-            }
+        } catch {
+            toast.error('Chave de acesso expirada ou não existente');
         } finally {
             setLoading(false);
         }

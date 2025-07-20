@@ -2,7 +2,7 @@ import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
 import { Pavement } from '../../interfaces/pavement';
 import { PathologyProps } from '../../interfaces/pathology';
-import { ApiResponse } from '../../types/api';
+import { ApiResponse, ProjectsApiResponse } from '../../types/api';
 import { ProjectType, ProjectStatus } from '../../types/project';
 import { PavementItem } from './pavementService';
 
@@ -86,7 +86,7 @@ export const ProjectService = {
 
     async listAll(
         params?: ListProjectsParams,
-    ): Promise<ApiResponse<Project[]>> {
+    ): Promise<ApiResponse<ProjectsApiResponse>> {
         try {
             const response = await api.get(API_ROUTES.PROJECTS.BASE, {
                 params,
@@ -99,7 +99,7 @@ export const ProjectService = {
 
     async search(
         params: SearchProjectsParams,
-    ): Promise<ApiResponse<Project[]>> {
+    ): Promise<ApiResponse<ProjectsApiResponse>> {
         try {
             const cleanedParams = Object.fromEntries(
                 Object.entries(params).filter(

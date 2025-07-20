@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2Icon, SearchXIcon } from 'lucide-react';
 
 import ProjectCard from '../../../components/cards/ProjectCard';
@@ -12,60 +12,77 @@ import {
 } from '../../../services/domains/projectService';
 import { useSearch } from '../../../contexts/SearchContext';
 import { useAuth } from '../../../hooks/useAuth';
+import { Pagination } from '@/components/layout/Pagination';
+import { ITEMS_PER_PAGE } from '@/constants/pagination';
+import { ApiResponse, ProjectsApiResponse } from '@/types/api';
 
 export default function DashboardProjectsPage() {
     const { searchValue } = useSearch();
     const [projects, setProjects] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
+    const [pagination, setPagination] = useState({
+        total: 0,
+        page: 1,
+        totalPages: 1,
+    });
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const currentPage = Number(searchParams.get('page')) || 1;
 
     useAuth();
 
     useEffect(() => {
         setLoading(true);
+        const fetchData = async () => {
+            try {
+                let response: ApiResponse<ProjectsApiResponse>;
 
-        if (searchValue.trim() === '') {
-            ProjectService.listAll()
-                .then((res) => {
-                    setProjects(res.data);
-                })
-                .catch((err) => {
-                    console.error(err);
-                })
-                .finally(() => setLoading(false));
-        } else {
-            const searchParams = {
-                upeCode: !isNaN(Number(searchValue))
-                    ? Number(searchValue)
-                    : undefined,
-                inspectorName: searchValue,
-                city: searchValue,
-                engineerName: searchValue,
-                agencyNumber: !isNaN(Number(searchValue))
-                    ? Number(searchValue)
-                    : undefined,
-                state:
-                    searchValue.length === 2
-                        ? searchValue.toUpperCase()
-                        : undefined,
-            };
+                if (searchValue.trim() === '') {
+                    response = await ProjectService.listAll({
+                        page: currentPage,
+                        limit: ITEMS_PER_PAGE,
+                    });
+                } else {
+                    const searchParams = {
+                        upeCode: !isNaN(Number(searchValue))
+                            ? Number(searchValue)
+                            : undefined,
+                        inspectorName: searchValue,
+                        city: searchValue,
+                        engineerName: searchValue,
+                        agencyNumber: !isNaN(Number(searchValue))
+                            ? Number(searchValue)
+                            : undefined,
+                        state:
+                            searchValue.length === 2
+                                ? searchValue.toUpperCase()
+                                : undefined,
+                    };
+                    const cleanedParams = Object.fromEntries(
+                        Object.entries(searchParams).filter(
+                            ([, value]) => value !== undefined,
+                        ),
+                    );
 
-            const cleanedParams = Object.fromEntries(
-                Object.entries(searchParams).filter(
-                    ([, value]) => value !== undefined,
-                ),
-            );
+                    response = await ProjectService.search(cleanedParams);
+                }
 
-            ProjectService.search(cleanedParams)
-                .then((res) => {
-                    setProjects(res.data);
-                })
-                .catch((err) => {
-                    console.error(err);
-                })
-                .finally(() => setLoading(false));
-        }
-    }, [router, searchValue]);
+                setProjects(response.data.projects);
+                setPagination({
+                    total: response.data.meta?.resource?.total || 0,
+                    page: 1,
+                    totalPages: 1,
+                });
+            } catch (err) {
+                console.error('Erro ao carregar projetos:', err);
+                setProjects([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [router, searchValue, currentPage]);
 
     return (
         <div className="min-h-svh flex flex-col items-center pt-16 px-2 pb-24 md:pt-20 md:px-6 md:pb-4">
@@ -92,23 +109,31 @@ export default function DashboardProjectsPage() {
                             : 'Nenhum projeto encontrado.'}
                     </p>
                 ) : (
-                    projects.map((project: Project) => (
-                        <ProjectCard
-                            key={project.id}
-                            id={project.id || ''}
-                            agencyNumber={
-                                project.agency.agencyNumber.toString() || ''
-                            }
-                            upeCode={project.upeCode.toString() || ''}
-                            projectType={project.projectType || ''}
-                            city={project.agency.city.toString() || ''}
-                            district={project.agency.district.toString() || ''}
-                            engineer={project.engineer.name.toString() || ''}
-                            status={project.status || ''}
-                            inspectorName={project.inspectorName || ''}
-                            inspectionDate={project.inspectionDate || ''}
+                    <>
+                        {projects.map((project: Project) => (
+                            <ProjectCard
+                                key={project.id}
+                                id={project.id || ''}
+                                agencyNumber={project.agency.agencyNumber || ''}
+                                upeCode={project.upeCode.toString() || ''}
+                                projectType={project.projectType || ''}
+                                city={project.agency.city.toString() || ''}
+                                district={
+                                    project.agency.district.toString() || ''
+                                }
+                                engineer={
+                                    project.engineer.name.toString() || ''
+                                }
+                                status={project.status || ''}
+                                inspectorName={project.inspectorName || ''}
+                                inspectionDate={project.inspectionDate || ''}
+                            />
+                        ))}
+                        <Pagination
+                            currentPage={pagination.page}
+                            totalPages={pagination.totalPages}
                         />
-                    ))
+                    </>
                 )}
             </div>
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2Icon, SearchXIcon } from 'lucide-react';
 
 import AgencyCard from '../../../components/cards/AgencyCard';
@@ -10,54 +10,75 @@ import { AgencyService } from '../../../services/domains/agencyService';
 import { useSearch } from '../../../contexts/SearchContext';
 import { agencyProps } from '../../../interfaces/agency';
 import { useAuth } from '../../../hooks/useAuth';
+import { Pagination } from '@/components/layout/Pagination';
+import { AgenciesApiResponse, ApiResponse } from '@/types/api';
+import { ITEMS_PER_PAGE } from '@/constants/pagination';
 
 export default function DashboardAgenciesPage() {
     const { searchValue } = useSearch();
     const [agencies, setAgencies] = useState<agencyProps[]>([]);
     const [loading, setLoading] = useState(true);
+    const [pagination, setPagination] = useState({
+        total: 0,
+        page: 1,
+        totalPages: 1,
+    });
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const currentPage = Number(searchParams.get('page')) || 1;
 
     useAuth();
 
     useEffect(() => {
         setLoading(true);
 
-        if (searchValue.trim() === '') {
-            AgencyService.listAll()
-                .then((res) => {
-                    setAgencies(res.data);
-                })
-                .catch((err) => {
-                    console.error(err);
-                })
-                .finally(() => setLoading(false));
-        } else {
-            const searchParams = {
-                name: searchValue,
-                agencyNumber: !isNaN(Number(searchValue))
-                    ? Number(searchValue)
-                    : undefined,
-                state: searchValue,
-                city: searchValue,
-                district: searchValue,
-            };
+        const fetchData = async () => {
+            try {
+                let response: ApiResponse<AgenciesApiResponse>;
 
-            const cleanedParams = Object.fromEntries(
-                Object.entries(searchParams).filter(
-                    ([, value]) => value !== undefined,
-                ),
-            );
+                if (searchValue.trim() === '') {
+                    response = await AgencyService.listAll({
+                        page: currentPage,
+                        limit: ITEMS_PER_PAGE,
+                    });
+                } else {
+                    const searchParams = {
+                        name: searchValue,
+                        agencyNumber: !isNaN(Number(searchValue))
+                            ? Number(searchValue)
+                            : undefined,
+                        state: searchValue,
+                        city: searchValue,
+                        district: searchValue,
+                        page: currentPage,
+                        limit: ITEMS_PER_PAGE,
+                    };
 
-            AgencyService.search(cleanedParams)
-                .then((res) => {
-                    setAgencies(res.data);
-                })
-                .catch((err) => {
-                    console.error(err);
-                })
-                .finally(() => setLoading(false));
-        }
-    }, [router, searchValue]);
+                    const cleanedParams = Object.fromEntries(
+                        Object.entries(searchParams).filter(
+                            ([, value]) => value !== undefined,
+                        ),
+                    );
+
+                    response = await AgencyService.search(cleanedParams);
+                }
+
+                setAgencies(response.data.agencies);
+
+                setPagination({
+                    total: response.data.meta?.resource?.total || 0,
+                    page: currentPage,
+                    totalPages: response.data.meta?.resource?.totalPages || 1,
+                });
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [router, searchValue, currentPage]);
 
     return (
         <div className="min-h-svh flex flex-col items-center pt-16 px-2 pb-24 md:pt-20 md:px-6 md:pb-4">
@@ -84,21 +105,27 @@ export default function DashboardAgenciesPage() {
                             : 'Nenhuma agência cadastrada.'}
                     </p>
                 ) : (
-                    agencies.map((agency) => (
-                        <AgencyCard
-                            key={agency.id}
-                            id={agency.id}
-                            agencyNumber={agency.agencyNumber}
-                            name={agency.name}
-                            city={agency.city}
-                            district={agency.district}
-                            street={agency.street}
-                            number={agency.number}
-                            cnpj={agency.cnpj}
-                            cep={agency.cep}
-                            state={agency.state}
+                    <>
+                        {agencies.map((agency) => (
+                            <AgencyCard
+                                key={agency.id}
+                                id={agency.id}
+                                agencyNumber={agency.agencyNumber}
+                                name={agency.name}
+                                city={agency.city}
+                                district={agency.district}
+                                street={agency.street}
+                                number={agency.number}
+                                cnpj={agency.cnpj}
+                                cep={agency.cep}
+                                state={agency.state}
+                            />
+                        ))}
+                        <Pagination
+                            currentPage={pagination.page}
+                            totalPages={pagination.totalPages}
                         />
-                    ))
+                    </>
                 )}
             </div>
 

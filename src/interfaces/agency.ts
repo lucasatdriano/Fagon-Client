@@ -1,7 +1,7 @@
 export interface agencyProps {
     id: string;
     name: string;
-    agencyNumber: number;
+    agencyNumber: string;
     cnpj?: string;
     cep: string;
     state: string;
@@ -9,4 +9,5 @@ export interface agencyProps {
     district: string;
     street: string;
     number: number;
+    createdAt?: string;
 }

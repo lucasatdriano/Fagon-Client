@@ -11,6 +11,7 @@ export const setupResponseInterceptor = (api: AxiosInstance) => {
                 status: response.status,
                 statusText: response.statusText,
                 data: response.data.data,
+                meta: response.data.meta,
                 headers: response.headers,
                 config: {
                     method: response.config.method,
@@ -27,10 +28,10 @@ export const setupResponseInterceptor = (api: AxiosInstance) => {
 
             if (error.response) {
                 console.error('Detalhes do erro:', {
-                    response: error.response,
                     status: error.response.status,
-                    data: error.response.data,
                     headers: error.response.headers,
+                    data: error.response.data.data,
+                    meta: error.response.meta,
                     request: {
                         method: error.config.method,
                         url: error.config.url,

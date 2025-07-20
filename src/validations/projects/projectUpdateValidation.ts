@@ -21,7 +21,7 @@ const baseUpdateSchema = createProjectSchema
         status: z.string().optional(),
         inspectorName: z.string().max(100, 'Máximo 100 caracteres').optional(),
         inspectionDate: z.string().optional(),
-        structureType: z.string().max(100, 'Máximo 100 caracteres').optional(),
+        structureType: z.string().max(500, 'Máximo 500 caracteres').optional(),
         floorHeight: z.string().optional(),
         pavements: z.array(pavementSchema).optional(),
     })

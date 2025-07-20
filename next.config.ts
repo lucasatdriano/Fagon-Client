@@ -53,7 +53,7 @@ const nextConfig: NextConfig = {
         ],
     },
 
-    reactStrictMode: true,
+    reactStrictMode: false,
     productionBrowserSourceMaps: true,
 
     experimental: {

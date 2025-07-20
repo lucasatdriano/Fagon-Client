@@ -11,7 +11,7 @@ import {
     TextIcon,
     TypeIcon,
 } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
 import { CustomButton } from '../../../../../components/forms/CustomButton';
 import { CustomFormInput } from '../../../../../components/forms/CustomFormInput';
@@ -39,6 +39,10 @@ import {
     createPathologySchema,
 } from '../../../../../validations';
 import { locationOptions } from '../../../../../constants';
+import { AuthService } from '@/services/domains/authService';
+import { Pagination } from '@/components/layout/Pagination';
+import { ITEMS_PER_PAGE } from '@/constants/pagination';
+import { ApiResponse, PathologiesApiResponse } from '@/types/api';
 
 export default function CreatePathologyPage() {
     const router = useRouter();
@@ -50,10 +54,18 @@ export default function CreatePathologyPage() {
     const [locations, setLocations] = useState<DropdownOption[]>([]);
     const [pathologies, setPathologies] = useState<Pathology[]>([]);
     const [showPhotoModal, setShowPhotoModal] = useState(false);
+    const [isNormalCamera, setIsNormalCamera] = useState(false);
     const [selectedLocationId, setSelectedLocationId] = useState<string>('');
     const [selectedPathology, setSelectedPathology] =
         useState<Pathology | null>(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+    const [pagination, setPagination] = useState({
+        total: 0,
+        page: 1,
+        totalPages: 1,
+    });
+    const searchParams = useSearchParams();
+    const currentPage = Number(searchParams.get('page')) || 1;
 
     const {
         register,
@@ -67,15 +79,40 @@ export default function CreatePathologyPage() {
     const loadPathologies = useCallback(async () => {
         try {
             setIsLoadingPathologies(true);
-            const pats = await PathologyService.listAll({ projectId });
-            setPathologies(pats.data);
+
+            const response: ApiResponse<PathologiesApiResponse> =
+                await PathologyService.listAll({
+                    projectId,
+                    page: currentPage,
+                    limit: ITEMS_PER_PAGE,
+                });
+            setPathologies(response.data.pathologies);
+            setPagination({
+                total: response.data.meta?.resource?.total || 0,
+                page: currentPage,
+                totalPages: response.data.meta?.resource?.totalPages || 1,
+            });
         } catch (error) {
             toast.error('Erro ao carregar patologias');
             console.error(error);
         } finally {
-            setIsLoadingPathologies(true);
+            setIsLoadingPathologies(false);
         }
-    }, [projectId]);
+    }, [projectId, currentPage]);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const user = await AuthService.getMe();
+                console.log(user);
+                setIsNormalCamera(user.data.cameraType === 'normal');
+            } catch (error) {
+                console.error('Erro ao buscar usuário:', error);
+            }
+        };
+
+        fetchUser();
+    }, []);
 
     useEffect(() => {
         const loadData = async () => {
@@ -168,7 +205,7 @@ export default function CreatePathologyPage() {
         try {
             setIsLoading(true);
 
-            if (photos.length < 2) {
+            if (isNormalCamera && photos.length < 2) {
                 toast.error('Pelo menos 2 fotos são necessárias');
                 return;
             }
@@ -222,7 +259,8 @@ export default function CreatePathologyPage() {
                 <div className="space-y-4">
                     <div className="w-full relative flex justify-start py-3">
                         <h3 className="text-2xl font-sans bg-background px-2 ml-8">
-                            Fotos ({photos.length}/2 mínimo)
+                            Fotos{' '}
+                            {isNormalCamera && ` (${photos.length}/5 mínimo)`}
                         </h3>
                         <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
                     </div>
@@ -256,7 +294,7 @@ export default function CreatePathologyPage() {
                             />
                         ))}
                     </div>
-                    {photos.length < 2 && (
+                    {isNormalCamera && photos.length < 2 && (
                         <p className="text-error mt-2">
                             Pelo menos 2 fotos são necessárias
                         </p>
@@ -345,20 +383,28 @@ export default function CreatePathologyPage() {
                             <Loader2Icon className="animate-spin h-10 w-10 text-primary" />
                         </div>
                     ) : (
-                        pathologies.map((p) => (
-                            <div
-                                key={p.id}
-                                onClick={() => handleCardClick(p)}
-                                className="cursor-pointer"
-                            >
-                                <PathologyCard
-                                    id={p.id}
-                                    title={p.title}
-                                    location={p.referenceLocation}
-                                    photoCount={p.pathologyPhoto?.length}
+                        <>
+                            {pathologies.map((p) => (
+                                <div
+                                    key={p.id}
+                                    onClick={() => handleCardClick(p)}
+                                    className="cursor-pointer"
+                                >
+                                    <PathologyCard
+                                        id={p.id}
+                                        title={p.title}
+                                        location={p.referenceLocation}
+                                        photoCount={p.pathologyPhoto?.length}
+                                    />
+                                </div>
+                            ))}
+                            <div className="col-span-2 mt-4">
+                                <Pagination
+                                    currentPage={pagination.page}
+                                    totalPages={pagination.totalPages}
                                 />
                             </div>
-                        ))
+                        </>
                     )}
                 </div>
             </div>

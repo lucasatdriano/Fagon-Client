@@ -1,3 +1,7 @@
+import { agencyProps } from '@/interfaces/agency';
+import { Pathology } from '@/services/domains/pathologyService';
+import { Project } from '@/services/domains/projectService';
+
 interface ApiMetaPerformance {
     executionTimeMs: number;
     serverTimeMs: number;
@@ -30,10 +34,25 @@ interface ApiMeta {
 }
 
 export interface ApiResponse<T> {
-    success: boolean;
-    statusCode: number;
-    message: string;
+    statusCode?: number;
     data: T;
+    message?: string;
     meta?: ApiMeta;
     timestamp?: string;
+    success?: boolean;
+}
+
+export interface ProjectsApiResponse {
+    meta?: ApiMeta;
+    projects: Project[];
+}
+
+export interface AgenciesApiResponse {
+    meta?: ApiMeta;
+    agencies: agencyProps[];
+}
+
+export interface PathologiesApiResponse {
+    meta?: ApiMeta;
+    pathologies: Pathology[];
 }

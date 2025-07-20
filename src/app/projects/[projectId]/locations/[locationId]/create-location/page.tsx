@@ -53,9 +53,9 @@ import { Photo } from '../../../../../../interfaces/photo';
 import { PhotoService } from '../../../../../../services/domains/photoService';
 import { useUserRole } from '../../../../../../hooks/useUserRole';
 import { AddPhotoModal } from '../../../../../../components/modals/photoModals/AddPhotoModal';
-import { parseCookies } from 'nookies';
 import { sortPavements } from '../../../../../../utils/sorts/sortPavements';
 import { formatDecimalValue } from '../../../../../../utils/formatters/formatDecimal';
+import { AuthService } from '@/services/domains/authService';
 
 export default function CreateLocationPage() {
     const { projectId, locationId } = useParams();
@@ -70,7 +70,7 @@ export default function CreateLocationPage() {
     const [customWallFinishing, setCustomWallFinishing] = useState('');
     const [customCeilingFinishing, setCustomCeilingFinishing] = useState('');
     const [showPhotoOptionsModal, setShowPhotoOptionsModal] = useState(false);
-    const [is360Camera, setIs360Camera] = useState(false);
+    const [isNormalCamera, setIsNormalCamera] = useState(false);
     const [debounceTimers, setDebounceTimers] = useState<
         Record<string, NodeJS.Timeout>
     >({});
@@ -208,13 +208,21 @@ export default function CreateLocationPage() {
     }, [projectId, locationId, setValue]);
 
     useEffect(() => {
-        if (projectId && locationId) loadLocationData();
-    }, [projectId, locationId, loadLocationData]);
+        const fetchUser = async () => {
+            try {
+                const user = await AuthService.getMe();
+                setIsNormalCamera(user.data.cameraType === 'normal');
+            } catch (error) {
+                console.error('Erro ao buscar usuário:', error);
+            }
+        };
+
+        fetchUser();
+    }, []);
 
     useEffect(() => {
-        const cookies = parseCookies();
-        setIs360Camera(cookies.cameraType === 'camera_360');
-    }, []);
+        if (projectId && locationId) loadLocationData();
+    }, [projectId, locationId, loadLocationData]);
 
     useEffect(() => {
         return () => {
@@ -374,7 +382,7 @@ export default function CreateLocationPage() {
         try {
             setIsLoading(true);
 
-            if (!is360Camera && allPhotos.length < 5) {
+            if (isNormalCamera && allPhotos.length < 5) {
                 toast.error('É necessário enviar pelo menos 5 fotos');
                 return;
             }
@@ -485,7 +493,8 @@ export default function CreateLocationPage() {
                     <div className="w-full relative flex justify-start py-3">
                         <h2 className="text-2xl font-sans bg-background px-2 ml-8">
                             Fotos{' '}
-                            {!is360Camera && ` (${allPhotos.length}/5 mínimo)`}
+                            {isNormalCamera &&
+                                ` (${allPhotos.length}/5 mínimo)`}
                         </h2>
                         <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
                     </div>
@@ -522,7 +531,7 @@ export default function CreateLocationPage() {
                             />
                         ))}
                     </div>
-                    {!is360Camera && allPhotos.length < 5 && (
+                    {isNormalCamera && allPhotos.length < 5 && (
                         <p className="text-error mt-2">
                             É necessário enviar pelo menos 5 fotos
                         </p>
