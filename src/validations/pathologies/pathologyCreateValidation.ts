@@ -7,10 +7,9 @@ export const createPathologySchema = z.object({
     locationId: z.string().uuid({
         message: 'ID do local inválido',
     }),
-    referenceLocation: z
-        .string()
-        .min(3, 'A referência deve ter pelo menos 3 caracteres')
-        .max(100, 'A referência deve ter no máximo 100 caracteres'),
+    referenceLocation: z.string({
+        required_error: 'Selecione um local',
+    }),
     title: z
         .string()
         .min(5, 'O título deve ter pelo menos 5 caracteres')

@@ -5,6 +5,7 @@ import { Fragment, useState, useEffect } from 'react';
 import {
     BrickWall,
     DraftingCompassIcon,
+    FilePlus2Icon,
     Loader2Icon,
     UnfoldVerticalIcon,
 } from 'lucide-react';
@@ -295,6 +296,9 @@ export default function AddInfoToPdfModal({
                                                 isLoading
                                                     ? 'bg-gray-400'
                                                     : 'bg-primary'
+                                            }
+                                            icon={
+                                                <FilePlus2Icon className="h-5 w-5" />
                                             }
                                             className={`text-sm ${
                                                 isLoading

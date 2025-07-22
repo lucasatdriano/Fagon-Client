@@ -24,6 +24,7 @@ import {
 import { fetchAddressByCep } from '../../../utils/viacep';
 import { AgencyService } from '../../../services/domains/agencyService';
 import { handleMaskedChange } from '../../../utils/helpers/handleMaskedInput';
+import axios from 'axios';
 
 export default function CreateAgencyPage() {
     const router = useRouter();
@@ -77,17 +78,20 @@ export default function CreateAgencyPage() {
             toast.success('Agência criada com sucesso!');
             router.push('/agencies');
         } catch (error: unknown) {
-            toast.error(
-                'Erro ao criar agência. Verifique os dados e tente novamente.',
-            );
-            console.error('Erro ao criar agência:', error);
+            if (axios.isAxiosError(error)) {
+                const errorData = error.response?.data;
+
+                const errorMessage = errorData.message || errorData.error;
+
+                toast.error(errorMessage);
+            }
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="h-svh w-full flex items-center px-2 justify-center">
+        <div className="min-h-svh w-full flex items-center justify-center pt-24 pb-8 px-2">
             <form
                 onSubmit={handleSubmit(onSubmit, (errors) => {
                     console.error('Form validation errors:', errors);

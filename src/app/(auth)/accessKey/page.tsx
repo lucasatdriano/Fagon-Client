@@ -66,7 +66,7 @@ export default function AccessKeyPage() {
 
     return (
         <>
-            <div className="h-svh w-full flex flex-col gap-10 md:gap-16 items-center justify-start pt-6 md:pt-32">
+            <div className="min-h-svh w-full flex flex-col gap-10 md:gap-16 items-center justify-start pt-6 pb-12 md:pt-16 xl:pt-32">
                 <Image
                     width={200}
                     height={200}

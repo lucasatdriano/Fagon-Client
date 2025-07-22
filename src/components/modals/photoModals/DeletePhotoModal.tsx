@@ -32,7 +32,7 @@ export function DeletePhotoModal({
                 </Transition.Child>
 
                 <div className="fixed inset-0 overflow-y-auto">
-                    <div className="flex min-h-full items-center justify-center p-4 text-center">
+                    <div className="flex min-h-svh items-center justify-center p-4 text-center">
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
@@ -76,6 +76,9 @@ export function DeletePhotoModal({
                                         onClick={onConfirm}
                                         disabled={isLoading}
                                         color="bg-error"
+                                        icon={
+                                            <Trash2Icon className="h-5 w-5" />
+                                        }
                                         className={`rounded-md text-sm text-white hover:bg-red-900 ${
                                             isLoading && 'bg-zinc-400'
                                         }`}

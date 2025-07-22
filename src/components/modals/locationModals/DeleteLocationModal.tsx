@@ -91,6 +91,9 @@ export function DeleteLocationModal({
                                         onClick={handleDelete}
                                         disabled={isLoading}
                                         color="bg-error"
+                                        icon={
+                                            <Trash2Icon className="h-5 w-5" />
+                                        }
                                         className={`rounded-md text-sm text-white hover:bg-red-900 ${
                                             isLoading && 'bg-zinc-400'
                                         }`}

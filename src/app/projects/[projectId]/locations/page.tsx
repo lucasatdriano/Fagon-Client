@@ -18,7 +18,6 @@ export default function DashboardInspectorPage() {
     const [locations, setLocations] = useState<Location[]>([]);
     const [loading, setLoading] = useState(true);
     const { isVisitor } = useUserRole();
-    const [error, setError] = useState<string | null>(null);
     const params = useParams();
     const projectId = params.projectId as string;
 
@@ -30,7 +29,6 @@ export default function DashboardInspectorPage() {
 
                 setLocations(response.data);
             } catch (err) {
-                setError('Erro ao carregar locais');
                 console.error(err);
             } finally {
                 setLoading(false);
@@ -47,7 +45,6 @@ export default function DashboardInspectorPage() {
             const response = await LocationService.listAll(projectId);
             setLocations(response.data);
         } catch (err) {
-            setError('Erro ao atualizar lista de locais');
             console.error(err);
         }
     };
@@ -65,7 +62,7 @@ export default function DashboardInspectorPage() {
     };
 
     return (
-        <div className="h-svh flex flex-col items-center pt-16 px-2 pb-24 md:pt-20 md:px-6 md:pb-4">
+        <div className="min-h-svh flex flex-col items-center pt-16 px-2 md:pt-18 md:px-6">
             <div className="w-full relative flex justify-center py-3">
                 <h2 className="text-3xl font-sans bg-background px-2">
                     Vistoria
@@ -77,13 +74,9 @@ export default function DashboardInspectorPage() {
                 <div className="flex-1 flex items-center justify-center">
                     <Loader2Icon className="animate-spin h-12 w-12 text-primary" />
                 </div>
-            ) : error ? (
-                <div className="flex-1 flex items-center justify-center">
-                    <p className="text-error">{error}</p>
-                </div>
             ) : (
-                <div className="relative w-full h-full mb-80 flex flex-col justify-between gap-2">
-                    <div className="flex flex-col gap-2 pb-56">
+                <div className="relative w-full min-h-svh pb-48">
+                    <div className="flex flex-col gap-2">
                         {locations.map((location: Location) => (
                             <LocationCard
                                 href={`${location.id}`}
@@ -112,7 +105,7 @@ export default function DashboardInspectorPage() {
                         />
                     </div>
 
-                    <div className="fixed bottom-4 left-0 right-0 px-6">
+                    <div className="fixed bottom-2 xl:bottom-4 left-0 right-0 px-2 md:px-6">
                         <NavigationCard
                             title="Adicionar Novo Local"
                             onClick={() => setIsModalOpen(true)}

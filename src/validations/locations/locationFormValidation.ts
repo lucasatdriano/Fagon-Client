@@ -18,11 +18,11 @@ export const locationFormSchema = z
 
         floorFinishing: z
             .array(z.string())
-            .min(1, 'Selecione pelo menos um acabamento do piso'),
+            .min(1, 'Selecione ou escreva pelo menos um acabamento do piso'),
 
         wallFinishing: z
             .array(z.string())
-            .min(1, 'Selecione pelo menos um acabamento da parede'),
+            .min(1, 'Selecione ou escreva pelo menos um acabamento da parede'),
 
         ceilingFinishing: z.array(z.string()).optional(),
     })
@@ -33,7 +33,7 @@ export const locationFormSchema = z
         if (!isExternal && !data.pavementId) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'O pavimento/andar é obrigatório para locais internos',
+                message: 'O pavimento/andar é obrigatório',
                 path: ['pavementId'],
             });
         }
@@ -45,7 +45,8 @@ export const locationFormSchema = z
         ) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'Selecione pelo menos um acabamento do forro',
+                message:
+                    'Selecione ou escreva pelo menos um acabamento do forro',
                 path: ['ceilingFinishing'],
             });
         }

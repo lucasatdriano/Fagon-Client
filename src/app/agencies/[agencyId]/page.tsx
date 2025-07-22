@@ -139,7 +139,7 @@ export default function AgencyEditPage() {
     }
 
     return (
-        <div className="grid place-items-center min-h-svh bg-background pt-20 md:pt-24 px-2">
+        <div className="min-h-svh grid place-items-center bg-background pt-20 sm:pt-24 pb-6 px-2">
             <div className="w-full md:w-4/5 lg:w-3/4 2xl:w-2/4 bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="flex items-center justify-center py-4 px-12">
                     <h1 className="text-2xl font-bold text-center">

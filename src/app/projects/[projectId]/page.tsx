@@ -76,7 +76,7 @@ export default function DashboardProjectPage() {
     }
 
     return (
-        <div className="flex h-svh flex-col items-center pt-20 px-3 md:px-6">
+        <div className="flex min-h-svh flex-col items-center pt-20 px-3 md:px-6">
             <div className="w-full">
                 <div className="relative flex justify-center py-0 md:py-2">
                     <h1 className="text-3xl font-sans bg-background px-2 text-center">

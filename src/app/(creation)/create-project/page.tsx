@@ -25,6 +25,7 @@ import { ProjectType } from '../../../types/project';
 import { CustomCheckboxGroup } from '../../../components/forms/CustomCheckbox';
 import { handleMaskedChange } from '../../../utils/helpers/handleMaskedInput';
 import { PavementItem } from '../../../services/domains/pavementService';
+import axios from 'axios';
 
 export default function CreateProjectPage() {
     const router = useRouter();
@@ -65,7 +66,13 @@ export default function CreateProjectPage() {
             toast.success('Projeto criado com sucesso');
             router.push(`/projects/${newProject.data.id}`);
         } catch (error: unknown) {
-            console.error('Erro ao criar projeto:', error);
+            if (axios.isAxiosError(error)) {
+                const errorData = error.response?.data;
+
+                const errorMessage = errorData.message || errorData.error;
+
+                toast.error(errorMessage);
+            }
         }
     };
 
@@ -89,12 +96,12 @@ export default function CreateProjectPage() {
     }, []);
 
     return (
-        <div className="h-svh w-full flex items-center justify-center pt-48 px-2 sm:pt-16">
+        <div className="min-h-svh w-full flex items-center justify-center pt-24 pb-8 px-2">
             <form
                 onSubmit={handleSubmit(onSubmit, (errors) => {
                     console.error('Form validation errors:', errors);
                 })}
-                className="space-y-4 bg-white grid place-items-center shadow-md p-6 rounded-lg w-full max-w-sm xs:max-w-xl md:max-w-4xl"
+                className="space-y-4 bg-white grid place-items-center shadow-md p-6 rounded-lg w-full max-w-2xl md:max-w-4xl"
             >
                 <h1 className="text-2xl text-foreground md:mb-4 text-center font-sans">
                     Adicionar Novo Projeto
@@ -135,6 +142,7 @@ export default function CreateProjectPage() {
                             selectedValue={watch('engineer.id')}
                             onChange={(val) => setValue('engineer.id', val)}
                             gridCols={'2B'}
+                            error={errors.engineer?.message}
                             className="p-4 border-2 rounded-lg col-span-2"
                         />
 

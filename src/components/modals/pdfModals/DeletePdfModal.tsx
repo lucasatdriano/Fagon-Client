@@ -4,7 +4,7 @@ import { CustomButton } from '../../../components/forms/CustomButton';
 import { PdfType, PDF } from '../../../interfaces/pdf';
 import { getPdfLabel } from '../../../utils/formatters/formatValues';
 import { Dialog, Transition } from '@headlessui/react';
-import { Loader2Icon, Trash2Icon } from 'lucide-react';
+import { Trash2Icon } from 'lucide-react';
 import { Fragment } from 'react';
 import { toast } from 'sonner';
 
@@ -106,18 +106,16 @@ export function DeletePdfModal({
                                                 ? 'bg-gray-400'
                                                 : 'bg-error'
                                         }
+                                        icon={
+                                            <Trash2Icon className="h-5 w-5" />
+                                        }
                                         className={`rounded-md text-sm text-white ${
                                             isLoading ? '' : 'hover:bg-red-900'
                                         }`}
                                     >
-                                        {isLoading ? (
-                                            <span className="flex items-center justify-center gap-2">
-                                                <Loader2Icon className="animate-spin h-4 w-4" />
-                                                Deletando...
-                                            </span>
-                                        ) : (
-                                            'Deletar PDF'
-                                        )}
+                                        {isLoading
+                                            ? 'Deletando...'
+                                            : 'Deletar PDF'}
                                     </CustomButton>
                                 </div>
                             </Dialog.Panel>

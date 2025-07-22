@@ -21,6 +21,7 @@ interface CustomRadioGroupProps {
     placeholder?: string;
     className?: string;
     gridCols?: number | 'full' | '2B';
+    error?: string;
     textColor?: string;
     borderColor?: string;
     checkedBorderColor?: string;
@@ -36,6 +37,7 @@ export function CustomRadioGroup({
     placeholder,
     className = '',
     gridCols = 1,
+    error,
     textColor = 'text-foreground',
     borderColor = 'border-foreground',
     checkedBorderColor = 'border-white',
@@ -85,7 +87,7 @@ export function CustomRadioGroup({
         }
 
         if (gridCols === '2B') {
-            return `grid grid-cols-1 md:grid-cols-2 gap-4 ${className}`;
+            return `grid grid-cols-1 md:grid-cols-2 gap-4`;
         }
 
         const colsMap = {
@@ -99,53 +101,65 @@ export function CustomRadioGroup({
 
         return `grid ${
             colsMap[gridCols as keyof typeof colsMap] || 'grid-cols-1'
-        } gap-4 ${className}`;
+        } gap-4`;
     };
 
     return (
-        <div className={getGridClasses()}>
-            {options.map((option) => (
-                <div
-                    key={option.id}
-                    className={`space-y-2 ${
-                        option.isOtherOption ? 'col-span-full' : ''
-                    }`}
-                >
-                    <label
-                        className={`flex items-center space-x-2 cursor-pointer ${textColor}`}
+        <div className={`grid col-span-full gap-1 ${className}`}>
+            <div className={getGridClasses()}>
+                {options.map((option) => (
+                    <div
+                        key={option.id}
+                        className={`space-y-2 ${
+                            option.isOtherOption ? 'col-span-full' : ''
+                        }`}
                     >
-                        <div className="relative flex items-center space-x-2 cursor-pointer">
-                            <input
-                                type="radio"
-                                name={name}
-                                value={option.id}
-                                checked={internalValue === option.id}
-                                onChange={() => handleOptionChange(option.id)}
-                                className={`peer appearance-none h-4 w-4 rounded-full border ${borderColor} checked:${checkedBorderColor} bg-transparent checked:${checkedBgColor} cursor-pointer transition-all duration-150`}
-                            />
-                            <span
-                                className={`absolute right-1 top-1 w-2 h-2 rounded-full ${dotColor} peer-checked:block hidden`}
-                            />
-                        </div>
-                        <span className={textColor}>{option.label}</span>
-                    </label>
+                        <label
+                            className={`flex items-center space-x-2 cursor-pointer ${textColor}`}
+                        >
+                            <div className="relative flex items-center space-x-2 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    name={name}
+                                    value={option.id}
+                                    checked={internalValue === option.id}
+                                    onChange={() =>
+                                        handleOptionChange(option.id)
+                                    }
+                                    className={`peer appearance-none h-4 w-4 rounded-full border ${borderColor} checked:${checkedBorderColor} bg-transparent checked:${checkedBgColor} cursor-pointer transition-all duration-150`}
+                                />
+                                <span
+                                    className={`absolute right-1 top-1 w-2 h-2 rounded-full ${dotColor} peer-checked:block hidden`}
+                                />
+                            </div>
+                            <span className={textColor}>{option.label}</span>
+                        </label>
 
-                    {option.isOtherOption && internalValue === option.id && (
-                        <div className="space-y-1 w-full mt-2">
-                            <CustomFormInput
-                                label={placeholder}
-                                value={otherValue}
-                                onChange={(e) =>
-                                    handleOtherInputChange(e.target.value)
-                                }
-                                icon={<SquarePenIcon />}
-                                borderColor="border-gray-300"
-                                required
-                            />
-                        </div>
-                    )}
-                </div>
-            ))}
+                        {option.isOtherOption &&
+                            internalValue === option.id && (
+                                <div className="space-y-1 w-full mt-2">
+                                    <CustomFormInput
+                                        label={placeholder}
+                                        value={otherValue}
+                                        onChange={(e) =>
+                                            handleOtherInputChange(
+                                                e.target.value,
+                                            )
+                                        }
+                                        icon={<SquarePenIcon />}
+                                        borderColor="border-gray-300"
+                                        required
+                                    />
+                                </div>
+                            )}
+                    </div>
+                ))}
+            </div>
+            {error && (
+                <span className="text-error text-sm mt-1 block transition-all duration-200">
+                    {error}
+                </span>
+            )}
         </div>
     );
 }

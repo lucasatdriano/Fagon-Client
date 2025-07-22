@@ -251,14 +251,14 @@ export default function ProjectEditPage() {
 
     if (isLoading) {
         return (
-            <div className="flex justify-center items-center h-svh">
+            <div className="flex justify-center items-center min-h-svh">
                 <Loader2Icon className="animate-spin w-12 h-12 text-primary" />
             </div>
         );
     }
 
     return (
-        <div className="grid place-items-center min-h-svh bg-background pt-20 md:pt-24 px-2">
+        <div className="min-h-svh grid place-items-center bg-background pt-20 sm:pt-24 pb-6 px-2">
             <div className="w-full md:w-4/5 lg:w-3/4 2xl:w-2/4 bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="flex items-center justify-center py-4 px-12">
                     <h1 className="text-2xl font-bold text-center">
@@ -417,8 +417,9 @@ export default function ProjectEditPage() {
                             options={engineers}
                             selectedValue={watch('engineer.id')}
                             onChange={(val) => setValue('engineer.id', val)}
-                            className="p-4 border-2 rounded-lg mt-6"
                             gridCols={'2B'}
+                            error={errors.engineer?.message}
+                            className="p-4 border-2 rounded-lg mt-6"
                         />
                     </div>
 
@@ -458,8 +459,9 @@ export default function ProjectEditPage() {
                                 });
                                 setValue('pavements', newPavements);
                             }}
-                            className="p-4 border-2 rounded-lg mt-6"
                             gridCols={'full'}
+                            error={errors.pavements?.root?.message}
+                            className="p-4 border-2 rounded-lg mt-6"
                         />
 
                         <div className="w-full grid md:grid-cols-2 gap-10 mt-8">

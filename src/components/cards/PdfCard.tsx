@@ -13,6 +13,7 @@ import {
 import { DropdownMenu } from '../dropdownMenus/DropdownMenu';
 import { useRef, useState } from 'react';
 import { DeletePdfModal } from '../modals/pdfModals/DeletePdfModal';
+import { Loader2Icon } from 'lucide-react';
 
 const PDF_TITLES: Record<PdfType, string> = {
     atestado: 'Atestado de Emprego dos Materiais de Acabamento e Revestimento',
@@ -28,9 +29,18 @@ const PDF_TITLES: Record<PdfType, string> = {
 
 interface PdfCardProps {
     pdfs: PDF[];
-    generating: PdfType | null;
-    deletingPdf: PdfType | null;
-    isLoading: boolean;
+    loadingState: {
+        action:
+            | 'generate'
+            | 'delete'
+            | 'view'
+            | 'download'
+            | 'uploadSigned'
+            | 'load'
+            | 'projectInfo';
+        pdfType?: PdfType;
+        pdfId?: string;
+    } | null;
     onGenerate: (type: PdfType) => Promise<void>;
     onView: (pdfId: string) => void;
     onDownload: (pdfId: string) => void;
@@ -42,8 +52,7 @@ interface PdfCardProps {
 
 export function PdfCard({
     pdfs,
-    generating,
-    isLoading,
+    loadingState,
     onGenerate,
     onView,
     onDownload,
@@ -67,8 +76,7 @@ export function PdfCard({
         if (!files || files.length === 0) return;
 
         const type = e.target.getAttribute('data-pdf-type') as PdfType;
-        const file = files[0];
-        await onUploadSigned(type, file);
+        await onUploadSigned(type, files[0]);
 
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
@@ -83,12 +91,18 @@ export function PdfCard({
                 label: 'Download',
                 action: () => pdf.id && onDownload(pdf.id),
                 icon: <DownloadIcon className="w-4 h-4" />,
+                disabled:
+                    loadingState?.action === 'download' &&
+                    loadingState.pdfId === pdf.id,
             });
 
             items.push({
                 label: 'Deletar',
                 action: () => setPdfToDelete(pdf.type),
                 icon: <Trash2Icon className="w-4 h-4" />,
+                disabled:
+                    loadingState?.action === 'delete' &&
+                    loadingState.pdfType === pdf.type,
             });
         }
 
@@ -97,11 +111,20 @@ export function PdfCard({
                 label: 'Enviar PDF Assinado',
                 action: () => handleUploadClick(pdf.type),
                 icon: <FileInputIcon className="w-4 h-4" />,
+                disabled:
+                    loadingState?.action === 'uploadSigned' &&
+                    loadingState.pdfType === pdf.type,
             });
         }
 
         return items;
     };
+
+    const isGenerating = (type: PdfType) =>
+        loadingState?.action === 'generate' && loadingState.pdfType === type;
+
+    const isDeleting = (type: PdfType) =>
+        loadingState?.action === 'delete' && loadingState.pdfType === type;
 
     return (
         <div className="grid gap-2">
@@ -121,7 +144,7 @@ export function PdfCard({
                     setPdfs={setPdfDocuments}
                     onClose={() => setPdfToDelete(null)}
                     onConfirm={() => onDelete(pdfToDelete)}
-                    isLoading={isLoading}
+                    isLoading={isDeleting(pdfToDelete)}
                 />
             )}
 
@@ -169,8 +192,33 @@ export function PdfCard({
                                             title="Botão Menu"
                                             onClick={(e) => e.stopPropagation()}
                                             className="text-gray-500 hover:text-gray-700 p-1"
+                                            disabled={
+                                                (loadingState?.action ===
+                                                    'view' &&
+                                                    loadingState.pdfId ===
+                                                        pdf.id) ||
+                                                (loadingState?.action ===
+                                                    'download' &&
+                                                    loadingState.pdfId ===
+                                                        pdf.id) ||
+                                                (loadingState?.action ===
+                                                    'delete' &&
+                                                    loadingState.pdfType ===
+                                                        pdf.type) ||
+                                                (loadingState?.action ===
+                                                    'uploadSigned' &&
+                                                    loadingState.pdfType ===
+                                                        pdf.type)
+                                            }
                                         >
-                                            <MoreVerticalIcon className="h-5 w-5" />
+                                            {loadingState?.action ===
+                                                'delete' &&
+                                            loadingState.pdfType ===
+                                                pdf.type ? (
+                                                <Loader2Icon className="h-5 w-5 animate-spin" />
+                                            ) : (
+                                                <MoreVerticalIcon className="h-5 w-5" />
+                                            )}
                                         </button>
                                     }
                                     items={getMenuItems(pdf)}
@@ -181,18 +229,21 @@ export function PdfCard({
                                         e.stopPropagation();
                                         onGenerate(pdf.type);
                                     }}
-                                    disabled={
-                                        generating === pdf.type || isLoading
-                                    }
+                                    disabled={isGenerating(pdf.type)}
                                     className={`px-3 py-1 rounded-md text-sm text-white hover:bg-primary-hover ${
-                                        generating === pdf.type || isLoading
+                                        isGenerating(pdf.type)
                                             ? 'bg-gray-400 cursor-not-allowed'
                                             : 'bg-primary hover:bg-primary-dark'
                                     }`}
                                 >
-                                    {generating === pdf.type || isLoading
-                                        ? 'Gerando...'
-                                        : 'Gerar PDF'}
+                                    {isGenerating(pdf.type) ? (
+                                        <span className="flex items-center gap-2">
+                                            <Loader2Icon className="animate-spin h-4 w-4" />
+                                            Gerando...
+                                        </span>
+                                    ) : (
+                                        'Gerar PDF'
+                                    )}
                                 </button>
                             )}
                         </div>
@@ -204,9 +255,17 @@ export function PdfCard({
                                 className="p-3 text-center cursor-pointer hover:bg-gray-50"
                                 onClick={() => pdf.id && onView(pdf.id)}
                             >
-                                <span className="text-sm text-gray-700">
-                                    Visualizar PDF
-                                </span>
+                                {loadingState?.action === 'view' &&
+                                loadingState.pdfId === pdf.id ? (
+                                    <span className="flex items-center justify-center gap-2 text-sm text-gray-700">
+                                        <Loader2Icon className="animate-spin h-4 w-4" />
+                                        Carregando...
+                                    </span>
+                                ) : (
+                                    <span className="text-sm text-gray-700">
+                                        Visualizar PDF
+                                    </span>
+                                )}
                             </div>
                         </div>
                     )}

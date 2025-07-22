@@ -23,7 +23,7 @@ export const AgencyService = {
             const response = await api.post(API_ROUTES.AGENCIES.CREATE, data);
             return response.data;
         } catch (error) {
-            throw new Error(extractAxiosError(error));
+            throw error;
         }
     },
 

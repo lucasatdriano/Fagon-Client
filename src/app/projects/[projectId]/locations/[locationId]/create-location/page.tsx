@@ -443,6 +443,7 @@ export default function CreateLocationPage() {
             </div>
         );
     }
+
     return (
         <div className="max-w-7xl mx-auto py-2 md:py-4 px-4 md:px-6">
             <div className="w-full relative flex justify-center py-3 mt-16">
@@ -620,7 +621,6 @@ export default function CreateLocationPage() {
                             onChange={(values) =>
                                 setValue('floorFinishing', values)
                             }
-                            error={errors.floorFinishing?.message}
                             gridCols={'full'}
                         />
                         <div className="mt-4">
@@ -641,6 +641,11 @@ export default function CreateLocationPage() {
                                 Cerâmico, Cimentado)
                             </p>
                         </div>
+                        {errors.floorFinishing && (
+                            <p className="text-error mt-2">
+                                {errors.floorFinishing.message}
+                            </p>
+                        )}
                     </div>
 
                     <div>
@@ -652,7 +657,6 @@ export default function CreateLocationPage() {
                             onChange={(values) =>
                                 setValue('wallFinishing', values)
                             }
-                            error={errors.wallFinishing?.message}
                             gridCols={'full'}
                         />
                         <div className="mt-4">
@@ -673,6 +677,11 @@ export default function CreateLocationPage() {
                                 Alvenaria, Drywall)
                             </p>
                         </div>
+                        {errors.wallFinishing && (
+                            <p className="text-error mt-2">
+                                {errors.wallFinishing.message}
+                            </p>
+                        )}
                     </div>
 
                     {!isFacade && !isExternal && (
@@ -685,7 +694,6 @@ export default function CreateLocationPage() {
                                 onChange={(values) =>
                                     setValue('ceilingFinishing', values)
                                 }
-                                error={errors.ceilingFinishing?.message}
                                 gridCols={'full'}
                             />
                             <div className="mt-4">
@@ -708,6 +716,11 @@ export default function CreateLocationPage() {
                                     Gesso Acartonado, Laje)
                                 </p>
                             </div>
+                            {errors.ceilingFinishing && (
+                                <p className="text-error mt-2">
+                                    {errors.ceilingFinishing.message}
+                                </p>
+                            )}
                         </div>
                     )}
                 </div>

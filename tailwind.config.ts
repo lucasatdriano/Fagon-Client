@@ -17,6 +17,9 @@ export default {
             '2xl': '1536px',
         },
         extend: {
+            padding: {
+                '18': '4.5rem',
+            },
             inset: {
                 '1/5': '20%',
                 '22': '5.5rem',

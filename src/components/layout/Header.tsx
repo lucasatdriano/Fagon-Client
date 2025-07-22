@@ -59,7 +59,7 @@ export function Header({
                 </div>
             )}
 
-            {type === 'back' && <span></span>}
+            {type === 'back' && <span className="h-12 w-12"></span>}
 
             {type === 'search' && (
                 <div className="flex items-center justify-center gap-8 w-full px-4 md:px-16">

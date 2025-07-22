@@ -59,10 +59,10 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="h-svh w-full flex flex-col gap-10 items-center justify-start pt-6 md:pt-12">
+        <div className="min-h-svh w-full flex flex-col gap-10 items-center justify-start pt-6 pb-12 xl:pt-12">
             <Image
-                width={0}
-                height={0}
+                width={44}
+                height={44}
                 src="/images/logo-vertical.svg"
                 alt="Logo Fagon"
                 className="w-44 h-44 md:w-56 md:h-56"

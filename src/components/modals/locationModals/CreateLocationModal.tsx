@@ -17,6 +17,7 @@ import {
     CreateLocationFormValues,
     createLocationSchema,
 } from '../../../validations';
+import { MapPinPlusIcon } from 'lucide-react';
 
 type CreateLocationModalProps = {
     isOpen: boolean;
@@ -179,6 +180,9 @@ export default function CreateLocationModal({
                                         <CustomButton
                                             type="submit"
                                             disabled={isSubmitting}
+                                            icon={
+                                                <MapPinPlusIcon className="h-5 w-5" />
+                                            }
                                         >
                                             {isSubmitting
                                                 ? 'Criando...'

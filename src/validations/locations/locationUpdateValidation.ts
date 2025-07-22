@@ -4,9 +4,13 @@ export const updateLocationSchema = z
     .object({
         id: z.string().optional(),
         projectId: z.string(),
+
         name: z.string().min(1, 'O nome do local é obrigatório'),
+
         locationType: z.enum(['interno', 'externo']),
+
         pavementId: z.string().optional(),
+
         height: z
             .string()
             .optional()
@@ -14,12 +18,21 @@ export const updateLocationSchema = z
                 if (val === undefined || val === '') return true;
                 return !isNaN(parseFloat(val)) && parseFloat(val) > 0;
             }, 'A altura deve ser um número maior que zero'),
+
         floorFinishing: z
             .array(z.string())
-            .min(1, 'Selecione pelo menos um acabamento do piso'),
+            .min(
+                1,
+                'Selecione ou escreva pelo menos um acabamento para o piso',
+            ),
+
         wallFinishing: z
             .array(z.string())
-            .min(1, 'Selecione pelo menos um acabamento da parede'),
+            .min(
+                1,
+                'Selecione ou escreva pelo menos um acabamento para a parede',
+            ),
+
         ceilingFinishing: z.array(z.string()).optional(),
         facadeObservation: z.string().optional(),
     })
@@ -30,7 +43,7 @@ export const updateLocationSchema = z
         if (!isExternal && !data.pavementId) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'O pavimento/andar é obrigatório para locais internos',
+                message: 'O pavimento/andar é obrigatório',
                 path: ['pavementId'],
             });
         }
@@ -42,7 +55,8 @@ export const updateLocationSchema = z
         ) {
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'Selecione pelo menos um acabamento do forro',
+                message:
+                    'Selecione ou escreva pelo menos um acabamento para o forro',
                 path: ['ceilingFinishing'],
             });
         }

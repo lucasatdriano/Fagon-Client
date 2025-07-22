@@ -12,23 +12,33 @@ import { ProjectStatus } from '../../types/project';
 import { Loader2Icon } from 'lucide-react';
 import AddInfoToPdfModal from '../modals/pdfModals/AddInfoToPdfModal';
 
+type LoadingState = {
+    action:
+        | 'generate'
+        | 'delete'
+        | 'view'
+        | 'download'
+        | 'uploadSigned'
+        | 'load'
+        | 'projectInfo';
+    pdfType?: PdfType;
+    pdfId?: string;
+} | null;
+
 interface PdfGeneratorProps {
     projectId: string;
 }
 
 export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
     const [pdfDocuments, setPdfDocuments] = useState<PdfDocument[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [generating, setGenerating] = useState<PdfType | null>(null);
-    const [deletingPdf, setDeletingPdf] = useState<PdfType | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [loadingState, setLoadingState] = useState<LoadingState>(null);
     const [showProjectInfoModal, setShowProjectInfoModal] = useState(false);
     const [projectStatus, setProjectStatus] = useState<ProjectStatus>();
 
     useEffect(() => {
         async function loadPdfs() {
             try {
-                setLoading(true);
+                setLoadingState({ action: 'load' });
                 const response = await PdfService.getByProject(projectId);
                 setPdfDocuments(response.data);
 
@@ -38,7 +48,7 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
                 toast.error('Erro ao carregar PDFs');
                 console.error(error);
             } finally {
-                setLoading(false);
+                setLoadingState(null);
             }
         }
         loadPdfs();
@@ -90,8 +100,7 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
     };
 
     const handleGenerate = async (type: PdfType) => {
-        setGenerating(type);
-        setIsLoading(true);
+        setLoadingState({ action: 'generate', pdfType: type });
         try {
             if (type === 'laudo_avaliacao') {
                 const project = await ProjectService.getById(projectId);
@@ -107,8 +116,7 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
                     hasMissingArea
                 ) {
                     setShowProjectInfoModal(true);
-                    setGenerating(null);
-                    setIsLoading(false);
+                    setLoadingState(null);
                     return;
                 }
             }
@@ -125,19 +133,21 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
             toast.error(`Erro ao gerar PDF ${getPdfLabel(type)}`);
         } finally {
             if (type !== 'laudo_avaliacao') {
-                setGenerating(null);
-                setIsLoading(false);
+                setLoadingState(null);
             }
         }
     };
 
     const handleViewPdf = async (pdfId: string) => {
+        setLoadingState({ action: 'view', pdfId });
         try {
             const signedUrl = await PdfService.getSignedUrl(pdfId);
             window.open(signedUrl, '_blank', 'noopener,noreferrer');
         } catch (error) {
             toast.error('Erro ao visualizar PDF');
             console.error(error);
+        } finally {
+            setLoadingState(null);
         }
     };
 
@@ -154,7 +164,6 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
 
         if (filePath) {
             const pdfUrl = `/${filePath}?v=${Date.now()}`;
-
             window.open(pdfUrl, '_blank', 'noopener,noreferrer');
         } else {
             toast.error(
@@ -166,18 +175,20 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
     };
 
     const handleDownload = async (pdfId: string) => {
+        setLoadingState({ action: 'download', pdfId });
         try {
             await PdfService.downloadPdf(pdfId);
             toast.success('Download do PDF iniciado');
         } catch (error) {
             toast.error('Erro ao baixar PDF');
             console.error(error);
+        } finally {
+            setLoadingState(null);
         }
     };
 
     const handleDelete = async (type: PdfType) => {
-        setDeletingPdf(type);
-        setIsLoading(true);
+        setLoadingState({ action: 'delete', pdfType: type });
         try {
             const pdfToDelete = pdfDocuments.find(
                 (pdf) => pdf.pdfType === type,
@@ -194,13 +205,12 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
         } catch {
             toast.error(`Erro ao deletar PDF ${getPdfLabel(type)}`);
         } finally {
-            setDeletingPdf(null);
-            setIsLoading(false);
+            setLoadingState(null);
         }
     };
 
     const handleUploadSigned = async (type: PdfType, file: File) => {
-        setIsLoading(true);
+        setLoadingState({ action: 'uploadSigned', pdfType: type });
         try {
             const pdfToUpdate = pdfDocuments.find(
                 (pdf) => pdf.pdfType === type,
@@ -224,26 +234,25 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
             toast.error(`Erro ao enviar PDF assinado ${getPdfLabel(type)}`);
             throw error;
         } finally {
-            setIsLoading(false);
+            setLoadingState(null);
         }
     };
 
     const handleProjectInfoSuccess = () => {
-        setIsLoading(true);
+        setLoadingState({ action: 'projectInfo' });
         PdfService.getByProject(projectId)
             .then((response) => {
                 setPdfDocuments(response.data);
-                setIsLoading(false);
             })
             .catch((error) => {
                 console.error(error);
-                setIsLoading(false);
+            })
+            .finally(() => {
+                setLoadingState(null);
             });
-
-        setGenerating(null);
     };
 
-    if (loading) {
+    if (loadingState?.action === 'load') {
         return (
             <div className="flex justify-center items-center h-56 w-screen">
                 <Loader2Icon className="animate-spin w-10 h-10 text-primary" />
@@ -255,8 +264,7 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
         <div className="pb-6 md:pb-8">
             <PdfCard
                 pdfs={pdfs}
-                generating={generating}
-                deletingPdf={deletingPdf}
+                loadingState={loadingState}
                 onGenerate={handleGenerate}
                 onView={handleViewPdf}
                 onDownload={handleDownload}
@@ -278,7 +286,6 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
                     });
                     setPdfDocuments(updatedDocuments);
                 }}
-                isLoading={isLoading}
             />
 
             <AddInfoToPdfModal
@@ -286,10 +293,10 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
                 isOpen={showProjectInfoModal}
                 onClose={() => {
                     setShowProjectInfoModal(false);
-                    setGenerating(null);
+                    setLoadingState(null);
                 }}
                 onSuccess={handleProjectInfoSuccess}
-                isLoading={isLoading}
+                isLoading={loadingState?.action === 'projectInfo'}
             />
         </div>
     );

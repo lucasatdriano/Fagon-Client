@@ -23,7 +23,7 @@ export default function SidebarNav() {
     const pathname = usePathname();
 
     return (
-        <div className="fixed z-20 hidden md:flex w-32 h-svh flex-col items-center bg-primary py-6 px-2 text-background rounded-r-2xl">
+        <div className="fixed z-20 hidden md:flex w-32 min-h-svh flex-col items-center bg-primary py-6 px-2 text-background rounded-r-2xl">
             <div className="mb-10">
                 <Image
                     width={50}

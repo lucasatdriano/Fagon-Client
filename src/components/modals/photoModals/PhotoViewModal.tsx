@@ -88,7 +88,7 @@ export function PhotoViewModal({
                 </Transition.Child>
 
                 <div className="fixed inset-0 overflow-y-auto">
-                    <div className="flex min-h-full items-center justify-center p-4 text-center">
+                    <div className="flex min-h-svh items-center justify-center py-8 text-center">
                         <Transition.Child
                             as={Fragment}
                             enter="ease-out duration-300"
@@ -100,7 +100,7 @@ export function PhotoViewModal({
                         >
                             <Dialog.Panel className="relative w-full h-full max-w-4xl transform overflow-hidden rounded-2xl text-left align-middle shadow-xl transition-all">
                                 {isLoading && (
-                                    <div className="flex justify-center items-center h-svh">
+                                    <div className="flex justify-center items-center min-h-svh">
                                         <Loader2Icon className="animate-spin h-12 w-12 text-primary" />
                                     </div>
                                 )}
