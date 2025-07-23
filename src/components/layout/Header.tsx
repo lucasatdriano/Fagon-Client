@@ -54,12 +54,13 @@ export function Header({
                         width={150}
                         src="/images/logo-horizontal.svg"
                         alt="Logo Fagon"
-                        className="items-center w-auto h-auto"
+                        className="items-center w-auto h-12"
+                        priority
                     />
                 </div>
             )}
 
-            {type === 'back' && <span className="h-12 w-12"></span>}
+            {type === 'back' && <span className="h-10 w-10"></span>}
 
             {type === 'search' && (
                 <div className="flex items-center justify-center gap-8 w-full px-4 md:px-16">

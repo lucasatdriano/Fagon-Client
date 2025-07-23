@@ -30,7 +30,7 @@ export default function SidebarNav() {
                     height={50}
                     src="/icons/logo-icon-alternative.svg"
                     alt="Logo Fagon"
-                    className="text-secondary"
+                    className="text-secondary w-16 h-auto"
                 />
             </div>
 
