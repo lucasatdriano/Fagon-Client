@@ -150,9 +150,10 @@ export default function InspectorModal({
                                         label="Nome do Vistoriador*"
                                         registration={register('nameInspector')}
                                         error={errors.nameInspector?.message}
+                                        id="InspectorNameInput"
                                         defaultValue={project?.inspectorName}
-                                        required
                                         disabled={loading || !project}
+                                        required
                                     />
 
                                     {errors.root?.message && (

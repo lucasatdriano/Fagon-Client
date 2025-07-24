@@ -62,7 +62,7 @@ export default function DashboardInspectorPage() {
     };
 
     return (
-        <div className="min-h-svh flex flex-col items-center pt-16 px-2 md:pt-18 md:px-6">
+        <div className="min-h-svh flex flex-col items-center pt-16 px-2 md:px-6">
             <div className="w-full relative flex justify-center py-3">
                 <h2 className="text-3xl font-sans bg-background px-2">
                     Vistoria
@@ -86,6 +86,7 @@ export default function DashboardInspectorPage() {
                                 name={location.name}
                                 locationType={location.locationType}
                                 height={location.height}
+                                pavement={location.pavement?.pavement || ''}
                                 hasPhotosSelected={
                                     location.photo?.some(
                                         (photo) => photo.selectedForPdf,

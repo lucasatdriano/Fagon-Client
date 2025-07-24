@@ -11,6 +11,7 @@ interface CustomEditInputProps
     icon?: React.ReactElement;
     registration?: Partial<UseFormRegisterReturn>;
     error?: string;
+    id: string;
     className?: string;
     textColor?: string;
     isDate?: boolean;
@@ -23,6 +24,7 @@ export function CustomEditInput({
     icon,
     registration,
     error,
+    id,
     className = '',
     textColor = 'text-foreground',
     isDate = false,
@@ -94,6 +96,7 @@ export function CustomEditInput({
                             type="text"
                             {...props}
                             {...registration}
+                            id={id}
                             value={displayValue}
                             onChange={handleChange}
                             onFocus={() => setIsFocused(true)}
@@ -105,6 +108,7 @@ export function CustomEditInput({
                             type={type}
                             {...props}
                             {...registration}
+                            id={id}
                             onFocus={() => setIsFocused(true)}
                             onBlur={(e) => {
                                 setIsFocused(false);
@@ -119,6 +123,7 @@ export function CustomEditInput({
                         />
                     )}
                     <label
+                        htmlFor={id}
                         className={`absolute left-0 top-0 transition-all duration-200 pointer-events-none ${
                             isFocused || hasValue
                                 ? 'text-sm -translate-y-4 -translate-x-4'

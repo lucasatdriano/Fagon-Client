@@ -53,7 +53,7 @@ export function NavigationCard({
                 className={`bg-white w-full rounded-lg shadow-sm p-6 text-center cursor-pointer transition-all hover:shadow-md border hover:bg-gray-50 ${cardClassName}`}
             >
                 {icon && <div className="mb-2">{icon}</div>}
-                <h3 className="text-foreground font-medium">{title}</h3>
+                <p className="text-foreground font-medium">{title}</p>
             </div>
         </div>
     );

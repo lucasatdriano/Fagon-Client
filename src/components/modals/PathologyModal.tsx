@@ -327,6 +327,7 @@ export function UpdatePathologyModal({
                                             label="Título*"
                                             {...register('title')}
                                             error={errors.title?.message}
+                                            id="PathologyTitleInput"
                                             disabled={isLoading}
                                             defaultValue={pathology.title}
                                         />
@@ -336,6 +337,7 @@ export function UpdatePathologyModal({
                                             label="Descrição"
                                             {...register('description')}
                                             error={errors.description?.message}
+                                            id="PathologyDescriptionInput"
                                             disabled={isLoading}
                                             defaultValue={
                                                 pathology.description || ''

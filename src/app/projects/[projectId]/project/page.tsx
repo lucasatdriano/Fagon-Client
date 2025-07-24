@@ -296,6 +296,7 @@ export default function ProjectEditPage() {
                                 required: false,
                             })}
                             error={undefined}
+                            id="AgencyNameInput"
                             defaultValue={project?.agency.name}
                             disabled
                         />
@@ -306,6 +307,7 @@ export default function ProjectEditPage() {
                                 required: false,
                             })}
                             error={undefined}
+                            id="AgencyNumberInput"
                             defaultValue={project?.agency.agencyNumber}
                             disabled
                         />
@@ -316,6 +318,7 @@ export default function ProjectEditPage() {
                                 required: false,
                             })}
                             error={undefined}
+                            id="StateInput"
                             defaultValue={project?.agency.state}
                             disabled
                         />
@@ -326,6 +329,7 @@ export default function ProjectEditPage() {
                                 required: false,
                             })}
                             error={undefined}
+                            id="CityInput"
                             defaultValue={project?.agency.city}
                             disabled
                         />
@@ -336,6 +340,7 @@ export default function ProjectEditPage() {
                                 required: false,
                             })}
                             error={undefined}
+                            id="DistrictInput"
                             defaultValue={project?.agency.district}
                             disabled
                         />
@@ -346,6 +351,7 @@ export default function ProjectEditPage() {
                                 required: false,
                             })}
                             error={undefined}
+                            id="ProjectTypeInput"
                             defaultValue={project?.projectType}
                             disabled
                         />
@@ -357,6 +363,7 @@ export default function ProjectEditPage() {
                                 required: false,
                             })}
                             error={undefined}
+                            id="ProjectDateInput"
                             defaultValue={project?.createdAt}
                             disabled
                         />
@@ -365,6 +372,7 @@ export default function ProjectEditPage() {
                             label="Nome do Vistoriador"
                             registration={register('inspectorName')}
                             error={errors.inspectorName?.message}
+                            id="InspectorNameInput"
                             defaultValue={project?.inspectorName}
                         />
 
@@ -380,6 +388,7 @@ export default function ProjectEditPage() {
                                 },
                             })}
                             error={errors.inspectionDate?.message}
+                            id="InspectionDateInput"
                             defaultValue={project?.inspectionDate || ''}
                             isDate={true}
                         />
@@ -388,17 +397,19 @@ export default function ProjectEditPage() {
                             label="Tipo da estrutura"
                             registration={register('structureType')}
                             error={errors.structureType?.message}
+                            id="StructureTypeInput"
                             defaultValue={project?.structureType}
                         />
 
                         <CustomEditInput
                             label="Valor Piso a Piso (m)"
                             registration={register('floorHeight')}
-                            error={errors.floorHeight?.message}
-                            defaultValue={project?.floorHeight}
                             onChange={(e) =>
                                 handleMaskedChange('floorHeight', e, setValue)
                             }
+                            error={errors.floorHeight?.message}
+                            id="FloorHeightInput"
+                            defaultValue={project?.floorHeight}
                         />
                     </div>
 
@@ -488,6 +499,7 @@ export default function ProjectEditPage() {
                                     error={
                                         errors.pavements?.[index]?.area?.message
                                     }
+                                    id={`Pavements${index}AreaInput`}
                                     inputMode="decimal"
                                     maxLength={7}
                                 />

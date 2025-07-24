@@ -172,6 +172,7 @@ export default function AgencyEditPage() {
                             label="Número da Agência"
                             registration={register('agencyNumber')}
                             error={errors.agencyNumber?.message}
+                            id="AgencyNumberInput"
                             defaultValue={watch('agencyNumber')}
                         />
 
@@ -183,6 +184,7 @@ export default function AgencyEditPage() {
                                 handleMaskedChange('cnpj', e, setValue)
                             }
                             error={errors.cnpj?.message}
+                            id="CNPJInput"
                             maxLength={18}
                         />
 
@@ -194,6 +196,7 @@ export default function AgencyEditPage() {
                                 handleMaskedChange('cep', e, setValue)
                             }
                             error={errors.cep?.message}
+                            id="CEPInput"
                             maxLength={9}
                         />
 
@@ -201,6 +204,7 @@ export default function AgencyEditPage() {
                             label="Estado"
                             registration={register('state')}
                             error={errors.state?.message}
+                            id="StateInput"
                             value={watch('state')}
                         />
 
@@ -208,6 +212,7 @@ export default function AgencyEditPage() {
                             label="Cidade"
                             registration={register('city')}
                             error={errors.city?.message}
+                            id="CityInput"
                             value={watch('city')}
                         />
 
@@ -215,6 +220,7 @@ export default function AgencyEditPage() {
                             label="Bairro"
                             registration={register('district')}
                             error={errors.district?.message}
+                            id="DistrictInput"
                             value={watch('district')}
                         />
 
@@ -222,6 +228,7 @@ export default function AgencyEditPage() {
                             label="Rua"
                             registration={register('street')}
                             error={errors.street?.message}
+                            id="StreetInput"
                             value={watch('street')}
                         />
 
@@ -229,6 +236,7 @@ export default function AgencyEditPage() {
                             label="Número"
                             registration={register('number')}
                             error={errors.number?.message}
+                            id="NumberAgencyInput"
                             value={watch('number')}
                         />
                     </div>

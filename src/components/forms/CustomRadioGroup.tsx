@@ -147,6 +147,7 @@ export function CustomRadioGroup({
                                             )
                                         }
                                         icon={<SquarePenIcon />}
+                                        id={`${name}Input`}
                                         borderColor="border-gray-300"
                                         required
                                     />

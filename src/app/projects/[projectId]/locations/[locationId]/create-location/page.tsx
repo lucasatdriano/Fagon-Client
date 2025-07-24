@@ -445,7 +445,7 @@ export default function CreateLocationPage() {
     }
 
     return (
-        <div className="max-w-7xl mx-auto py-2 md:py-4 px-4 md:px-6">
+        <div className="max-w-7xl mx-auto pb-4 px-4 md:px-6">
             <div className="w-full relative flex justify-center py-3 mt-16">
                 <h1 className="text-3xl font-sans bg-background px-2">Local</h1>
                 <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
@@ -465,6 +465,7 @@ export default function CreateLocationPage() {
                         registration={register('name')}
                         defaultValue={location?.name || ''}
                         error={errors.name?.message}
+                        id="NameLocationInput"
                         disabled={isLoading}
                     />
 
@@ -575,6 +576,7 @@ export default function CreateLocationPage() {
                             registration={register('facadeObservation')}
                             defaultValue={location?.facadeObservation || ''}
                             error={errors.facadeObservation?.message}
+                            id="FacadeObservationInput"
                             disabled={isLoading}
                         />
                     </div>
@@ -597,6 +599,7 @@ export default function CreateLocationPage() {
                             }
                             defaultValue={location?.height || ''}
                             error={errors.height?.message}
+                            id="HeightInput"
                             inputMode="numeric"
                             disabled={isLoading}
                             maxLength={6}
@@ -634,6 +637,7 @@ export default function CreateLocationPage() {
                                         e.target.value,
                                     );
                                 }}
+                                id="FloorFinishingInput"
                                 icon={<SquarePenIcon />}
                             />
                             <p className="text-sm indent-4">
@@ -670,6 +674,7 @@ export default function CreateLocationPage() {
                                         e.target.value,
                                     );
                                 }}
+                                id="WallFinishingInput"
                                 icon={<SquarePenIcon />}
                             />
                             <p className="text-sm indent-4">
@@ -709,6 +714,7 @@ export default function CreateLocationPage() {
                                             e.target.value,
                                         );
                                     }}
+                                    id="CeilingFinishingInput"
                                     icon={<SquarePenIcon />}
                                 />
                                 <p className="text-sm indent-4">

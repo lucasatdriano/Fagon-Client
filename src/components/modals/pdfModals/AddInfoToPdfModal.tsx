@@ -215,6 +215,7 @@ export default function AddInfoToPdfModal({
                                             error={
                                                 errors.structureType?.message
                                             }
+                                            id="StructureTypeInput"
                                             required
                                         />
 
@@ -228,6 +229,7 @@ export default function AddInfoToPdfModal({
                                             )}
                                             defaultValue={floorHeightValue}
                                             error={errors.floorHeight?.message}
+                                            id="FloorHeightInput"
                                             required
                                         />
                                     </div>
@@ -262,6 +264,7 @@ export default function AddInfoToPdfModal({
                                                             index
                                                         ]?.area?.message
                                                     }
+                                                    id={`Pavements${index}AreaInput`}
                                                     inputMode="decimal"
                                                     maxLength={7}
                                                     required

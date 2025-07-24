@@ -27,7 +27,7 @@ export default function AgencyCard({
                 </span>
             </div>
 
-            <h3 className="font-bold text-lg">{name}</h3>
+            <h2 className="font-bold text-lg">{name}</h2>
             <p className="text-foreground">
                 {street}, {number} - {city}, {district}
             </p>

@@ -4,7 +4,10 @@ import { useRef, useState } from 'react';
 import { locationOptions } from '../../constants';
 import { locationType as locationTypeOptions } from '../../constants/locationType';
 import { LocationProps } from '../../interfaces/location';
-import { getLocationLabelByValue } from '../../utils/formatters/formatValues';
+import {
+    getLocationLabelByValue,
+    getPavementValueByLabel,
+} from '../../utils/formatters/formatValues';
 import { BadgeCheckIcon, BadgeIcon, MapPinIcon } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
@@ -86,7 +89,7 @@ export function LocationCard({
 
         setIsLoading(true);
         try {
-            await onDelete(id);
+            onDelete(id);
             setShowDeleteModal(false);
         } catch (error) {
             console.error('Error deleting location:', error);
@@ -125,9 +128,10 @@ export function LocationCard({
                         <div className="flex items-center gap-2 mb-3">
                             <MapPinIcon className="w-8 h-8 text-primary" />
                             {pavement ? (
-                                <h3 className="font-bold text-lg">
-                                    {pavement} - {displayName}
-                                </h3>
+                                <h2 className="font-bold text-lg">
+                                    {getPavementValueByLabel(pavement)} -{' '}
+                                    {displayName}
+                                </h2>
                             ) : (
                                 <h3 className="font-bold text-lg">
                                     {displayName}

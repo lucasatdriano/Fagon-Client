@@ -130,6 +130,7 @@ export default function CreateProjectPage() {
                                 handleMaskedChange('upeCode', e, setValue)
                             }
                             error={errors.upeCode?.message}
+                            id="UpeInput"
                             inputMode="numeric"
                             maxLength={6}
                             minLength={6}

@@ -61,11 +61,12 @@ export default function RegisterPage() {
     return (
         <div className="min-h-svh w-full flex flex-col gap-10 items-center justify-start pt-6 pb-12 xl:pt-12">
             <Image
-                width={44}
-                height={44}
+                width={200}
+                height={200}
                 src="/images/logo-vertical.svg"
                 alt="Logo Fagon"
-                className="w-44 h-44 md:w-56 md:h-56"
+                priority
+                className="w-auto h-44 md:h-52"
             />
             <form
                 onSubmit={handleSubmit(onSubmit, (errors) => {
@@ -80,6 +81,7 @@ export default function RegisterPage() {
                 <div className="w-full grid place-items-center gap-8">
                     <CustomAuthInput
                         label="Nome*"
+                        id="UserNameInput"
                         icon={<UserIcon />}
                         registration={register('name')}
                         error={errors.name?.message}
@@ -93,6 +95,7 @@ export default function RegisterPage() {
                         registration={register('email')}
                         error={errors.email?.message}
                         inputMode="email"
+                        id="UserEmailInput"
                         required
                     />
 
@@ -102,6 +105,7 @@ export default function RegisterPage() {
                         label="Senha*"
                         registration={register('password')}
                         error={errors.password?.message}
+                        id="UserPasswordInput"
                         required
                     />
 
@@ -111,6 +115,7 @@ export default function RegisterPage() {
                         label="Confirme sua senha*"
                         registration={register('confirmPassword')}
                         error={errors.confirmPassword?.message}
+                        id="UserConfirmPasswordInput"
                         required
                     />
                 </div>

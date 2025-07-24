@@ -9,6 +9,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     icon: React.ReactElement;
     registration?: UseFormRegisterReturn;
     error?: string;
+    id: string;
     colorBg?: string;
     textColor?: string;
 }
@@ -19,6 +20,7 @@ export function CustomAuthInput({
     icon,
     registration,
     error,
+    id,
     colorBg = 'bg-primary',
     textColor = 'text-white',
     ...props
@@ -42,6 +44,7 @@ export function CustomAuthInput({
                         {...registration}
                         {...props}
                         type={inputType}
+                        id={id}
                         onFocus={() => setIsFocused(true)}
                         onBlur={(e) => {
                             setIsFocused(false);
@@ -56,6 +59,7 @@ export function CustomAuthInput({
                         placeholder={label}
                     />
                     <label
+                        htmlFor={id}
                         className={`
                             absolute left-0 transition-all duration-200 pointer-events-none ${textColor}
                             ${
@@ -70,6 +74,9 @@ export function CustomAuthInput({
                 </div>
                 {isPassword && (
                     <button
+                        title={
+                            showPassword ? 'Esconder senha' : 'Mostrar senha'
+                        }
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className={`ml-2 focus:outline-none ${textColor}`}

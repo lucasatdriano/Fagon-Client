@@ -36,9 +36,9 @@ export default function ProjectCard({
                     </span>
                 </div>
 
-                <h3 className="font-bold text-lg">
+                <h2 className="font-bold text-lg">
                     AG. {formatNumberAgency(agencyNumber)} — {city} - {district}
-                </h3>
+                </h2>
 
                 <p className="text-foreground mt-2">
                     Engenheiro(a) Responsável: {engineer}

@@ -85,7 +85,7 @@ export default function DashboardProjectsPage() {
     }, [router, searchValue, currentPage]);
 
     return (
-        <div className="min-h-svh flex flex-col items-center pt-16 px-2 pb-24 md:pt-20 md:px-6 md:pb-4">
+        <div className="min-h-svh flex flex-col items-center pt-16 px-2 pb-24 md:pt-18 md:px-4 md:pb-4">
             <div className="w-full relative flex justify-center py-3">
                 <h1 className="text-3xl font-sans bg-background px-2">
                     Projetos

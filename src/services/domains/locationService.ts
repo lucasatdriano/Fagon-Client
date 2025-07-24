@@ -13,7 +13,7 @@ export interface Location {
     height?: number;
     pavement: {
         id: string;
-        name: string;
+        pavement: string;
     };
     photo: Array<{
         id: string;

@@ -109,6 +109,7 @@ export default function CreateAgencyPage() {
                             label="Nome da Agência*"
                             registration={register('name')}
                             error={errors.name?.message}
+                            id="AgencyNameInput"
                         />
 
                         <CustomFormInput
@@ -116,6 +117,7 @@ export default function CreateAgencyPage() {
                             label="Número da Agência*"
                             registration={register('agencyNumber')}
                             error={errors.agencyNumber?.message}
+                            id="AgencyNumberInput"
                         />
 
                         <CustomFormInput
@@ -129,6 +131,7 @@ export default function CreateAgencyPage() {
                             inputMode="numeric"
                             maxLength={18}
                             error={errors.cnpj?.message}
+                            id="CNPJInput"
                         />
                     </div>
 
@@ -151,6 +154,7 @@ export default function CreateAgencyPage() {
                             inputMode="numeric"
                             maxLength={9}
                             error={errors.cep?.message}
+                            id="CEPInput"
                         />
 
                         <CustomFormInput
@@ -159,6 +163,7 @@ export default function CreateAgencyPage() {
                             registration={register('state')}
                             value={watch('state')}
                             error={errors.state?.message}
+                            id="StateInput"
                         />
 
                         <CustomFormInput
@@ -167,6 +172,7 @@ export default function CreateAgencyPage() {
                             registration={register('city')}
                             value={watch('city')}
                             error={errors.city?.message}
+                            id="CityInput"
                         />
 
                         <CustomFormInput
@@ -175,6 +181,7 @@ export default function CreateAgencyPage() {
                             registration={register('district')}
                             value={watch('district')}
                             error={errors.district?.message}
+                            id="DistrictInput"
                         />
 
                         <CustomFormInput
@@ -183,6 +190,7 @@ export default function CreateAgencyPage() {
                             registration={register('street')}
                             value={watch('street')}
                             error={errors.street?.message}
+                            id="StreetInput"
                         />
 
                         <CustomFormInput
@@ -193,6 +201,7 @@ export default function CreateAgencyPage() {
                                 handleMaskedChange('number', e, setValue)
                             }
                             error={errors.number?.message}
+                            id="NumberAgencyInput"
                             inputMode="numeric"
                         />
                     </div>

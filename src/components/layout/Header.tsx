@@ -34,7 +34,7 @@ export function Header({
         <header
             className={`fixed z-40 top-0 w-full ${
                 hasSidebar ? 'md:w-[calc(100%-8rem)]' : 'md:w-full'
-            } bg-white px-8 md:px-16 py-2 sm:py-3 shadow flex items-center justify-between gap-4 rounded-b-2xl`}
+            } bg-white px-8 md:px-16 py-2 shadow flex items-center justify-between gap-4 rounded-b-2xl`}
         >
             {(type === 'back' || type === 'backMenu') && onBack && (
                 <button
@@ -50,8 +50,8 @@ export function Header({
             {type !== 'search' && (
                 <div className="flex w-full justify-center items-center self-center">
                     <Image
-                        height={150}
-                        width={150}
+                        height={50}
+                        width={50}
                         src="/images/logo-horizontal.svg"
                         alt="Logo Fagon"
                         className="items-center w-auto h-12"
@@ -69,13 +69,14 @@ export function Header({
                         height={50}
                         src="/icons/logo-icon.svg"
                         alt="Logo Fagon"
-                        className="md:hidden"
+                        className="md:hidden w-auto h-12"
                     />
                     <CustomFormInput
                         icon={<SearchIcon />}
                         label="Pesquisar..."
                         value={searchValue}
                         onChange={handleChange}
+                        id="SearchInput"
                         borderColor="border-foreground"
                     />
                 </div>

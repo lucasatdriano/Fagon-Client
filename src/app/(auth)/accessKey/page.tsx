@@ -72,6 +72,8 @@ export default function AccessKeyPage() {
                     height={200}
                     src="/images/logo-vertical.svg"
                     alt="Logo Fagon"
+                    priority
+                    className="w-auto h-44 md:h-52"
                 />
                 <form
                     onSubmit={handleSubmit(onSubmit, (errors) => {
@@ -89,6 +91,7 @@ export default function AccessKeyPage() {
                             label="Chave de Acesso*"
                             registration={register('accessKey')}
                             error={errors.accessKey?.message}
+                            id="AccessKeyInput"
                             required
                         />
                     </div>

@@ -76,6 +76,8 @@ export default function LoginPage() {
                 height={200}
                 src="/images/logo-vertical.svg"
                 alt="Logo Fagon"
+                priority
+                className="w-auto h-44 md:h-52"
             />
             <form
                 onSubmit={handleSubmit(onSubmit, (errors) => {
@@ -95,6 +97,7 @@ export default function LoginPage() {
                         registration={register('email')}
                         inputMode="email"
                         error={errors.email?.message}
+                        id="EmailInput"
                     />
 
                     <div className="w-full grid gap-0 place-items-end">
@@ -104,6 +107,7 @@ export default function LoginPage() {
                             label="Senha*"
                             registration={register('password')}
                             error={errors.password?.message}
+                            id="PasswordInput"
                         />
 
                         <CustomButton

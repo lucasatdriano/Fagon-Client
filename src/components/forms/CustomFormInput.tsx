@@ -11,6 +11,7 @@ interface BasicInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     textColor?: string;
     borderColor?: string;
     error?: string;
+    id: string;
     defaultValue?: string | number;
     value?: string;
     className?: string;
@@ -28,6 +29,7 @@ export function CustomFormInput({
     textColor = 'text-foreground',
     borderColor,
     error,
+    id,
     disabled,
     required,
     maxLength,
@@ -101,6 +103,7 @@ export function CustomFormInput({
                         {...inputProps}
                         type={type}
                         value={internalValue}
+                        id={id}
                         onFocus={() => setIsFocused(true)}
                         onBlur={(e) => {
                             setIsFocused(false);
@@ -114,7 +117,9 @@ export function CustomFormInput({
                         maxLength={maxLength}
                         minLength={minLength}
                     />
-                    <label className={labelClasses}>{label}</label>
+                    <label htmlFor={id} className={labelClasses}>
+                        {label}
+                    </label>
                 </div>
             </div>
             {error && (

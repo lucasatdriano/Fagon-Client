@@ -110,6 +110,7 @@ export function SearchCardList({ onSelectAgency }: SearchCardListProps) {
                     label="Pesquisar agência..."
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
+                    id="SearchAgency"
                 />
                 {isLoading && (
                     <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-600 text-sm">

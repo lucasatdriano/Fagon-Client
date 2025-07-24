@@ -155,7 +155,7 @@ export default function CreateLocationModal({
                                             Local
                                         </p>
                                         <CustomRadioGroup
-                                            name="name"
+                                            name="nameLocation"
                                             options={locationOptions}
                                             selectedValue={watch('name')}
                                             onChange={(val) =>
