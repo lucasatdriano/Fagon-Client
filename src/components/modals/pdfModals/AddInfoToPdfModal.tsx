@@ -234,7 +234,7 @@ export default function AddInfoToPdfModal({
                                         />
                                     </div>
 
-                                    <div className="space-y-8">
+                                    <div className="space-y-5">
                                         <h4 className="font-medium text-gray-900">
                                             Áreas dos Pavimentos (m²)
                                         </h4>
