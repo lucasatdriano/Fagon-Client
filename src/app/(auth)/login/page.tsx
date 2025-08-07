@@ -110,14 +110,14 @@ export default function LoginPage() {
                             id="PasswordInput"
                         />
 
-                        <CustomButton
+                        {/* <CustomButton
                             type="button"
                             ghost
                             fontSize="text-sm"
                             className="hover:border-transparent no-underline hover:underline font-poppins hover:shadow-none"
                         >
                             Esqueceu sua senha?
-                        </CustomButton>
+                        </CustomButton> */}
                     </div>
                 </div>
 
