@@ -356,7 +356,7 @@ export default function CreatePathologyPage() {
                     <CustomButton
                         type="submit"
                         icon={<SaveIcon />}
-                        disabled={isLoading || photos.length < 2}
+                        disabled={isLoading || isNormalCamera && photos.length < 2}
                         className="px-8 py-3"
                     >
                         {isLoading ? 'Salvando...' : 'Salvar Patologia'}
@@ -371,7 +371,6 @@ export default function CreatePathologyPage() {
                 isLoading={isLoading}
             />
 
-            {/* Lista de Patologias Existentes */}
             <div className="mt-12">
                 <div className="w-full relative flex justify-center py-3">
                     <h2 className="text-3xl font-sans bg-background px-2">
