@@ -40,6 +40,7 @@ interface UpdatePathologyModalProps {
     isOpen: boolean;
     onClose: () => void;
     onUpdate: (updatedPathology: Pathology) => void;
+    isNormalCamera: boolean;
 }
 
 interface PhotoState extends Omit<PathologyPhoto, 'pathology'> {
@@ -52,6 +53,7 @@ export function UpdatePathologyModal({
     isOpen,
     onClose,
     onUpdate,
+    isNormalCamera
 }: UpdatePathologyModalProps) {
     const { isVisitor } = useUserRole();
     const [isLoading, setIsLoading] = useState(false);
@@ -172,7 +174,7 @@ export function UpdatePathologyModal({
         try {
             setIsLoading(true);
 
-            if (photos.length < 2) {
+            if (isNormalCamera && photos.length < 2) {
                 toast.error('Pelo menos 2 fotos são necessárias');
                 return;
             }
@@ -261,7 +263,7 @@ export function UpdatePathologyModal({
                                 >
                                     <div>
                                         <h3 className="text-lg font-semibold mb-4">
-                                            Fotos ({photos.length}/2 mínimo)
+                                            Fotos {isNormalCamera && ` (${photos.length}/2 mínimo)`}
                                         </h3>
                                         <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
                                             <button
@@ -295,10 +297,10 @@ export function UpdatePathologyModal({
                                                 />
                                             ))}
                                         </div>
-                                        {photos.length < 2 && (
+                                        {isNormalCamera && photos.length < 2 && (
                                             <p className="text-red-500 text-sm mt-2">
                                                 Pelo menos 2 fotos são
-                                                necessárias
+                                                necessáriasa
                                             </p>
                                         )}
                                     </div>
@@ -362,7 +364,7 @@ export function UpdatePathologyModal({
                                                 <SaveIcon className="w-4 h-4" />
                                             }
                                             disabled={
-                                                isLoading || photos.length < 2
+                                                isLoading || isNormalCamera && photos.length < 2
                                             }
                                             className="hover:bg-secondary-hover"
                                         >

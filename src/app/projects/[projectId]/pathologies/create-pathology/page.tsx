@@ -104,7 +104,6 @@ export default function CreatePathologyPage() {
         const fetchUser = async () => {
             try {
                 const user = await AuthService.getMe();
-                console.log(user);
                 setIsNormalCamera(user.data.cameraType === 'normal');
             } catch (error) {
                 console.error('Erro ao buscar usuário:', error);
@@ -416,6 +415,7 @@ export default function CreatePathologyPage() {
                     isOpen={isUpdateModalOpen}
                     onClose={() => setIsUpdateModalOpen(false)}
                     onUpdate={handlePathologyUpdated}
+                    isNormalCamera={isNormalCamera}
                 />
             )}
         </div>
