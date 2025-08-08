@@ -2,14 +2,14 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 
 const API_BASE_URL =
     process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api/v1/';
-const TIMEOUT_15_SECONDS = 15 * 1000;
+const TIMEOUT_50_SECONDS = 50 * 1000;
 
 const axiosConfig: AxiosRequestConfig = {
     baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },
-    timeout: TIMEOUT_15_SECONDS,
+    timeout: TIMEOUT_50_SECONDS,
     withCredentials: true,
 };
 
