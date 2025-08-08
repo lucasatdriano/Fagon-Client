@@ -33,7 +33,7 @@ import {
     formatWithCapitals,
     getLocationLabelByValue,
 } from '../../../../../utils/formatters/formatValues';
-import { UpdatePathologyModal } from '../../../../../components/modals/PathologyModal';
+import { UpdatePathologyModal } from '../../../../../components/modals/pathologyModals/PathologyModal';
 import {
     CreatePathologyFormValues,
     createPathologySchema,
@@ -162,6 +162,20 @@ export default function CreatePathologyPage() {
         };
     }, [photos]);
 
+    const handleDeletePathology = async (id: string) => {
+        try {
+            setIsLoading(true);
+            await PathologyService.delete(id);
+            toast.success('Patologia deletada com sucesso!');
+            await loadPathologies();
+        } catch (error) {
+            toast.error('Erro ao deletar patologia');
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleAddPhotos = useCallback((files: File[]) => {
         const newPhotos = files.map((file) => ({
             id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -254,7 +268,6 @@ export default function CreatePathologyPage() {
                 })}
                 className="space-y-6"
             >
-                {/* Seção de Fotos */}
                 <div className="space-y-4">
                     <div className="w-full relative flex justify-start py-3">
                         <h2 className="text-2xl font-sans bg-background px-2 ml-8">
@@ -390,12 +403,20 @@ export default function CreatePathologyPage() {
                                     onClick={() => handleCardClick(p)}
                                     className="cursor-pointer"
                                 >
-                                    <PathologyCard
-                                        id={p.id}
-                                        title={p.title}
-                                        location={p.referenceLocation}
-                                        photoCount={p.pathologyPhoto?.length}
-                                    />
+                                   {pathologies.map((p) => (
+                                        <div key={p.id} onClick={() => handleCardClick(p)} className="cursor-pointer">
+                                            <PathologyCard
+                                                id={p.id}
+                                                title={p.title}
+                                                location={p.referenceLocation}
+                                                photoCount={p.pathologyPhoto?.length}
+                                                onClick={() => handleCardClick(p)}
+                                                onDelete={handleDeletePathology}
+                                                disabled={isLoading}
+                                                isVisitor={isVisitor}
+                                            />
+                                        </div>
+                                    ))}
                                 </div>
                             ))}
                             <div className="col-span-2 mt-4">

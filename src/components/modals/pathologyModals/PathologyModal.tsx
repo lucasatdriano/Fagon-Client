@@ -16,24 +16,24 @@ import { toast } from 'sonner';
 import {
     Pathology,
     PathologyService,
-} from '../../services/domains/pathologyService';
-import { CustomButton } from '../../components/forms/CustomButton';
-import { CustomFormInput } from '../../components/forms/CustomFormInput';
-import { PhotoCard } from '../../components/cards/PhotoCard';
-import { useUserRole } from '../../hooks/useUserRole';
-import { AddPhotoModal } from '../../components/modals/photoModals/AddPhotoModal';
-import { PathologyPhoto } from '../../services/domains/pathologyPhotoService';
-import { PathologyPhotosService } from '../../services/domains/pathologyPhotoService';
-import { LocationService } from '../../services/domains/locationService';
+} from '../../../services/domains/pathologyService';
+import { CustomButton } from '../../forms/CustomButton';
+import { CustomFormInput } from '../../forms/CustomFormInput';
+import { PhotoCard } from '../../cards/PhotoCard';
+import { useUserRole } from '../../../hooks/useUserRole';
+import { AddPhotoModal } from '../photoModals/AddPhotoModal';
+import { PathologyPhoto } from '../../../services/domains/pathologyPhotoService';
+import { PathologyPhotosService } from '../../../services/domains/pathologyPhotoService';
+import { LocationService } from '../../../services/domains/locationService';
 import {
     CustomDropdownInput,
     DropdownOption,
-} from '../../components/forms/CustomDropdownInput';
-import { formatWithCapitals } from '../../utils/formatters/formatValues';
+} from '../../forms/CustomDropdownInput';
+import { formatWithCapitals } from '../../../utils/formatters/formatValues';
 import {
     UpdatePathologyFormValues,
     updatePathologySchema,
-} from '../../validations';
+} from '../../../validations';
 
 interface UpdatePathologyModalProps {
     pathology: Pathology;
