@@ -32,7 +32,7 @@ import { PathologyPhoto } from '../../../../../interfaces/pathologyPhoto';
 import {
     formatWithCapitals,
     getLocationLabelByValue,
-} from '../../../../../utils/formatters/formatValues';
+} from '../../../../../utils/formatters';
 import { UpdatePathologyModal } from '../../../../../components/modals/pathologyModals/PathologyModal';
 import {
     CreatePathologyFormValues,

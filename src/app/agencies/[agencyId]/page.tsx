@@ -11,9 +11,11 @@ import {
 } from '../../../validations';
 import { AgencyService } from '../../../services/domains/agencyService';
 import { useParams } from 'next/navigation';
-import { formatCNPJ } from '../../../utils/formatters/formatCNPJ';
-import { formatCEP } from '../../../utils/formatters/formatCEP';
-import { formatNumberAgency } from '../../../utils/formatters/formatNumberAgency';
+import {
+    formatNumberAgency,
+    formatCNPJ,
+    formatCEP,
+} from '../../../utils/formatters';
 import { handleMaskedChange } from '../../../utils/helpers/handleMaskedInput';
 import { Loader2Icon, SaveIcon } from 'lucide-react';
 import { toast } from 'sonner';

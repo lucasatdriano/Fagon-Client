@@ -1,4 +1,6 @@
 import { agencyProps } from '@/interfaces/agency';
+import { engineerProps } from '@/interfaces/engineer';
+import { inspectorProps } from '@/interfaces/inspector';
 import { Pathology } from '@/services/domains/pathologyService';
 import { Project } from '@/services/domains/projectService';
 
@@ -50,6 +52,16 @@ export interface ProjectsApiResponse {
 export interface AgenciesApiResponse {
     meta?: ApiMeta;
     agencies: agencyProps[];
+}
+
+export interface InspectorsApiResponse {
+    meta?: ApiMeta;
+    inspectors: inspectorProps[];
+}
+
+export interface EngineersApiResponse {
+    meta?: ApiMeta;
+    engineers: engineerProps[];
 }
 
 export interface PathologiesApiResponse {

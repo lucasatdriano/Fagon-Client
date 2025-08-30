@@ -7,7 +7,7 @@ import { LocationProps } from '../../interfaces/location';
 import {
     getLocationLabelByValue,
     getPavementValueByLabel,
-} from '../../utils/formatters/formatValues';
+} from '../../utils/formatters';
 import { BadgeCheckIcon, BadgeIcon, MapPinIcon } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { toast } from 'sonner';

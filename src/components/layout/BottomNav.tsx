@@ -1,6 +1,11 @@
 'use client';
 
-import { FileTextIcon, LandmarkIcon } from 'lucide-react';
+import {
+    ClipboardCheckIcon,
+    FileTextIcon,
+    HardHatIcon,
+    LandmarkIcon,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import clsx from 'clsx';
@@ -15,6 +20,16 @@ const navItems = [
         label: 'Agências',
         href: '/agencies',
         icon: LandmarkIcon,
+    },
+    {
+        label: 'Vistoriadores',
+        href: '/inspectors',
+        icon: ClipboardCheckIcon,
+    },
+    {
+        label: 'Engenheiros',
+        href: '/engineers',
+        icon: HardHatIcon,
     },
 ];
 
@@ -35,24 +50,17 @@ export default function BottomNav() {
                         <Link
                             href={item.href}
                             className={clsx(
-                                'flex flex-col items-center gap-1 px-2 py-1 transition-all duration-150',
-                                isActive && 'border-b-2 border-background',
+                                'flex flex-col items-center gap-1 px-2 py-1 w-full rounded-t hover:bg-primary-hover transition-all duration-150',
+                                isActive &&
+                                    'w-min border-b-2 border-background',
                             )}
                         >
                             <Icon
-                                className={clsx('w-6 h-6', {
+                                className={clsx('w-7 h-7', {
                                     'text-background': isActive,
                                     'text-orange-200': !isActive,
                                 })}
                             />
-                            <span
-                                className={clsx('text-xs mt-1 font-semibold', {
-                                    'text-background': isActive,
-                                    'text-orange-200': !isActive,
-                                })}
-                            >
-                                {item.label}
-                            </span>
                         </Link>
 
                         {index !== navItems.length - 1 && (

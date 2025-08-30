@@ -6,7 +6,7 @@ import { PdfService } from '../../services/domains/pdfService';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { PdfCard } from '../cards/PdfCard';
-import { getPdfLabel } from '../../utils/formatters/formatValues';
+import { getPdfLabel } from '../../utils/formatters';
 import { ProjectService } from '../../services/domains/projectService';
 import { ProjectStatus } from '../../types/project';
 import { Loader2Icon } from 'lucide-react';

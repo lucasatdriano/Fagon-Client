@@ -9,3 +9,17 @@ export const formatPhone = (phone: string): string => {
 
     return phone;
 };
+
+export const formatWhatsAppNumber = (phone: string): string => {
+    const cleaned = phone.replace(/\D/g, '');
+
+    if (cleaned.startsWith('55')) {
+        return cleaned;
+    }
+
+    if (cleaned.length === 11) {
+        return `55${cleaned}`;
+    }
+
+    return cleaned;
+};

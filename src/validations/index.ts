@@ -5,6 +5,12 @@ export * from './auths/accessKeyValidation';
 export * from './agencies/agencyCreateValidation';
 export * from './agencies/agencyUpdateValidation';
 
+export * from './engineers/engineerCreateValidation';
+export * from './engineers/engineerUpdateValidation';
+
+export * from './inspectors/inspectorCreateValidation';
+export * from './inspectors/inspectorUpdateValidation';
+
 export * from './projects/projectCreateValidation';
 export * from './projects/projectInfoValidation';
 export * from './projects/inspectorValidation';

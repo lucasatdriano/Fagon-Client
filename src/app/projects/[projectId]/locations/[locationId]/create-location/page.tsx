@@ -45,7 +45,8 @@ import {
     getLocationLabelByValue,
     getLocationValueByLabel,
     getPavementValueByLabel,
-} from '../../../../../../utils/formatters/formatValues';
+    formatDecimalValue,
+} from '../../../../../../utils/formatters';
 import { PavementService } from '../../../../../../services/domains/pavementService';
 import { Pavement } from '../../../../../../interfaces/pavement';
 import { handleMaskedChange } from '../../../../../../utils/helpers/handleMaskedInput';
@@ -54,7 +55,6 @@ import { PhotoService } from '../../../../../../services/domains/photoService';
 import { useUserRole } from '../../../../../../hooks/useUserRole';
 import { AddPhotoModal } from '../../../../../../components/modals/photoModals/AddPhotoModal';
 import { sortPavements } from '../../../../../../utils/sorts/sortPavements';
-import { formatDecimalValue } from '../../../../../../utils/formatters/formatDecimal';
 import { AuthService } from '@/services/domains/authService';
 
 export default function CreateLocationPage() {

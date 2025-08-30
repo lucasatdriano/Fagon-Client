@@ -1,11 +1,18 @@
 'use client';
 
-import { ArrowLeftIcon, SearchIcon } from 'lucide-react';
+import { ArrowLeftIcon, MapPinnedIcon, SearchIcon } from 'lucide-react';
 import Image from 'next/image';
 import { CustomFormInput } from '../forms/CustomFormInput';
 import { ReactNode } from 'react';
+import { CustomButton } from '../forms/CustomButton';
+import { useRouter } from 'next/navigation';
 
-type HeaderType = 'default' | 'back' | 'backMenu' | 'search';
+type HeaderType =
+    | 'default'
+    | 'back'
+    | 'backMenu'
+    | 'search'
+    | 'searchWithButtonLocalizationInspector';
 
 interface HeaderProps {
     type: HeaderType;
@@ -24,10 +31,16 @@ export function Header({
     searchValue = '',
     onSearchChange,
 }: HeaderProps) {
+    const router = useRouter();
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (onSearchChange) {
             onSearchChange(e.target.value);
         }
+    };
+
+    const handleNavigateLocationInspector = () => {
+        router.push('/agencies/location-inspector');
     };
 
     return (
@@ -47,38 +60,55 @@ export function Header({
                 </button>
             )}
 
-            {type !== 'search' && (
-                <div className="flex w-full justify-center items-center self-center">
-                    <Image
-                        height={50}
-                        width={50}
-                        src="/images/logo-horizontal.svg"
-                        alt="Logo Fagon"
-                        className="items-center w-auto h-12"
-                        priority
-                    />
-                </div>
-            )}
+            {type !== 'search' &&
+                type !== 'searchWithButtonLocalizationInspector' && (
+                    <div className="flex w-full justify-center items-center">
+                        <Image
+                            height={50}
+                            width={50}
+                            src="/images/logo-horizontal.svg"
+                            alt="Logo Fagon"
+                            className="w-auto h-12"
+                            priority
+                        />
+                    </div>
+                )}
 
-            {type === 'back' && <span className="h-10 w-10"></span>}
+            {type === 'back' && <div className="w-10"></div>}
 
-            {type === 'search' && (
-                <div className="flex items-center justify-center gap-8 w-full px-4 md:px-16">
+            {(type === 'search' ||
+                type === 'searchWithButtonLocalizationInspector') && (
+                <>
                     <Image
                         width={50}
                         height={50}
                         src="/icons/logo-icon.svg"
                         alt="Logo Fagon"
-                        className="md:hidden w-auto h-12"
+                        className="md:hidden w-auto h-10"
                     />
-                    <CustomFormInput
-                        icon={<SearchIcon />}
-                        label="Pesquisar..."
-                        value={searchValue}
-                        onChange={handleChange}
-                        id="SearchInput"
-                        borderColor="border-foreground"
-                    />
+
+                    <div className="flex-1">
+                        <CustomFormInput
+                            icon={<SearchIcon />}
+                            label="Pesquisar..."
+                            value={searchValue}
+                            onChange={handleChange}
+                            id="SearchInput"
+                            borderColor="border-foreground"
+                        />
+                    </div>
+                </>
+            )}
+
+            {type === 'searchWithButtonLocalizationInspector' && (
+                <div className="flex-shrink-0">
+                    <CustomButton
+                        icon={<MapPinnedIcon />}
+                        color="bg-primary"
+                        onClick={handleNavigateLocationInspector}
+                    >
+                        Localizar Vistoriador
+                    </CustomButton>
                 </div>
             )}
 

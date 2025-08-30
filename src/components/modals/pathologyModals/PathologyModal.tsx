@@ -29,7 +29,7 @@ import {
     CustomDropdownInput,
     DropdownOption,
 } from '../../forms/CustomDropdownInput';
-import { formatWithCapitals } from '../../../utils/formatters/formatValues';
+import { formatWithCapitals } from '../../../utils/formatters';
 import {
     UpdatePathologyFormValues,
     updatePathologySchema,
@@ -53,7 +53,7 @@ export function UpdatePathologyModal({
     isOpen,
     onClose,
     onUpdate,
-    isNormalCamera
+    isNormalCamera,
 }: UpdatePathologyModalProps) {
     const { isVisitor } = useUserRole();
     const [isLoading, setIsLoading] = useState(false);
@@ -263,7 +263,9 @@ export function UpdatePathologyModal({
                                 >
                                     <div>
                                         <h3 className="text-lg font-semibold mb-4">
-                                            Fotos {isNormalCamera && ` (${photos.length}/2 mínimo)`}
+                                            Fotos{' '}
+                                            {isNormalCamera &&
+                                                ` (${photos.length}/2 mínimo)`}
                                         </h3>
                                         <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
                                             <button
@@ -297,12 +299,13 @@ export function UpdatePathologyModal({
                                                 />
                                             ))}
                                         </div>
-                                        {isNormalCamera && photos.length < 2 && (
-                                            <p className="text-red-500 text-sm mt-2">
-                                                Pelo menos 2 fotos são
-                                                necessáriasa
-                                            </p>
-                                        )}
+                                        {isNormalCamera &&
+                                            photos.length < 2 && (
+                                                <p className="text-red-500 text-sm mt-2">
+                                                    Pelo menos 2 fotos são
+                                                    necessáriasa
+                                                </p>
+                                            )}
                                     </div>
 
                                     <div className="space-y-4">
@@ -364,7 +367,9 @@ export function UpdatePathologyModal({
                                                 <SaveIcon className="w-4 h-4" />
                                             }
                                             disabled={
-                                                isLoading || isNormalCamera && photos.length < 2
+                                                isLoading ||
+                                                (isNormalCamera &&
+                                                    photos.length < 2)
                                             }
                                             className="hover:bg-secondary-hover"
                                         >

@@ -1,5 +1,5 @@
 import { PdfType } from '../../interfaces/pdf';
-import { formatNumberAgency } from '../formatters/formatNumberAgency';
+import { formatNumberAgency } from '../formatters';
 
 export const getPdfFileName = (
     pdfType: PdfType,

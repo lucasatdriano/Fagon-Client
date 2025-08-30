@@ -1,6 +1,6 @@
 'use client';
 
-import { formatWithCapitals } from '../../utils/formatters/formatValues';
+import { formatWithCapitals } from '../../utils/formatters';
 import { OctagonAlertIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';

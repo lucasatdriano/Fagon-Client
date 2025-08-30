@@ -2,7 +2,7 @@
 
 import { CustomButton } from '../../../components/forms/CustomButton';
 import { PdfType, PDF } from '../../../interfaces/pdf';
-import { getPdfLabel } from '../../../utils/formatters/formatValues';
+import { getPdfLabel } from '../../../utils/formatters';
 import { Dialog, Transition } from '@headlessui/react';
 import { Trash2Icon } from 'lucide-react';
 import { Fragment } from 'react';

@@ -23,6 +23,12 @@ const API_ROUTES = {
         USER_LOGS: ({ userId }: Params) => `/logs/user/${userId}`,
     },
 
+    DISTANCE: {
+        CALCULATE: '/distance/calculate',
+        APPROXIMATE: '/distance/approximate',
+        BATCH: '/distance/batch',
+    },
+
     USERS: {
         BASE: '/users',
         SEARCH: '/users/search',
@@ -47,6 +53,15 @@ const API_ROUTES = {
         BY_ID: ({ id }: Params) => `/engineers/${id}`,
         UPDATE: ({ id }: Params) => `/engineers/${id}`,
         DELETE: ({ id }: Params) => `/engineers/${id}`,
+    },
+
+    INSPECTORS: {
+        BASE: '/inspectors',
+        SEARCH: '/inspectors/search',
+        CREATE: '/inspectors',
+        BY_ID: ({ id }: Params) => `/inspectors/${id}`,
+        UPDATE: ({ id }: Params) => `/inspectors/${id}`,
+        DELETE: ({ id }: Params) => `/inspectors/${id}`,
     },
 
     PROJECTS: {

@@ -1,6 +1,5 @@
 import { agencyProps } from '../../interfaces/agency';
-import { formatCNPJ } from '../../utils/formatters/formatCNPJ';
-import { formatNumberAgency } from '../../utils/formatters/formatNumberAgency';
+import { formatCNPJ, formatNumberAgency } from '../../utils/formatters';
 import { LandmarkIcon } from 'lucide-react';
 import Link from 'next/link';
 
@@ -27,7 +26,7 @@ export default function AgencyCard({
                 </span>
             </div>
 
-            <h2 className="font-bold text-lg">{name}</h2>
+            <h2 className="font-bold text-lg mb-1">{name}</h2>
             <p className="text-foreground">
                 {street}, {number} - {city}, {district}
             </p>

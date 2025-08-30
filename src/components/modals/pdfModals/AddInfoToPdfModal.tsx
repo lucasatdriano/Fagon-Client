@@ -17,15 +17,15 @@ import { ProjectService } from '../../../services/domains/projectService';
 import { PdfService } from '../../../services/domains/pdfService';
 import { toast } from 'sonner';
 import { PavementService } from '../../../services/domains/pavementService';
-import { getPavementValueByLabel } from '../../../utils/formatters/formatValues';
+import {
+    getPavementValueByLabel,
+    formatFloorHeight,
+    formatDecimalValue,
+    parseDecimalValue,
+} from '../../../utils/formatters';
 import { sortPavements } from '../../../utils/sorts/sortPavements';
 import { Pavement } from '../../../interfaces/pavement';
 import { CustomEditInput } from '../../../components/forms/CustomEditInput';
-import { formatFloorHeight } from '../../../utils/formatters/formatFloorHeight';
-import {
-    formatDecimalValue,
-    parseDecimalValue,
-} from '../../../utils/formatters/formatDecimal';
 import { handleMaskedChange } from '../../../utils/helpers/handleMaskedInput';
 
 interface AddInfoToPdfModalProps {

@@ -25,6 +25,8 @@ import { fetchAddressByCep } from '../../../utils/viacep';
 import { AgencyService } from '../../../services/domains/agencyService';
 import { handleMaskedChange } from '../../../utils/helpers/handleMaskedInput';
 import axios from 'axios';
+import { CustomDropdownInput } from '@/components/forms/CustomDropdownInput';
+import { states } from '@/constants/states';
 
 export default function CreateAgencyPage() {
     const router = useRouter();
@@ -157,13 +159,18 @@ export default function CreateAgencyPage() {
                             id="CEPInput"
                         />
 
-                        <CustomFormInput
+                        <CustomDropdownInput
                             icon={<PinIcon />}
-                            label="Estado*"
-                            registration={register('state')}
-                            value={watch('state')}
+                            placeholder="Estado*"
+                            options={states}
+                            selectedOptionValue={watch('state')}
+                            onOptionSelected={(val) => {
+                                if (val) {
+                                    setValue('state', val);
+                                }
+                            }}
                             error={errors.state?.message}
-                            id="StateInput"
+                            className="col-span-2 md:col-span-1"
                         />
 
                         <CustomFormInput

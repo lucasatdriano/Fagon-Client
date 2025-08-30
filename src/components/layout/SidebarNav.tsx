@@ -1,6 +1,11 @@
 'use client';
 
-import { FileTextIcon, LandmarkIcon } from 'lucide-react';
+import {
+    ClipboardCheckIcon,
+    FileTextIcon,
+    HardHatIcon,
+    LandmarkIcon,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -16,6 +21,16 @@ const navItems = [
         label: 'Agências',
         href: '/agencies',
         icon: LandmarkIcon,
+    },
+    {
+        label: 'Vistoriadores',
+        href: '/inspectors',
+        icon: ClipboardCheckIcon,
+    },
+    {
+        label: 'Engenheiros',
+        href: '/engineers',
+        icon: HardHatIcon,
     },
 ];
 

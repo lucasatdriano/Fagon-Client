@@ -17,16 +17,18 @@ import {
 import { useParams } from 'next/navigation';
 import { Loader2Icon, SaveIcon } from 'lucide-react';
 import { toast } from 'sonner';
-import { formatDateForInput } from '../../../../utils/formatters/formatDate';
-import { getProjectTypeLabel } from '../../../../utils/formatters/formatValues';
+import {
+    formatDateForInput,
+    getProjectTypeLabel,
+    formatNumberAgency,
+    formatDecimalValue,
+} from '../../../../utils/formatters';
 import { EngineerService } from '../../../../services/domains/engineerService';
 import { CustomRadioGroup } from '../../../../components/forms/CustomRadioGroup';
 import { engineerProps } from '../../../../interfaces/engineer';
 import { CustomCheckboxGroup } from '../../../../components/forms/CustomCheckbox';
 import { Pavement } from '../../../../interfaces/pavement';
-import { formatNumberAgency } from '../../../../utils/formatters/formatNumberAgency';
 import { handleMaskedChange } from '../../../../utils/helpers/handleMaskedInput';
-import { formatDecimalValue } from '../../../../utils/formatters/formatDecimal';
 
 type StatusItem = {
     value: string;
@@ -76,11 +78,13 @@ export default function ProjectEditPage() {
             try {
                 const result = await EngineerService.listAll();
                 const data = result.data;
-                const formatted = data.map((engineer: engineerProps) => ({
-                    id: engineer.id,
-                    value: engineer.id,
-                    label: engineer.name,
-                }));
+                const formatted = data.engineers.map(
+                    (engineer: engineerProps) => ({
+                        id: engineer.id,
+                        value: engineer.id,
+                        label: engineer.name,
+                    }),
+                );
                 setEngineers(formatted);
             } catch (error) {
                 console.error('Erro ao buscar engenheiros:', error);
@@ -413,7 +417,6 @@ export default function ProjectEditPage() {
                         />
                     </div>
 
-                    {/* Seção Engenheiro Responsável */}
                     <div className="col-span-2">
                         <div className="w-full relative flex justify-start">
                             <hr className="w-full h-px absolute border-foreground top-1/2 left-0" />
@@ -434,7 +437,6 @@ export default function ProjectEditPage() {
                         />
                     </div>
 
-                    {/* Seção Pavimentos */}
                     <div className="col-span-2">
                         <div className="w-full relative flex justify-start">
                             <hr className="w-full h-px absolute border-foreground top-1/2 left-0" />

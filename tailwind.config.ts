@@ -17,12 +17,23 @@ export default {
             '2xl': '1536px',
         },
         extend: {
+            maxWidth: {
+                '8xl': '88rem',
+                '9xl': '96rem',
+                '10xl': '104rem',
+            },
+            maxHeight: {
+                '8xl': '88rem',
+                '9xl': '96rem',
+                '10xl': '104rem',
+            },
             padding: {
                 '18': '4.5rem',
             },
             inset: {
-                '1/5': '20%',
+                '18': '4.5rem',
                 '22': '5.5rem',
+                '1/5': '20%',
             },
             colors: {
                 background: 'var(--background)',

@@ -81,11 +81,13 @@ export default function CreateProjectPage() {
             try {
                 const result = await EngineerService.listAll();
                 const data = result.data;
-                const formatted = data.map((engineer: engineerProps) => ({
-                    id: engineer.id,
-                    value: engineer.id,
-                    label: engineer.name,
-                }));
+                const formatted = data.engineers.map(
+                    (engineer: engineerProps) => ({
+                        id: engineer.id,
+                        value: engineer.id,
+                        label: engineer.name,
+                    }),
+                );
                 setEngineers(formatted);
             } catch (error) {
                 console.error('Erro ao buscar engenheiros:', error);
@@ -166,6 +168,7 @@ export default function CreateProjectPage() {
                             onSelectAgency={(agency) => {
                                 setValue('agencyId', agency.id);
                             }}
+                            className="max-h-96"
                         />
                         {errors.agencyId && (
                             <p className="text-sm text-error font-poppins">

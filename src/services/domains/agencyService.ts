@@ -29,7 +29,7 @@ export const AgencyService = {
 
     async listAll(
         params?: ListAgenciesParams,
-    ): Promise<{ data: AgenciesApiResponse }> {
+    ): Promise<ApiResponse<AgenciesApiResponse>> {
         try {
             const response = await api.get(API_ROUTES.AGENCIES.BASE, {
                 params: params,

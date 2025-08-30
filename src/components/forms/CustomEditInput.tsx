@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { UseFormRegisterReturn } from 'react-hook-form';
 import { dateMask, unformatDate } from '../../utils/masks/maskDate';
-import { formatDateForDisplay } from '../../utils/formatters/formatDate';
+import { formatDateForDisplay } from '../../utils/formatters';
 
 interface CustomEditInputProps
     extends React.InputHTMLAttributes<HTMLInputElement> {

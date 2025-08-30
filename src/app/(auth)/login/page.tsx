@@ -109,15 +109,6 @@ export default function LoginPage() {
                             error={errors.password?.message}
                             id="PasswordInput"
                         />
-
-                        {/* <CustomButton
-                            type="button"
-                            ghost
-                            fontSize="text-sm"
-                            className="hover:border-transparent no-underline hover:underline font-poppins hover:shadow-none"
-                        >
-                            Esqueceu sua senha?
-                        </CustomButton> */}
                     </div>
                 </div>
 
