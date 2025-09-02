@@ -27,5 +27,6 @@ export function useUserRole() {
         role,
         loading,
         isVisitor: role === 'vistoriador',
+        isAdmin: role === 'admin',
     };
 }

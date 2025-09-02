@@ -107,7 +107,9 @@ export function Header({
                         color="bg-primary"
                         onClick={handleNavigateLocationInspector}
                     >
-                        Localizar Vistoriador
+                        <span className="max-[500px]:hidden">
+                            Localizar Vistoriador
+                        </span>
                     </CustomButton>
                 </div>
             )}

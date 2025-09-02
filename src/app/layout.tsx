@@ -24,7 +24,12 @@ const poppins = Poppins({
 export const metadata: Metadata = {
     title: 'Sistema Fagon',
     description: 'Gestão de projetos e vistorias',
-    icons: '/icons/logo-icon.svg',
+    manifest: '/manifest.webmanifest',
+    icons: {
+        icon: '/icons/logo-icon.svg',
+
+        apple: '/icons/icon-192x192.png',
+    },
 };
 
 export default function RootLayout({

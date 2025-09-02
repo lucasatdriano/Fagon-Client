@@ -5,12 +5,12 @@ import { PdfType, PDF, PdfDocument } from '../../interfaces/pdf';
 import { PdfService } from '../../services/domains/pdfService';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
-import { PdfCard } from '../cards/PdfCard';
 import { getPdfLabel } from '../../utils/formatters';
 import { ProjectService } from '../../services/domains/projectService';
 import { ProjectStatus } from '../../types/project';
 import { Loader2Icon } from 'lucide-react';
 import AddInfoToPdfModal from '../modals/pdfModals/AddInfoToPdfModal';
+import { GeneratePdfCard } from '../cards/GeneratePdfCard';
 
 type LoadingState = {
     action:
@@ -262,7 +262,7 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
 
     return (
         <div className="pb-6 md:pb-8">
-            <PdfCard
+            <GeneratePdfCard
                 pdfs={pdfs}
                 loadingState={loadingState}
                 onGenerate={handleGenerate}

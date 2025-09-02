@@ -13,6 +13,7 @@ import { ITEMS_PER_PAGE } from '@/constants/pagination';
 import { inspectorProps } from '@/interfaces/inspector';
 import { InspectorService } from '@/services/domains/inspectorService';
 import InspectorCard from '@/components/cards/InspectorCard';
+import { toast } from 'sonner';
 
 export default function DashboardInspectorsPage() {
     const { searchValue } = useSearch();
@@ -76,6 +77,29 @@ export default function DashboardInspectorsPage() {
         fetchData();
     }, [router, searchValue, currentPage]);
 
+    const handleDeleteInspector = async (inspectorId: string) => {
+        try {
+            await InspectorService.delete(inspectorId);
+            toast.success('Vistoriador deletado com sucesso');
+
+            // Recarregar a lista após deletar
+            const response = await InspectorService.listAll({
+                page: currentPage,
+                limit: ITEMS_PER_PAGE,
+            });
+
+            setInspectors(response.data.inspectors);
+            setPagination({
+                total: response.data.meta?.resource?.total || 0,
+                page: currentPage,
+                totalPages: response.data.meta?.resource?.totalPages || 1,
+            });
+        } catch (err) {
+            toast.error('Erro ao deletar vistoriador');
+            console.error(err);
+        }
+    };
+
     return (
         <div className="min-h-svh flex flex-col items-center pt-16 px-2 pb-24 md:pt-18 md:px-4 md:pb-4">
             <div className="w-full relative flex justify-center py-3">
@@ -115,6 +139,7 @@ export default function DashboardInspectorsPage() {
                                 street={inspector.street}
                                 rating={inspector.rating}
                                 selectedCities={inspector.selectedCities}
+                                onDelete={handleDeleteInspector}
                             />
                         ))}
                         <Pagination

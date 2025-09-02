@@ -136,7 +136,7 @@ export function InspectorDropdownMenu({
             : '';
 
         const message =
-            encodeURIComponent(`Endereço da Agência: ${agency.street}, ${agency.number} - ${agency.city}/${formattedState}
+            encodeURIComponent(`Endereço da agência: ${agency.street}, ${agency.number} - ${agency.city}/${formattedState}
 
             Qualquer dúvida sobre a localização, estou à disposição!
         `);

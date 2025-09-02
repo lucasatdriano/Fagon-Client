@@ -7,15 +7,15 @@ export const getPdfFileName = (
 ): string => {
     switch (pdfType) {
         case 'atestado':
-            return `${formatNumberAgency(agencyNumber)}-EF-A-001-R00.pdf`;
+            return `${formatNumberAgency(agencyNumber)}-EF-A.pdf`;
         case 'anexo_m3':
-            return `${formatNumberAgency(agencyNumber)}-EF-L-001-01-R00.pdf`;
+            return `${formatNumberAgency(agencyNumber)}-EF-M3.pdf`;
         case 'anexo_m4':
-            return `${formatNumberAgency(agencyNumber)}-EF-L-001-02-R00.pdf`;
+            return `${formatNumberAgency(agencyNumber)}-EF-M4.pdf`;
         case 'laudo_avaliacao':
-            return `${formatNumberAgency(agencyNumber)}-EF-L-001-R00.pdf`;
+            return `${formatNumberAgency(agencyNumber)}-EF-L.pdf`;
         case 'relatorio_fotografico':
-            return `${formatNumberAgency(agencyNumber)}-EF-R-001-R00.pdf`;
+            return `${formatNumberAgency(agencyNumber)}-EF-R.pdf`;
         default:
             return `${formatNumberAgency(agencyNumber)}-${pdfType}.pdf`;
     }

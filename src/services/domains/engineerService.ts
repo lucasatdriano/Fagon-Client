@@ -22,7 +22,6 @@ interface SearchEngineersParams {
     name?: string;
     phone?: string;
     education?: string;
-    registrationEntity?: string;
 }
 
 export const EngineerService = {

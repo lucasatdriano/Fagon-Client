@@ -13,6 +13,8 @@ import { ITEMS_PER_PAGE } from '@/constants/pagination';
 import { EngineerService } from '@/services/domains/engineerService';
 import { engineerProps } from '@/interfaces/engineer';
 import EngineerCard from '@/components/cards/EngineerCard';
+import { toast } from 'sonner';
+import { useUserRole } from '@/hooks/useUserRole';
 
 export default function DashboardEngineersPage() {
     const { searchValue } = useSearch();
@@ -26,6 +28,7 @@ export default function DashboardEngineersPage() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const currentPage = Number(searchParams.get('page')) || 1;
+    const { isAdmin } = useUserRole();
 
     useAuth();
 
@@ -44,9 +47,8 @@ export default function DashboardEngineersPage() {
                 } else {
                     const searchParams = {
                         name: searchValue,
-                        email: searchValue,
+                        phone: searchValue,
                         education: searchValue,
-                        registrationEntity: searchValue,
                         page: currentPage,
                         limit: ITEMS_PER_PAGE,
                     };
@@ -76,6 +78,29 @@ export default function DashboardEngineersPage() {
 
         fetchData();
     }, [router, searchValue, currentPage]);
+
+    const handleDeleteEngineer = async (engineerId: string) => {
+        try {
+            await EngineerService.delete(engineerId);
+            toast.success('Engenheiro deletado com sucesso');
+
+            // Recarregar a lista após deletar
+            const response = await EngineerService.listAll({
+                page: currentPage,
+                limit: ITEMS_PER_PAGE,
+            });
+
+            setEngineers(response.data.engineers);
+            setPagination({
+                total: response.data.meta?.resource?.total || 0,
+                page: currentPage,
+                totalPages: response.data.meta?.resource?.totalPages || 1,
+            });
+        } catch (err) {
+            toast.error('Erro ao deletar engenheiro');
+            console.error(err);
+        }
+    };
 
     return (
         <div className="min-h-svh flex flex-col items-center pt-16 px-2 pb-24 md:pt-18 md:px-4 md:pb-4">
@@ -114,6 +139,8 @@ export default function DashboardEngineersPage() {
                                 education={engineer.education}
                                 registrationEntity={engineer.registrationEntity}
                                 registrationNumber={engineer.registrationNumber}
+                                onDelete={handleDeleteEngineer}
+                                isAdmin={isAdmin}
                             />
                         ))}
                         <Pagination

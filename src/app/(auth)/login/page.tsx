@@ -65,10 +65,6 @@ export default function LoginPage() {
         }
     };
 
-    const handleNavigation = () => {
-        router.push('/register');
-    };
-
     return (
         <div className="min-h-svh w-full flex flex-col gap-10 items-center justify-start pt-6 pb-12 md:pt-12 xl:pt-20">
             <Image
@@ -112,7 +108,7 @@ export default function LoginPage() {
                     </div>
                 </div>
 
-                <div className="grid gap-4 pt-4">
+                <div className="grid gap-4 pt-16">
                     <CustomButton
                         type="submit"
                         fontSize="text-lg"
@@ -120,15 +116,6 @@ export default function LoginPage() {
                         disabled={loading}
                     >
                         {loading ? 'Entrando...' : 'Entrar'}
-                    </CustomButton>
-                    <CustomButton
-                        type="button"
-                        onClick={handleNavigation}
-                        ghost
-                        fontSize="text-lg"
-                        className="w-36"
-                    >
-                        Cadastre-se
                     </CustomButton>
                 </div>
             </form>

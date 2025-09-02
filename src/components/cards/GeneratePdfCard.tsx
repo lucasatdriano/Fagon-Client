@@ -27,7 +27,7 @@ const PDF_TITLES: Record<PdfType, string> = {
         'Relatório Fotográfico - Avaliação de Estabilidade e Segurança de Construção',
 };
 
-interface PdfCardProps {
+interface GeneratePdfCardProps {
     pdfs: PDF[];
     loadingState: {
         action:
@@ -50,7 +50,7 @@ interface PdfCardProps {
     setPdfDocuments: (newPdfs: PDF[]) => void;
 }
 
-export function PdfCard({
+export function GeneratePdfCard({
     pdfs,
     loadingState,
     onGenerate,
@@ -60,7 +60,7 @@ export function PdfCard({
     onDelete,
     onUploadSigned,
     setPdfDocuments,
-}: PdfCardProps) {
+}: GeneratePdfCardProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [pdfToDelete, setPdfToDelete] = useState<PdfType | null>(null);
 
@@ -176,7 +176,7 @@ export function PdfCard({
                                             e.stopPropagation();
                                             onPreview(pdf.type);
                                         }}
-                                        className="text-sm text-primary hover:underline mt-1"
+                                        className="text-sm text-primary hover:underline mt-1 underline"
                                     >
                                         Pré-visualizar modelo
                                     </button>
@@ -262,7 +262,7 @@ export function PdfCard({
                                         Carregando...
                                     </span>
                                 ) : (
-                                    <span className="text-sm text-gray-700">
+                                    <span className="text-gray-700">
                                         Visualizar PDF
                                     </span>
                                 )}

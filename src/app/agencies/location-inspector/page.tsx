@@ -47,7 +47,7 @@ export default function LocateInspectorsPage() {
         destroyCookie(null, 'selectedAgencyId', { path: '/' });
 
         setCookie(null, 'selectedAgencyId', agency.id, {
-            maxAge: 24 * 60 * 60, // 24 horas
+            maxAge: 6 * 60 * 60, // 6 horas
             sameSite: 'lax',
             path: '/',
         });
@@ -134,12 +134,17 @@ export default function LocateInspectorsPage() {
     }, [selectedAgency]);
 
     const groupedInspectors = {
-        locais: inspectors.filter((i) => i.distance && i.distance <= 50),
+        locais: inspectors.filter(
+            (i) => i.distance !== undefined && i.distance <= 50,
+        ),
         estaduais: inspectors.filter(
-            (i) => i.distance && i.distance > 50 && i.distance <= 300,
+            (i) =>
+                i.distance !== undefined &&
+                i.distance > 50 &&
+                i.distance <= 300,
         ),
         interestaduais: inspectors.filter(
-            (i) => i.distance && i.distance > 300,
+            (i) => i.distance !== undefined && i.distance > 300,
         ),
         semDistancia: inspectors.filter((i) => i.distance === undefined),
     };
@@ -165,7 +170,6 @@ export default function LocateInspectorsPage() {
                 <hr className="w-full border-foreground mb-6" />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Coluna da Esquerda - Agências */}
                     <div className="w-full grid place-items-start">
                         <p className="font-semibold mb-2 text-lg">
                             Selecionar Agência
