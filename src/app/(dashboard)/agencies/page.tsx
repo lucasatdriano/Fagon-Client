@@ -110,15 +110,16 @@ export default function DashboardAgenciesPage() {
                             <AgencyCard
                                 key={agency.id}
                                 id={agency.id}
-                                agencyNumber={agency.agencyNumber}
                                 name={agency.name}
+                                agencyNumber={agency.agencyNumber}
+                                cnpj={agency.cnpj}
+                                cep={agency.cep}
+                                state={agency.state}
                                 city={agency.city}
                                 district={agency.district}
                                 street={agency.street}
                                 number={agency.number}
-                                cnpj={agency.cnpj}
-                                cep={agency.cep}
-                                state={agency.state}
+                                complement={agency.complement}
                             />
                         ))}
                         <Pagination

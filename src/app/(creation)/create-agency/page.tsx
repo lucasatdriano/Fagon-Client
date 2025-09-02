@@ -15,6 +15,7 @@ import {
     Building2Icon,
     FileTextIcon,
     HashIcon,
+    HomeIcon,
     LandmarkIcon,
     MapPinIcon,
     MapPinnedIcon,
@@ -203,6 +204,15 @@ export default function CreateAgencyPage() {
                             error={errors.number?.message}
                             id="NumberAgencyInput"
                             inputMode="numeric"
+                        />
+
+                        <CustomFormInput
+                            icon={<HomeIcon />}
+                            label="Complemento"
+                            registration={register('complement')}
+                            value={watch('complement')}
+                            error={errors.complement?.message}
+                            id="ComplementInput"
                         />
                     </div>
                 </div>
