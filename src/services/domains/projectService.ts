@@ -17,6 +17,7 @@ export interface Project {
     floorHeight: string;
     inspectorName: string;
     inspectionDate: string;
+    technicalResponsibilityNumber: string;
     createdAt: string;
     agency: {
         id: string;
@@ -36,6 +37,7 @@ export interface Project {
     };
     pavements: Pavement[];
 }
+
 interface CreateProjectData {
     projectType: ProjectType;
     upeCode: number;
@@ -50,6 +52,7 @@ interface UpdateProjectData {
     floorHeight?: string;
     inspectorName?: string;
     inspectionDate?: string;
+    technicalResponsibilityNumber?: string;
     engineerId?: string;
     pavements?: PavementItem[];
 }
@@ -128,6 +131,7 @@ export const ProjectService = {
 
     async update(id: string, data: UpdateProjectData): Promise<Project> {
         try {
+            console.log(data);
             const response = await api.patch(
                 API_ROUTES.PROJECTS.UPDATE({ id }),
                 data,

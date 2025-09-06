@@ -6,6 +6,7 @@ import {
     formatNumberAgency,
     formatDate,
     getProjectTypeLabel,
+    formatStateToAbbreviation,
 } from '../../utils/formatters';
 
 export default function ProjectCard({
@@ -13,6 +14,7 @@ export default function ProjectCard({
     agencyNumber,
     upeCode,
     projectType,
+    state,
     city,
     district,
     engineer,
@@ -39,7 +41,8 @@ export default function ProjectCard({
                 </div>
 
                 <h2 className="font-bold text-lg">
-                    AG. {formatNumberAgency(agencyNumber)} — {city} - {district}
+                    AG. {formatNumberAgency(agencyNumber)} — {city} -{' '}
+                    {formatStateToAbbreviation(state)} - {district}
                 </h2>
 
                 <p className="text-foreground mt-2">

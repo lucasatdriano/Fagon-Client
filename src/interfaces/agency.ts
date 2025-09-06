@@ -9,5 +9,6 @@ export interface agencyProps {
     district: string;
     street: string;
     number: number;
+    complement?: string;
     createdAt?: string;
 }

@@ -124,6 +124,10 @@ export default function ProjectEditPage() {
                     'inspectionDate',
                     formatDateForInput(data.inspectionDate),
                 );
+                setValue(
+                    'technicalResponsibilityNumber',
+                    data.technicalResponsibilityNumber || '',
+                );
                 setValue('structureType', data.structureType || '');
                 setValue('floorHeight', data.floorHeight || '');
                 setValue(
@@ -217,6 +221,8 @@ export default function ProjectEditPage() {
                 structureType: formData.structureType || undefined,
                 engineerId: formData.engineer?.id,
                 floorHeight: formData.floorHeight,
+                technicalResponsibilityNumber:
+                    formData.technicalResponsibilityNumber,
                 pavements: formData.pavements?.map((p) => ({
                     id: p.id,
                     pavement: p.pavement,
@@ -370,6 +376,20 @@ export default function ProjectEditPage() {
                             id="ProjectDateInput"
                             defaultValue={project?.createdAt}
                             disabled
+                        />
+
+                        <CustomEditInput
+                            label="Número ART/RRT do Projeto"
+                            registration={register(
+                                'technicalResponsibilityNumber',
+                            )}
+                            error={
+                                errors.technicalResponsibilityNumber?.message
+                            }
+                            id="TechnicalResponsibilityNumberInput"
+                            defaultValue={
+                                project?.technicalResponsibilityNumber
+                            }
                         />
 
                         <CustomEditInput

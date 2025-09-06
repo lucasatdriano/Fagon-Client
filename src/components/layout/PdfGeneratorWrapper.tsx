@@ -102,6 +102,23 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
     const handleGenerate = async (type: PdfType) => {
         setLoadingState({ action: 'generate', pdfType: type });
         try {
+            const projectResponse = await ProjectService.getById(projectId);
+            const project = projectResponse.data;
+
+            if (
+                (type === 'anexo_m3' || type === 'anexo_m4') &&
+                (!project.technicalResponsibilityNumber ||
+                    project.technicalResponsibilityNumber.trim() === '')
+            ) {
+                toast.error(
+                    `Número de responsabilidade técnica não preenchido. Preencha este campo antes de gerar o ${getPdfLabel(
+                        type,
+                    )}.`,
+                );
+                setLoadingState(null);
+                return;
+            }
+
             if (type === 'laudo_avaliacao') {
                 const project = await ProjectService.getById(projectId);
 

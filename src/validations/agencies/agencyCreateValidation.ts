@@ -29,6 +29,7 @@ export const createAgencySchema = z.object({
     city: z.string().min(1, 'A cidade é obrigatória').max(100),
     district: z.string().min(1, 'O bairro é obrigatório').max(100),
     street: z.string().min(1, 'A rua é obrigatória').max(200),
+    complement: z.string().max(200).optional(),
 
     number: z.coerce
         .number({

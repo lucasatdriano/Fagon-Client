@@ -78,6 +78,7 @@ export default function AgencyEditPage() {
                 const data = response.data;
                 setAgency(data);
 
+                setValue('name', data.name);
                 setValue(
                     'agencyNumber',
                     formatNumberAgency(data.agencyNumber.toString()),
@@ -89,6 +90,7 @@ export default function AgencyEditPage() {
                 setValue('district', data.district || '');
                 setValue('street', data.street || '');
                 setValue('number', data.number);
+                setValue('complement', data.complement);
             } catch (error) {
                 console.error(error);
             } finally {
@@ -106,6 +108,7 @@ export default function AgencyEditPage() {
             setIsLoading(true);
 
             const updateData = {
+                name: formData.name,
                 agencyNumber: formData.agencyNumber,
                 cnpj: formData.cnpj?.replace(/\D/g, '') || undefined,
                 cep: formData.cep?.replace(/\D/g, ''),
@@ -114,6 +117,7 @@ export default function AgencyEditPage() {
                 district: formData.district,
                 street: formData.street,
                 number: formData.number,
+                complement: formData.complement,
             };
 
             const response = await AgencyService.update(id, updateData);
@@ -170,6 +174,14 @@ export default function AgencyEditPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <CustomEditInput
+                            label="Nome da Agência"
+                            registration={register('name')}
+                            error={errors.name?.message}
+                            id="AgencyNameInput"
+                            defaultValue={watch('name')}
+                        />
+
                         <CustomEditInput
                             label="Número da Agência"
                             registration={register('agencyNumber')}
@@ -240,6 +252,14 @@ export default function AgencyEditPage() {
                             error={errors.number?.message}
                             id="NumberAgencyInput"
                             value={watch('number')}
+                        />
+
+                        <CustomEditInput
+                            label="Complemento"
+                            registration={register('complement')}
+                            value={watch('complement')}
+                            error={errors.complement?.message}
+                            id="ComplementInput"
                         />
                     </div>
 
