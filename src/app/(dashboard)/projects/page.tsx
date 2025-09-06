@@ -117,13 +117,10 @@ export default function DashboardProjectsPage() {
                                 agencyNumber={project.agency.agencyNumber || ''}
                                 upeCode={project.upeCode.toString() || ''}
                                 projectType={project.projectType || ''}
-                                city={project.agency.city.toString() || ''}
-                                district={
-                                    project.agency.district.toString() || ''
-                                }
-                                engineer={
-                                    project.engineer.name.toString() || ''
-                                }
+                                state={project.agency.state}
+                                city={project.agency.city}
+                                district={project.agency.district}
+                                engineer={project.engineer.name}
                                 status={project.status || ''}
                                 inspectorName={project.inspectorName || ''}
                                 inspectionDate={project.inspectionDate || ''}

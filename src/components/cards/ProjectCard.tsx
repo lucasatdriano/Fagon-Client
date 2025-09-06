@@ -5,12 +5,14 @@ import Link from 'next/link';
 import { formatNumberAgency } from '../../utils/formatters/formatNumberAgency';
 import { formatDate } from '../../utils/formatters/formatDate';
 import { getProjectTypeLabel } from '../../utils/formatters/formatValues';
+import { formatStateToAbbreviation } from '@/utils/formatters/formatStateToAbbreviation';
 
 export default function ProjectCard({
     id,
     agencyNumber,
     upeCode,
     projectType,
+    state,
     city,
     district,
     engineer,
@@ -37,7 +39,8 @@ export default function ProjectCard({
                 </div>
 
                 <h2 className="font-bold text-lg">
-                    AG. {formatNumberAgency(agencyNumber)} — {city} - {district}
+                    AG. {formatNumberAgency(agencyNumber)} — {city} -{' '}
+                    {formatStateToAbbreviation(state)} - {district}
                 </h2>
 
                 <p className="text-foreground mt-2">
