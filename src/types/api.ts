@@ -1,4 +1,5 @@
 import { agencyProps } from '@/interfaces/agency';
+import { engineerProps } from '@/interfaces/engineer';
 import { Pathology } from '@/services/domains/pathologyService';
 import { Project } from '@/services/domains/projectService';
 
@@ -42,14 +43,19 @@ export interface ApiResponse<T> {
     success?: boolean;
 }
 
+export interface AgenciesApiResponse {
+    meta?: ApiMeta;
+    agencies: agencyProps[];
+}
+
 export interface ProjectsApiResponse {
     meta?: ApiMeta;
     projects: Project[];
 }
 
-export interface AgenciesApiResponse {
+export interface EngineersApiResponse {
     meta?: ApiMeta;
-    agencies: agencyProps[];
+    engineers: engineerProps[];
 }
 
 export interface PathologiesApiResponse {

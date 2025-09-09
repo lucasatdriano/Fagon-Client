@@ -122,7 +122,7 @@ export default function AddInfoToPdfModal({
                 floorHeight: data.floorHeight
                     ? formatFloorHeight(data.floorHeight)
                     : undefined,
-                pavement: data.pavements?.map((pavement) => ({
+                pavements: data.pavements?.map((pavement) => ({
                     id: pavement.id,
                     pavement: pavement.pavement,
                     area: pavement.area
