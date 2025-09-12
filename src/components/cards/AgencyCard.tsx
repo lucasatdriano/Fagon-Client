@@ -1,3 +1,4 @@
+import { formatStateToAbbreviation } from '@/utils/formatters/formatStateToAbbreviation';
 import { agencyProps } from '../../interfaces/agency';
 import { formatCNPJ } from '../../utils/formatters/formatCNPJ';
 import { formatNumberAgency } from '../../utils/formatters/formatNumberAgency';
@@ -9,10 +10,12 @@ export default function AgencyCard({
     agencyNumber,
     name,
     cnpj,
+    state,
     city,
     district,
     street,
     number,
+    complement,
 }: agencyProps) {
     return (
         <Link
@@ -28,9 +31,18 @@ export default function AgencyCard({
             </div>
 
             <h2 className="font-bold text-lg">{name}</h2>
-            <p className="text-foreground">
-                {street}, {number} - {city}, {district}
-            </p>
+            {!complement && (
+                <p className="text-foreground">
+                    {street}, {number} - {district}, {city} -{' '}
+                    {formatStateToAbbreviation(state)}
+                </p>
+            )}
+            {complement && (
+                <p className="text-foreground">
+                    {street}, {number}, {complement} - {district}, {city} -{' '}
+                    {formatStateToAbbreviation(state)}
+                </p>
+            )}
             {cnpj && (
                 <p className="text-foreground">CNPJ: {formatCNPJ(cnpj)}</p>
             )}

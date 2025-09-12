@@ -1,7 +1,7 @@
 import { engineerProps } from '../../interfaces/engineer';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
-import { ApiResponse } from '../../types/api';
+import { ApiResponse, EngineersApiResponse } from '../../types/api';
 
 interface CreateEngineerData {
     name: string;
@@ -20,12 +20,14 @@ interface ListEngineersParams {
 
 interface SearchEngineersParams {
     name?: string;
+    phone?: string;
     education?: string;
-    registrationNumber?: string;
 }
 
 export const EngineerService = {
-    async create(data: CreateEngineerData): Promise<engineerProps> {
+    async create(
+        data: CreateEngineerData,
+    ): Promise<ApiResponse<engineerProps>> {
         try {
             const response = await api.post(API_ROUTES.ENGINEERS.CREATE, data);
             return response.data;
@@ -36,7 +38,7 @@ export const EngineerService = {
 
     async listAll(
         params?: ListEngineersParams,
-    ): Promise<ApiResponse<engineerProps[]>> {
+    ): Promise<{ data: EngineersApiResponse }> {
         try {
             const response = await api.get(API_ROUTES.ENGINEERS.BASE, {
                 params: params,
@@ -47,7 +49,9 @@ export const EngineerService = {
         }
     },
 
-    async search(params: SearchEngineersParams): Promise<engineerProps[]> {
+    async search(
+        params: SearchEngineersParams,
+    ): Promise<ApiResponse<EngineersApiResponse>> {
         try {
             const response = await api.get(API_ROUTES.ENGINEERS.SEARCH, {
                 params: params,
@@ -58,7 +62,7 @@ export const EngineerService = {
         }
     },
 
-    async getById(id: string): Promise<engineerProps> {
+    async getById(id: string): Promise<ApiResponse<engineerProps>> {
         try {
             const response = await api.get(API_ROUTES.ENGINEERS.BY_ID({ id }));
             return response.data;
@@ -70,7 +74,7 @@ export const EngineerService = {
     async update(
         id: string,
         data: Partial<CreateEngineerData>,
-    ): Promise<engineerProps> {
+    ): Promise<ApiResponse<engineerProps>> {
         try {
             const response = await api.patch(
                 API_ROUTES.ENGINEERS.UPDATE({ id }),

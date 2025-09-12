@@ -5,6 +5,8 @@ export interface ProjectProps {
     agencyNumber: string;
     upeCode: string;
     projectType: ProjectType;
+    technicalResponsibilityNumber?: string;
+    state: string;
     city: string;
     district: string;
     engineer: string;

@@ -75,7 +75,7 @@ export default function ProjectEditPage() {
         const fetchEngineers = async () => {
             try {
                 const result = await EngineerService.listAll();
-                const data = result.data;
+                const data = result.data.engineers;
                 const formatted = data.map((engineer: engineerProps) => ({
                     id: engineer.id,
                     value: engineer.id,
@@ -119,6 +119,10 @@ export default function ProjectEditPage() {
                 setValue(
                     'inspectionDate',
                     formatDateForInput(data.inspectionDate),
+                );
+                setValue(
+                    'technicalResponsibilityNumber',
+                    data.technicalResponsibilityNumber || '',
                 );
                 setValue('structureType', data.structureType || '');
                 setValue('floorHeight', data.floorHeight || '');
@@ -213,6 +217,8 @@ export default function ProjectEditPage() {
                 structureType: formData.structureType || undefined,
                 engineerId: formData.engineer?.id,
                 floorHeight: formData.floorHeight,
+                technicalResponsibilityNumber:
+                    formData.technicalResponsibilityNumber,
                 pavements: formData.pavements?.map((p) => ({
                     id: p.id,
                     pavement: p.pavement,
@@ -366,6 +372,20 @@ export default function ProjectEditPage() {
                             id="ProjectDateInput"
                             defaultValue={project?.createdAt}
                             disabled
+                        />
+
+                        <CustomEditInput
+                            label="Número ART/RRT do Projeto"
+                            registration={register(
+                                'technicalResponsibilityNumber',
+                            )}
+                            error={
+                                errors.technicalResponsibilityNumber?.message
+                            }
+                            id="TechnicalResponsibilityNumberInput"
+                            defaultValue={
+                                project?.technicalResponsibilityNumber
+                            }
                         />
 
                         <CustomEditInput
