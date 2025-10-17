@@ -40,7 +40,7 @@ export function AdminDropdownMenu({
     }, [projectId]);
 
     const handleCopyLink = () => {
-        const message = `🔗 Link de acesso à vistoria:\n${process.env.APP_URL}/accessKey\n\nClique no link acima para abrir a página onde você deve colar a chave de acesso.\n\n👉 A chave que deverá ser copiada será enviada logo em seguida.`;
+        const message = `🔗 Link de acesso à vistoria:\nhttps://fagon.vercel.app/accessKey\n\nClique no link acima para abrir a página onde você deve colar a chave de acesso.\n\n👉 A chave que deverá ser copiada será enviada logo em seguida.`;
         navigator.clipboard.writeText(message);
         toast.success('Link copiado com sucesso!');
     };

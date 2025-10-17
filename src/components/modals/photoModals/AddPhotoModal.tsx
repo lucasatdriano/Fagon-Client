@@ -2,8 +2,9 @@
 
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useRef, useState } from 'react';
-import { CameraIcon, ImageIcon } from 'lucide-react';
+import { CameraIcon, ImageIcon, Loader2Icon } from 'lucide-react';
 import { toast } from 'sonner';
+import { fixImageOrientation } from '@/utils/imageOrientation';
 
 interface AddPhotoModalProps {
     isOpen: boolean;
@@ -34,6 +35,39 @@ export function AddPhotoModal({
         }
     };
 
+    const processImages = async (files: File[]): Promise<File[]> => {
+        const processedFiles: File[] = [];
+
+        for (const file of files) {
+            try {
+                if (!file.type.startsWith('image/')) {
+                    processedFiles.push(file);
+                    continue;
+                }
+
+                if (
+                    file.type === 'image/jpeg' ||
+                    file.type === 'image/jpg' ||
+                    file.name.toLowerCase().endsWith('.heic')
+                ) {
+                    const fixedImage = await fixImageOrientation(file);
+                    processedFiles.push(fixedImage.file);
+                } else {
+                    processedFiles.push(file);
+                }
+            } catch (error) {
+                console.warn(
+                    'Não foi possível corrigir a orientação da imagem:',
+                    file.name,
+                    error,
+                );
+                processedFiles.push(file);
+            }
+        }
+
+        return processedFiles;
+    };
+
     const handleAddPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || e.target.files.length === 0) {
             toast.error('Nenhum arquivo selecionado');
@@ -44,7 +78,9 @@ export function AddPhotoModal({
             setUploading(true);
             const files = Array.from(e.target.files);
 
-            const validFiles = files.map((file: File | unknown) => {
+            const processedFiles = await processImages(files);
+
+            const validFiles = processedFiles.map((file) => {
                 if (!(file instanceof File)) {
                     const fileLike = file as { name?: string; type?: string };
                     return new File(
@@ -58,19 +94,7 @@ export function AddPhotoModal({
                 return file;
             });
 
-            validFiles.forEach((file) => {
-                if (!(file instanceof File)) {
-                    throw new Error(`Tipo de arquivo inválido: ${file}`);
-                }
-            });
-
-            validFiles.map((file) => ({
-                file,
-                previewUrl: URL.createObjectURL(file),
-            }));
-
             onPhotosAdded(validFiles);
-
             toast.success('Fotos adicionadas com sucesso!');
         } catch (error) {
             console.error('Erro detalhado:', error);
@@ -118,24 +142,32 @@ export function AddPhotoModal({
                                     <button
                                         onClick={openCamera}
                                         disabled={isLoading || uploading}
-                                        className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
+                                        className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        <CameraIcon className="w-5 h-5" />
+                                        {uploading ? (
+                                            <Loader2Icon className="w-5 h-5 animate-spin" />
+                                        ) : (
+                                            <CameraIcon className="w-5 h-5" />
+                                        )}
                                         <span>
                                             {uploading
-                                                ? 'Enviando...'
+                                                ? 'Processando...'
                                                 : 'Tirar foto'}
                                         </span>
                                     </button>
                                     <button
                                         onClick={openGallery}
                                         disabled={isLoading || uploading}
-                                        className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50"
+                                        className="flex items-center justify-center gap-2 w-full py-3 px-4 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        <ImageIcon className="w-5 h-5" />
+                                        {uploading ? (
+                                            <Loader2Icon className="w-5 h-5 animate-spin" />
+                                        ) : (
+                                            <ImageIcon className="w-5 h-5" />
+                                        )}
                                         <span>
                                             {uploading
-                                                ? 'Enviando...'
+                                                ? 'Processando...'
                                                 : 'Escolher da galeria'}
                                         </span>
                                     </button>
@@ -144,7 +176,7 @@ export function AddPhotoModal({
                                     <button
                                         onClick={onClose}
                                         disabled={uploading}
-                                        className="w-full py-2 rounded-lg font-medium text-center text-gray-700 hover:bg-gray-100"
+                                        className="w-full py-2 rounded-lg font-medium text-center text-gray-700 hover:bg-gray-100 disabled:opacity-50"
                                     >
                                         Cancelar
                                     </button>
