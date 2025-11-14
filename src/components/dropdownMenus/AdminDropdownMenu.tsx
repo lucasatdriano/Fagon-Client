@@ -30,11 +30,15 @@ export function AdminDropdownMenu({
         const savedKey = localStorage.getItem(`accessKey_${projectId}`);
         if (savedKey) {
             const { key, expiresAt } = JSON.parse(savedKey);
-            if (new Date(expiresAt) > new Date()) {
+            const expiryDate = new Date(expiresAt);
+
+            if (expiryDate > new Date()) {
                 setAccessKey(key);
-                setExpiresAt(new Date(expiresAt));
+                setExpiresAt(expiryDate);
             } else {
                 localStorage.removeItem(`accessKey_${projectId}`);
+                setAccessKey('');
+                setExpiresAt(null);
             }
         }
     }, [projectId]);
@@ -99,10 +103,25 @@ export function AdminDropdownMenu({
             return 'Expirada';
         }
 
-        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor(
+            (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+        );
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
-        return `(Expira em ${hours}h ${minutes}m)`;
+        if (days > 0) {
+            return `(Expira em ${days} ${
+                days === 1 ? 'dia' : 'dias'
+            } e ${hours} ${hours === 1 ? 'hora' : 'horas'})`;
+        } else if (hours > 0) {
+            return `(Expira em ${hours} ${
+                hours === 1 ? 'hora' : 'horas'
+            } e ${minutes} ${minutes === 1 ? 'minuto' : 'minutos'})`;
+        } else {
+            return `(Expira em ${minutes} ${
+                minutes === 1 ? 'minuto' : 'minutos'
+            })`;
+        }
     };
 
     const items = [
