@@ -30,6 +30,10 @@ interface AccessKeyData {
     cameraType: string;
 }
 
+interface RevokeAccessKeyData {
+    message: string;
+}
+
 export interface UserData {
     id: string;
     name: string;
@@ -76,6 +80,19 @@ export const AuthService = {
                 API_ROUTES.AUTH.ACCESS_KEYS,
                 accessKeyData,
             );
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    },
+
+    async revokeAccessKey(
+        accessKeyToken: string,
+    ): Promise<ApiResponse<RevokeAccessKeyData>> {
+        try {
+            const response = await api.post(API_ROUTES.AUTH.REVOKE_ACCESS_KEY, {
+                accessKeyToken,
+            });
             return response.data;
         } catch (error) {
             throw error;

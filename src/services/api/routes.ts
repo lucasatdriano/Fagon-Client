@@ -15,6 +15,7 @@ const API_ROUTES = {
         LOGIN: '/auth/login',
         REGISTER: '/auth/register',
         ACCESS_KEYS: '/auth/access-keys',
+        REVOKE_ACCESS_KEY: '/auth/access-keys/revoke',
     },
 
     LOGS: {

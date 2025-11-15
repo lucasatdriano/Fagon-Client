@@ -1,7 +1,13 @@
 'use client';
 
 import { ReactNode, useState, useEffect } from 'react';
-import { CopyIcon, KeyIcon, CheckIcon, ShieldPlusIcon } from 'lucide-react';
+import {
+    CopyIcon,
+    KeyIcon,
+    CheckIcon,
+    ShieldPlusIcon,
+    BanIcon,
+} from 'lucide-react';
 import { CustomRadioGroup } from '../forms/CustomRadioGroup';
 import { DropdownMenu } from './DropdownMenu';
 import { toast } from 'sonner';
@@ -23,6 +29,7 @@ export function AdminDropdownMenu({
     const [expiresAt, setExpiresAt] = useState<Date | null>(null);
     const [copied, setCopied] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isRevoking, setIsRevoking] = useState(false);
 
     useEffect(() => {
         if (!projectId) return;
@@ -79,8 +86,31 @@ export function AdminDropdownMenu({
             toast.success('Chave gerada!', { id: toastId });
         } catch (error) {
             console.error('[ERROR] Falha na geração:', error);
+            toast.error('Erro ao gerar chave');
         } finally {
             setIsGenerating(false);
+        }
+    };
+
+    const handleRevokeAccessKey = async () => {
+        if (!accessKey || !projectId) return;
+
+        setIsRevoking(true);
+        const toastId = toast.loading('Cancelando chave...');
+
+        try {
+            await AuthService.revokeAccessKey(accessKey);
+
+            setAccessKey('');
+            setExpiresAt(null);
+            localStorage.removeItem(`accessKey_${projectId}`);
+
+            toast.success('Chave cancelada com sucesso!', { id: toastId });
+        } catch (error) {
+            console.error('[ERROR] Falha na revogação:', error);
+            toast.error('Erro ao cancelar chave');
+        } finally {
+            setIsRevoking(false);
         }
     };
 
@@ -100,6 +130,8 @@ export function AdminDropdownMenu({
 
         if (diff <= 0) {
             localStorage.removeItem(`accessKey_${projectId}`);
+            setAccessKey('');
+            setExpiresAt(null);
             return 'Expirada';
         }
 
@@ -158,7 +190,7 @@ export function AdminDropdownMenu({
                   label: '',
                   type: 'custom' as const,
                   customContent: (
-                      <div className="px-2 py-1">
+                      <div className="px-2 py-1 space-y-2">
                           <div className="text-xs text-gray-500 mb-1">
                               Chave de Acesso {getRemainingTime()}
                           </div>
@@ -171,7 +203,7 @@ export function AdminDropdownMenu({
                               />
                               <button
                                   onClick={handleCopyKey}
-                                  className="p-2 rounded-md hover:bg-gray-100"
+                                  className="p-2 rounded-md hover:bg-gray-100 transition-colors"
                                   title="Copiar chave"
                               >
                                   {copied ? (
@@ -181,6 +213,14 @@ export function AdminDropdownMenu({
                                   )}
                               </button>
                           </div>
+                          <button
+                              onClick={handleRevokeAccessKey}
+                              disabled={isRevoking}
+                              className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                              <BanIcon className="w-4 h-4" />
+                              {isRevoking ? 'Cancelando...' : 'Cancelar Chave'}
+                          </button>
                       </div>
                   ),
               }
@@ -191,7 +231,7 @@ export function AdminDropdownMenu({
                   disabled: !cameraOption || isGenerating,
                   className: !cameraOption
                       ? 'opacity-50 cursor-not-allowed'
-                      : '',
+                      : 'cursor-pointer',
               },
     ];
 
