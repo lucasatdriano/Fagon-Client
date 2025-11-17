@@ -3,9 +3,9 @@
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { Loader2Icon, XIcon } from 'lucide-react';
-import Image from 'next/image';
 import { PhotoService } from '../../../services/domains/photoService';
 import { PathologyPhotosService } from '../../../services/domains/pathologyPhotoService';
+import { ImageRotator } from '@/components/layout/ImageRotator';
 
 interface PhotoViewModalProps {
     photoId?: string;
@@ -114,18 +114,10 @@ export function PhotoViewModal({
 
                                 <div className="relative aspect-[4/4] w-full h-full">
                                     {imageUrl ? (
-                                        <Image
+                                        <ImageRotator
                                             src={imageUrl}
                                             alt="Visualização da foto"
-                                            fill
-                                            className="object-contain"
-                                            unoptimized={true}
-                                            onError={(e) => {
-                                                const target =
-                                                    e.target as HTMLImageElement;
-                                                target.onerror = null;
-                                                setImageUrl(null);
-                                            }}
+                                            className="w-full h-full object-contain"
                                         />
                                     ) : (
                                         <div className="flex items-center justify-center h-full text-white">

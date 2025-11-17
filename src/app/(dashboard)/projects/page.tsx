@@ -57,6 +57,8 @@ export default function DashboardProjectsPage() {
                             searchValue.length === 2
                                 ? searchValue.toUpperCase()
                                 : undefined,
+                        page: currentPage,
+                        limit: ITEMS_PER_PAGE,
                     };
                     const cleanedParams = Object.fromEntries(
                         Object.entries(searchParams).filter(
@@ -70,8 +72,8 @@ export default function DashboardProjectsPage() {
                 setProjects(response.data.projects);
                 setPagination({
                     total: response.data.meta?.resource?.total || 0,
-                    page: 1,
-                    totalPages: 1,
+                    page: currentPage,
+                    totalPages: response.data.meta?.resource?.totalPages || 1,
                 });
             } catch (err) {
                 console.error('Erro ao carregar projetos:', err);
