@@ -99,6 +99,21 @@ export const PhotoService = {
         }
     },
 
+    async rotatePhoto(
+        photoId: string,
+        rotation: number,
+    ): Promise<ApiResponse<Photo>> {
+        try {
+            const response = await api.put(
+                API_ROUTES.PHOTOS.ROTATE({ id: photoId }),
+                { rotation },
+            );
+            return response.data;
+        } catch (error) {
+            throw new Error(extractAxiosError(error));
+        }
+    },
+
     async getSignedUrl(photoId: string): Promise<string> {
         try {
             const response = await api.get(

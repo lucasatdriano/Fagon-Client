@@ -119,6 +119,7 @@ const API_ROUTES = {
         SIGNED_URL: ({ id }: Params) => `/photos/${id}/signed-url`,
         UPDATE: ({ id }: Params) => `/photos/${id}`,
         DELETE: ({ id }: Params) => `/photos/${id}`,
+        ROTATE: ({ id }: Params) => `/photos/${id}/rotate`,
     },
 
     PDFS: {

@@ -16,6 +16,13 @@ interface PhotoCardProps {
     isPathologyPhoto?: boolean;
     disabled?: boolean;
     isVisitor?: boolean;
+    onSaveRotatedPhoto?: (photoId: string, rotation: number) => Promise<void>;
+    allPhotos?: Array<{
+        id: string;
+        filePath?: string;
+        file?: File;
+        name?: string;
+    }>;
 }
 
 export function PhotoCard({
@@ -26,6 +33,8 @@ export function PhotoCard({
     disabled,
     isVisitor = false,
     isPathologyPhoto = false,
+    onSaveRotatedPhoto,
+    allPhotos,
 }: PhotoCardProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [isSelected, setIsSelected] = useState(
@@ -164,6 +173,9 @@ export function PhotoCard({
                 photoId={photo.id || ''}
                 file={photo.file || undefined}
                 isPathologyPhoto={isPathologyPhoto}
+                onSaveRotatedPhoto={onSaveRotatedPhoto}
+                allPhotos={allPhotos}
+                currentPhotoIndex={index}
             />
         </>
     );

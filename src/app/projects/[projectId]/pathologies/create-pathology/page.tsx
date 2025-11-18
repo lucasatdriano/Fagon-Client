@@ -368,7 +368,9 @@ export default function CreatePathologyPage() {
                     <CustomButton
                         type="submit"
                         icon={<SaveIcon />}
-                        disabled={isLoading || isNormalCamera && photos.length < 2}
+                        disabled={
+                            isLoading || (isNormalCamera && photos.length < 2)
+                        }
                         className="px-8 py-3"
                     >
                         {isLoading ? 'Salvando...' : 'Salvar Patologia'}
@@ -403,20 +405,16 @@ export default function CreatePathologyPage() {
                                     onClick={() => handleCardClick(p)}
                                     className="cursor-pointer"
                                 >
-                                   {pathologies.map((p) => (
-                                        <div key={p.id} onClick={() => handleCardClick(p)} className="cursor-pointer">
-                                            <PathologyCard
-                                                id={p.id}
-                                                title={p.title}
-                                                location={p.referenceLocation}
-                                                photoCount={p.pathologyPhoto?.length}
-                                                onClick={() => handleCardClick(p)}
-                                                onDelete={handleDeletePathology}
-                                                disabled={isLoading}
-                                                isVisitor={isVisitor}
-                                            />
-                                        </div>
-                                    ))}
+                                    <PathologyCard
+                                        id={p.id}
+                                        title={p.title}
+                                        location={p.referenceLocation}
+                                        photoCount={p.pathologyPhoto?.length}
+                                        onClick={() => handleCardClick(p)}
+                                        onDelete={handleDeletePathology}
+                                        disabled={isLoading}
+                                        isVisitor={isVisitor}
+                                    />
                                 </div>
                             ))}
                             <div className="col-span-2 mt-4">

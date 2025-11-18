@@ -12,8 +12,10 @@ import { CustomRadioGroup } from '../forms/CustomRadioGroup';
 import { DropdownMenu } from './DropdownMenu';
 import { toast } from 'sonner';
 import { AuthService } from '../../services/domains/authService';
+import { ProjectService } from '../../services/domains/projectService'; // Adicione esta importação
 import { cameraType } from '../../constants';
 import { CustomReadOnlyFormInput } from '../forms/CustomReadOnlyFormInput';
+import { formatNumberAgency } from '@/utils/formatters/formatNumberAgency';
 
 interface AdminDropdownMenuProps {
     trigger: ReactNode;
@@ -30,9 +32,28 @@ export function AdminDropdownMenu({
     const [copied, setCopied] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isRevoking, setIsRevoking] = useState(false);
+    const [projectData, setProjectData] = useState<{
+        agencyName: string;
+        agencyNumber: string;
+    } | null>(null);
 
     useEffect(() => {
         if (!projectId) return;
+
+        const fetchProjectData = async () => {
+            try {
+                const response = await ProjectService.getById(projectId);
+                const project = response.data;
+                setProjectData({
+                    agencyName: project.agency.name,
+                    agencyNumber: project.agency.agencyNumber,
+                });
+            } catch (error) {
+                console.error('Erro ao buscar dados do projeto:', error);
+            }
+        };
+
+        fetchProjectData();
 
         const savedKey = localStorage.getItem(`accessKey_${projectId}`);
         if (savedKey) {
@@ -51,7 +72,17 @@ export function AdminDropdownMenu({
     }, [projectId]);
 
     const handleCopyLink = () => {
-        const message = `🔗 Link de acesso à vistoria:\nhttps://fagon.vercel.app/accessKey\n\nClique no link acima para abrir a página onde você deve colar a chave de acesso.\n\n👉 A chave que deverá ser copiada será enviada logo em seguida.`;
+        if (!projectData) {
+            toast.error('Dados do projeto não carregados');
+            return;
+        }
+
+        const { agencyName, agencyNumber } = projectData;
+
+        const message = `🔗 Link de acesso à vistoria - ${agencyName} (AG. ${formatNumberAgency(
+            agencyNumber,
+        )}):\nhttps://fagon.vercel.app/accessKey\n\nClique no link acima para abrir a página onde você deve colar a chave de acesso.\n\n👉 A chave que deverá ser copiada será enviada logo em seguida.`;
+
         navigator.clipboard.writeText(message);
         toast.success('Link copiado com sucesso!');
     };
@@ -162,6 +193,7 @@ export function AdminDropdownMenu({
             action: handleCopyLink,
             icon: <CopyIcon className="w-5 h-5" />,
             className: 'cursor-pointer',
+            disabled: !projectData, // Desabilitar se os dados não carregaram
         },
         ...(!accessKey
             ? [

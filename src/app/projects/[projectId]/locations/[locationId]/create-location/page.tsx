@@ -436,6 +436,27 @@ export default function CreateLocationPage() {
         }
     };
 
+    const handleSaveRotatedPhoto = async (
+        photoId: string,
+        rotation: number,
+    ) => {
+        try {
+            await PhotoService.rotatePhoto(photoId, rotation);
+
+            const updatedPhotosResponse = await PhotoService.listByLocation(
+                locationId as string,
+                true,
+            );
+            setAllPhotos(updatedPhotosResponse.data);
+
+            toast.success('Foto rotacionada e salva com sucesso!');
+        } catch (error) {
+            console.error('Erro ao rotacionar foto:', error);
+            toast.error('Erro ao rotacionar a foto');
+            throw error;
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="flex justify-center items-center h-svh w-screen">
@@ -530,6 +551,13 @@ export default function CreateLocationPage() {
                                 index={index}
                                 isVisitor={isVisitor}
                                 disabled={isLoading}
+                                onSaveRotatedPhoto={handleSaveRotatedPhoto}
+                                allPhotos={allPhotos.map((p) => ({
+                                    id: p.id || '',
+                                    filePath: p.tempUrl || p.filePath,
+                                    file: p.file,
+                                    name: p.name,
+                                }))}
                             />
                         ))}
                     </div>
