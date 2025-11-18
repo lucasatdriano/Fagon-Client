@@ -122,18 +122,19 @@ export default function CreateLocationPage() {
             );
             setPavements(mappedPavements);
 
-            const mappedPhotos =
-                locationData.photo?.map((photo) => ({
+            const mappedPhotos = (locationData.photo || [])
+                .map((photo) => ({
                     id: photo.id,
                     name: photo.name,
                     filePath: photo.filePath.startsWith('http')
                         ? photo.filePath
                         : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/sign/${process.env.NEXT_PUBLIC_SUPABASE_BUCKET_NAME}/${photo.filePath}`,
                     selectedForPdf: photo.selectedForPdf,
-                })) || [];
+                }))
+                .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
 
             setLocation(locationData);
-            setAllPhotos(mappedPhotos || []);
+            setAllPhotos(mappedPhotos);
 
             setValue('name', getLocationLabelByValue(locationData.name));
             setValue('locationType', locationData.locationType);
@@ -236,17 +237,21 @@ export default function CreateLocationPage() {
 
     const handlePhotosAdded = useCallback(
         (files: File[]) => {
-            const tempPhotos = files.map((file) => ({
+            const tempPhotos = files.map((file, index) => ({
                 file,
                 tempUrl: URL.createObjectURL(file),
                 filePath: `temp-${file.name}`,
                 selectedForPdf: false,
-                id: `temp-${Date.now()}-${Math.random()
-                    .toString(36)
-                    .substr(2, 9)}`,
+                id: `temp-${Date.now()}-${index}`,
+                name: file.name,
+                isTemp: true,
             }));
 
-            setAllPhotos((prev) => [...prev, ...tempPhotos]);
+            const updatedPhotos = [...allPhotos, ...tempPhotos].sort((a, b) =>
+                (a.name ?? '').localeCompare(b.name ?? ''),
+            );
+
+            setAllPhotos(updatedPhotos);
 
             (async () => {
                 try {
@@ -257,26 +262,36 @@ export default function CreateLocationPage() {
 
                     const uploadedPhotos = response.data.map((photo) => ({
                         id: photo.id,
+                        name: photo.name,
                         filePath: photo.filePath.startsWith('http')
                             ? photo.filePath
                             : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/sign/${process.env.NEXT_PUBLIC_SUPABASE_BUCKET_NAME}/${photo.filePath}`,
                         selectedForPdf: false,
+                        isTemp: false,
                     }));
 
-                    setAllPhotos((prev) => [
-                        ...prev.filter((p) => !p.id?.startsWith('temp-')),
-                        ...uploadedPhotos,
-                    ]);
+                    setAllPhotos((prev) => {
+                        const withoutTemps = prev.filter((p) => !p.isTemp);
+                        const allRealPhotos = [
+                            ...withoutTemps,
+                            ...uploadedPhotos,
+                        ];
+                        return allRealPhotos.sort((a, b) =>
+                            (a.name ?? '').localeCompare(b.name ?? ''),
+                        );
+                    });
                 } catch (error) {
                     console.error('Upload failed:', error);
                     setAllPhotos((prev) =>
-                        prev.filter((p) => !p.id?.startsWith('temp-')),
+                        prev.filter(
+                            (p) => !tempPhotos.some((temp) => temp.id === p.id),
+                        ),
                     );
                     toast.error('Falha no upload das fotos');
                 }
             })();
         },
-        [locationId],
+        [locationId, allPhotos],
     );
 
     const handleTogglePhotoSelection = useCallback(
@@ -535,9 +550,9 @@ export default function CreateLocationPage() {
                             <span>Adicionar Foto</span>
                         </button>
 
-                        {allPhotos.map((photo, index) => (
+                        {allPhotos.map((photo) => (
                             <PhotoCard
-                                key={`photo-${photo.id}-${index}`}
+                                key={photo.id}
                                 photo={{
                                     id: photo.id || '',
                                     name: photo.name || '',
@@ -548,7 +563,7 @@ export default function CreateLocationPage() {
                                 }}
                                 onSelect={handleTogglePhotoSelection}
                                 onDelete={handleDeletePhoto}
-                                index={index}
+                                index={allPhotos.indexOf(photo)}
                                 isVisitor={isVisitor}
                                 disabled={isLoading}
                                 onSaveRotatedPhoto={handleSaveRotatedPhoto}
