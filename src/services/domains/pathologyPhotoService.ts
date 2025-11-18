@@ -1,6 +1,7 @@
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
 import { ApiResponse } from '../../types/api';
+import { GetSignedUrlOptions } from '@/interfaces/signedUrlOptions';
 
 export interface PathologyPhoto {
     id: string;
@@ -113,18 +114,32 @@ export const PathologyPhotosService = {
         }
     },
 
-    async getSignedUrl(photoId: string): Promise<string> {
+    async getSignedUrl(
+        photoId: string,
+        options?: GetSignedUrlOptions,
+    ): Promise<string> {
         try {
             const response = await api.get(
-                API_ROUTES.PATHOLOGY_PHOTOS.SIGNED_URL({ id: photoId }),
+                `/pathology-photos/${photoId}/signed-url`,
+                {
+                    signal: options?.signal,
+                },
             );
 
-            if (!response.data?.data?.url) {
+            if (!response.data?.data.url) {
                 throw new Error('Invalid response format from server');
             }
 
             return response.data.data.url;
         } catch (error) {
+            const isCanceled =
+                error instanceof Error &&
+                (error.name === 'CanceledError' || error.name === 'AbortError');
+
+            if (isCanceled) {
+                throw error;
+            }
+
             console.error(
                 'Error getting signed URL for pathology photo:',
                 error,

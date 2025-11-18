@@ -10,7 +10,7 @@ interface ImageRotatorProps {
     alt: string;
     photoId?: string;
     className?: string;
-    onSaveRotation?: (photoId: string, rotation: number) => Promise<void>; // Mudou para rotation number
+    onSaveRotation?: (photoId: string, rotation: number) => Promise<void>;
 }
 
 export function ImageRotator({
@@ -64,7 +64,7 @@ export function ImageRotator({
             setIsSaving(true);
             await onSaveRotation(photoId, rotation);
             toast.success('Foto rotacionada e salva com sucesso!');
-            setRotation(0); // Reseta a rotação após salvar
+            setRotation(0);
         } catch (error) {
             console.error('Erro ao salvar rotação:', error);
             toast.error('Erro ao rotacionar a foto');
@@ -79,6 +79,7 @@ export function ImageRotator({
                 className={`${rotationClass} transition-transform duration-200 ${className}`}
             >
                 <Image
+                    key={`${src}-${Date.now()}`}
                     src={src}
                     alt={alt}
                     width={600}
@@ -86,10 +87,14 @@ export function ImageRotator({
                     className="object-contain max-w-full max-h-[70vh]"
                     unoptimized={true}
                     style={{ width: 'auto', height: 'auto' }}
+                    priority={true}
+                    onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = `${src}&force-reload=${Date.now()}`;
+                    }}
                 />
             </div>
 
-            {/* Controles de rotação e salvamento */}
             <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-1">
                 <button
                     onClick={rotateLeft}
@@ -118,7 +123,6 @@ export function ImageRotator({
                 )}
             </div>
 
-            {/* Indicador de rotação atual */}
             {rotation !== 0 && (
                 <div className="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded text-sm">
                     {rotation}°

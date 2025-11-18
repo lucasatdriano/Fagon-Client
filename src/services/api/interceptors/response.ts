@@ -1,9 +1,9 @@
-import { AxiosInstance } from 'axios';
+import { AxiosInstance, AxiosResponse, AxiosError } from 'axios';
 import { parseCookies } from 'nookies';
 
 export const setupResponseInterceptor = (api: AxiosInstance) => {
     api.interceptors.response.use(
-        (response) => {
+        (response: AxiosResponse) => {
             console.group(
                 `[Axios] Resposta de sucesso: ${response.status} ${response.config.url}`,
             );
@@ -23,24 +23,32 @@ export const setupResponseInterceptor = (api: AxiosInstance) => {
 
             return response;
         },
-        (error) => {
+        (error: AxiosError) => {
             console.group('[Axios] Erro na resposta');
+
+            const isCanceled =
+                error instanceof Error &&
+                (error.code === 'ERR_CANCELED' ||
+                    error.name === 'CanceledError');
+
+            if (isCanceled) {
+                return Promise.reject(error);
+            }
 
             if (error.response) {
                 console.error('Detalhes do erro:', {
                     status: error.response.status,
                     headers: error.response.headers,
-                    data: error.response.data.data,
-                    meta: error.response.meta,
+                    data: error.response.data,
                     request: {
-                        method: error.config.method,
-                        url: error.config.url,
-                        data: error.config.data,
-                        params: error.config.params,
+                        method: error.config?.method,
+                        url: error.config?.url,
+                        data: error.config?.data,
+                        params: error.config?.params,
                     },
                 });
 
-                if (error.response?.status === 401) {
+                if (error.response.status === 401) {
                     const cookies = parseCookies();
 
                     if (cookies.accessToken) {

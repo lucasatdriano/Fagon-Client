@@ -8,7 +8,7 @@ import {
     useState,
     useCallback,
     useMemo,
-} from 'react'; // Adicione useMemo
+} from 'react';
 import {
     ChevronLeftIcon,
     ChevronRightIcon,
@@ -49,26 +49,40 @@ export function PhotoViewModal({
     const [isLoading, setIsLoading] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(currentPhotoIndex);
     const imageUrlRef = useRef<string | null>(null);
+    const abortControllerRef = useRef<AbortController | null>(null);
+    const currentPhotoIdRef = useRef<string | undefined>(null);
 
-    // Atualizar índice quando o currentPhotoIndex mudar
     useEffect(() => {
-        setCurrentIndex(currentPhotoIndex);
-    }, [currentPhotoIndex]);
+        if (isOpen) {
+            setCurrentIndex(currentPhotoIndex);
+        }
+    }, [isOpen, currentPhotoIndex]);
 
-    // CORREÇÃO: Usar useMemo para currentPhoto
     const currentPhoto = useMemo(() => {
         return allPhotos[currentIndex] || { id: photoId, file };
-    }, [allPhotos, currentIndex, photoId, file]); // Adicionar todas as dependências
+    }, [allPhotos, currentIndex, photoId, file]);
 
-    // CORREÇÃO: Mover loadPhoto para useCallback
     const loadPhoto = useCallback(
         async (photo: { id?: string; file?: File }) => {
+            if (currentPhotoIdRef.current === photo.id && imageUrlRef.current) {
+                return;
+            }
+
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+
+            abortControllerRef.current = new AbortController();
+            currentPhotoIdRef.current = photo.id;
+
             setIsLoading(true);
+
             try {
-                // Limpar URL anterior se existir
-                if (imageUrlRef.current && photo.file) {
+                if (imageUrlRef.current) {
                     URL.revokeObjectURL(imageUrlRef.current);
+                    imageUrlRef.current = null;
                 }
+                setImageUrl(null);
 
                 if (photo.file instanceof File) {
                     const url = URL.createObjectURL(photo.file);
@@ -78,38 +92,65 @@ export function PhotoViewModal({
                 }
 
                 const timestamp = Date.now();
+                const random = Math.random().toString(36).substring(2, 15);
+
                 let signedUrl: string;
 
                 if (isPathologyPhoto) {
                     signedUrl = await PathologyPhotosService.getSignedUrl(
                         photo.id || '',
+                        { signal: abortControllerRef.current.signal },
                     );
                 } else {
-                    signedUrl = await PhotoService.getSignedUrl(photo.id || '');
+                    signedUrl = await PhotoService.getSignedUrl(
+                        photo.id || '',
+                        { signal: abortControllerRef.current.signal },
+                    );
                 }
 
-                const urlWithTimestamp = signedUrl.includes('?')
-                    ? `${signedUrl}&t=${timestamp}`
-                    : `${signedUrl}?t=${timestamp}`;
+                if (abortControllerRef.current.signal.aborted) {
+                    return;
+                }
 
-                setImageUrl(urlWithTimestamp);
+                const urlWithCacheBust = signedUrl.includes('?')
+                    ? `${signedUrl}&t=${timestamp}&r=${random}`
+                    : `${signedUrl}?t=${timestamp}&r=${random}`;
+
+                setImageUrl(urlWithCacheBust);
+                imageUrlRef.current = urlWithCacheBust;
             } catch (error) {
                 console.error('Failed to load photo:', error);
                 setImageUrl(null);
             } finally {
-                setIsLoading(false);
+                if (!abortControllerRef.current?.signal.aborted) {
+                    setIsLoading(false);
+                }
             }
         },
         [isPathologyPhoto],
-    ); // Adicionar dependências
+    );
 
     useEffect(() => {
         if (!isOpen) return;
 
+        currentPhotoIdRef.current = undefined;
         loadPhoto(currentPhoto);
-    }, [isOpen, currentPhoto, loadPhoto]); // CORREÇÃO: Agora currentPhoto é memoizado
 
-    // CORREÇÃO: Mover goToPrevious e goToNext para useCallback
+        return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
+    }, [isOpen, currentPhoto, loadPhoto]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        if (currentPhotoIdRef.current !== currentPhoto.id) {
+            loadPhoto(currentPhoto);
+        }
+    }, [currentPhoto, isOpen, loadPhoto]);
+
     const goToPrevious = useCallback(() => {
         if (allPhotos.length <= 1) return;
         const newIndex =
@@ -124,7 +165,6 @@ export function PhotoViewModal({
         setCurrentIndex(newIndex);
     }, [allPhotos.length, currentIndex]);
 
-    // Adicionar navegação por teclado
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             if (!isOpen) return;
@@ -146,14 +186,33 @@ export function PhotoViewModal({
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, [isOpen, goToPrevious, goToNext, onClose]); // CORREÇÃO: Adicionar todas as dependências
+    }, [isOpen, goToPrevious, goToNext, onClose]);
 
     const cleanup = useCallback(() => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+            abortControllerRef.current = null;
+        }
+
         if (imageUrlRef.current) {
             URL.revokeObjectURL(imageUrlRef.current);
             imageUrlRef.current = null;
         }
+
+        currentPhotoIdRef.current = undefined;
+        setImageUrl(null);
     }, []);
+
+    const handleClose = useCallback(() => {
+        cleanup();
+        onClose();
+    }, [cleanup, onClose]);
+
+    useEffect(() => {
+        if (!isOpen) {
+            cleanup();
+        }
+    }, [isOpen, cleanup]);
 
     useEffect(() => {
         return cleanup;
@@ -161,7 +220,7 @@ export function PhotoViewModal({
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
-            <Dialog as="div" className="relative z-50" onClose={onClose}>
+            <Dialog as="div" className="relative z-50" onClose={handleClose}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"
@@ -192,16 +251,14 @@ export function PhotoViewModal({
                                     </div>
                                 )}
 
-                                {/* Botão Fechar */}
                                 <button
                                     title="Fechar modal"
-                                    onClick={onClose}
+                                    onClick={handleClose}
                                     className="absolute right-4 top-4 z-20 rounded-full bg-black/50 p-2 text-white hover:bg-black/75 transition-colors"
                                 >
                                     <XIcon className="h-6 w-6" />
                                 </button>
 
-                                {/* Botão Anterior */}
                                 {allPhotos.length > 1 && (
                                     <button
                                         title="Foto anterior"
@@ -212,7 +269,6 @@ export function PhotoViewModal({
                                     </button>
                                 )}
 
-                                {/* Botão Próximo */}
                                 {allPhotos.length > 1 && (
                                     <button
                                         title="Próxima foto"
@@ -230,8 +286,9 @@ export function PhotoViewModal({
                                 )}
 
                                 <div className="relative w-full h-full flex items-center justify-center">
-                                    {imageUrl ? (
+                                    {imageUrl && !isLoading ? (
                                         <ImageRotator
+                                            key={`${currentPhoto.id}-${imageUrl}`}
                                             src={imageUrl}
                                             alt={`Foto ${currentIndex + 1}`}
                                             className="w-auto h-auto max-w-full max-h-[80vh] object-contain"
@@ -239,11 +296,11 @@ export function PhotoViewModal({
                                             onSaveRotation={onSaveRotatedPhoto}
                                         />
                                     ) : (
-                                        <div className="flex items-center justify-center h-full text-white">
-                                            {isLoading
-                                                ? 'Carregando imagem...'
-                                                : 'Imagem não encontrada'}
-                                        </div>
+                                        !isLoading && (
+                                            <div className="flex items-center justify-center h-full text-white">
+                                                Imagem não encontrada
+                                            </div>
+                                        )
                                     )}
                                 </div>
                             </Dialog.Panel>

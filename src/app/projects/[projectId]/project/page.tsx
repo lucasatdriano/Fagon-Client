@@ -433,7 +433,6 @@ export default function ProjectEditPage() {
                         />
                     </div>
 
-                    {/* Seção Engenheiro Responsável */}
                     <div className="col-span-2">
                         <div className="w-full relative flex justify-start">
                             <hr className="w-full h-px absolute border-foreground top-1/2 left-0" />
@@ -454,7 +453,6 @@ export default function ProjectEditPage() {
                         />
                     </div>
 
-                    {/* Seção Pavimentos */}
                     <div className="col-span-2">
                         <div className="w-full relative flex justify-start">
                             <hr className="w-full h-px absolute border-foreground top-1/2 left-0" />

@@ -95,7 +95,12 @@ export function AddPhotoModal({
             });
 
             onPhotosAdded(validFiles);
-            toast.success('Fotos adicionadas com sucesso!');
+            toast.success(
+                'Fotos adicionadas com sucesso! O upload começará em background.',
+            );
+
+            if (fileInputRef.current) fileInputRef.current.value = '';
+            if (cameraInputRef.current) cameraInputRef.current.value = '';
         } catch (error) {
             console.error('Erro detalhado:', error);
             toast.error(
@@ -103,17 +108,25 @@ export function AddPhotoModal({
                     ? error.message
                     : 'Erro ao processar fotos',
             );
-        } finally {
-            setUploading(false);
+
             if (fileInputRef.current) fileInputRef.current.value = '';
             if (cameraInputRef.current) cameraInputRef.current.value = '';
-            onClose();
+        } finally {
+            setUploading(false);
         }
+    };
+
+    const handleClose = () => {
+        if (uploading) {
+            toast.info('Aguarde o processamento das fotos terminar');
+            return;
+        }
+        onClose();
     };
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
-            <Dialog as="div" className="relative z-50" onClose={onClose}>
+            <Dialog as="div" className="relative z-50" onClose={handleClose}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"
@@ -172,13 +185,25 @@ export function AddPhotoModal({
                                         </span>
                                     </button>
                                 </div>
+
+                                {uploading && (
+                                    <div className="mt-3 p-2 bg-blue-50 rounded-lg">
+                                        <p className="text-sm text-blue-700 text-center">
+                                            Fotos sendo processadas... Você pode
+                                            continuar usando o app.
+                                        </p>
+                                    </div>
+                                )}
+
                                 <div className="mt-4 pt-4 border-t border-gray-200">
                                     <button
-                                        onClick={onClose}
+                                        onClick={handleClose}
                                         disabled={uploading}
                                         className="w-full py-2 rounded-lg font-medium text-center text-gray-700 hover:bg-gray-100 disabled:opacity-50"
                                     >
-                                        Cancelar
+                                        {uploading
+                                            ? 'Processando...'
+                                            : 'Fechar'}
                                     </button>
                                 </div>
                             </Dialog.Panel>
@@ -187,7 +212,7 @@ export function AddPhotoModal({
                 </div>
 
                 <input
-                    key={`file`}
+                    key={`file-${uploading}`}
                     ref={fileInputRef}
                     type="file"
                     accept="image/*"
@@ -199,7 +224,7 @@ export function AddPhotoModal({
                 />
 
                 <input
-                    key={`camera`}
+                    key={`camera-${uploading}`}
                     ref={cameraInputRef}
                     type="file"
                     accept="image/*"

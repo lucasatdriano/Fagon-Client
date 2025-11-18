@@ -23,7 +23,6 @@ export function Pagination({
         router.push(`?${params.toString()}`);
     };
 
-    // Calcula as páginas visíveis
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
 

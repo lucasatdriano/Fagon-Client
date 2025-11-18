@@ -56,6 +56,7 @@ import { AddPhotoModal } from '../../../../../../components/modals/photoModals/A
 import { sortPavements } from '../../../../../../utils/sorts/sortPavements';
 import { formatDecimalValue } from '../../../../../../utils/formatters/formatDecimal';
 import { AuthService } from '@/services/domains/authService';
+import { extractPhotoNumber } from '@/utils/sorts/sortPhotos';
 
 export default function CreateLocationPage() {
     const { projectId, locationId } = useParams();
@@ -74,6 +75,7 @@ export default function CreateLocationPage() {
     const [debounceTimers, setDebounceTimers] = useState<
         Record<string, NodeJS.Timeout>
     >({});
+    const [isUploading, setIsUploading] = useState(false);
 
     const {
         register,
@@ -131,7 +133,10 @@ export default function CreateLocationPage() {
                         : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/sign/${process.env.NEXT_PUBLIC_SUPABASE_BUCKET_NAME}/${photo.filePath}`,
                     selectedForPdf: photo.selectedForPdf,
                 }))
-                .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+                .sort(
+                    (a, b) =>
+                        extractPhotoNumber(a.name) - extractPhotoNumber(b.name),
+                );
 
             setLocation(locationData);
             setAllPhotos(mappedPhotos);
@@ -237,21 +242,24 @@ export default function CreateLocationPage() {
 
     const handlePhotosAdded = useCallback(
         (files: File[]) => {
-            const tempPhotos = files.map((file, index) => ({
+            if (isUploading) {
+                toast.error('Aguarde o upload atual terminar');
+                return;
+            }
+
+            setIsUploading(true);
+
+            const tempPhotos = files.map((file) => ({
                 file,
                 tempUrl: URL.createObjectURL(file),
-                filePath: `temp-${file.name}`,
+                filePath: `temp-${crypto.randomUUID()}-${file.name}`,
                 selectedForPdf: false,
-                id: `temp-${Date.now()}-${index}`,
-                name: file.name,
+                id: `temp-${crypto.randomUUID()}`,
+                name: `Uploading-${file.name}`,
                 isTemp: true,
             }));
 
-            const updatedPhotos = [...allPhotos, ...tempPhotos].sort((a, b) =>
-                (a.name ?? '').localeCompare(b.name ?? ''),
-            );
-
-            setAllPhotos(updatedPhotos);
+            setAllPhotos((prev) => [...prev, ...tempPhotos]);
 
             (async () => {
                 try {
@@ -272,26 +280,33 @@ export default function CreateLocationPage() {
 
                     setAllPhotos((prev) => {
                         const withoutTemps = prev.filter((p) => !p.isTemp);
+
                         const allRealPhotos = [
                             ...withoutTemps,
                             ...uploadedPhotos,
                         ];
-                        return allRealPhotos.sort((a, b) =>
-                            (a.name ?? '').localeCompare(b.name ?? ''),
+
+                        return allRealPhotos.sort(
+                            (a, b) =>
+                                extractPhotoNumber(a.name) -
+                                extractPhotoNumber(b.name),
                         );
                     });
                 } catch (error) {
                     console.error('Upload failed:', error);
+                    const tempIds = tempPhotos.map((temp) => temp.id);
                     setAllPhotos((prev) =>
-                        prev.filter(
-                            (p) => !tempPhotos.some((temp) => temp.id === p.id),
+                        prev.filter((p) =>
+                            p.id ? !tempIds.includes(p.id) : true,
                         ),
                     );
                     toast.error('Falha no upload das fotos');
+                } finally {
+                    setIsUploading(false);
                 }
             })();
         },
-        [locationId, allPhotos],
+        [locationId, isUploading],
     );
 
     const handleTogglePhotoSelection = useCallback(
@@ -337,7 +352,9 @@ export default function CreateLocationPage() {
             setIsLoading(true);
             await PhotoService.delete(photoId);
             setAllPhotos((prev) =>
-                prev.filter((photo) => photo.id !== photoId),
+                prev.filter((photo) =>
+                    photo.id ? photo.id !== photoId : true,
+                ),
             );
             toast.success('Foto excluída com sucesso');
         } catch (error) {
@@ -541,13 +558,17 @@ export default function CreateLocationPage() {
                         <button
                             type="button"
                             className={`bg-white flex items-center justify-center gap-2 rounded-md shadow-sm text-primary py-4 px-6 hover:shadow-md cursor-pointer ${
-                                isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                                isLoading || isUploading
+                                    ? 'opacity-50 cursor-not-allowed'
+                                    : ''
                             }`}
                             onClick={() => setShowPhotoOptionsModal(true)}
-                            disabled={isLoading}
+                            disabled={isLoading || isUploading}
                         >
                             <CameraIcon className="w-6 h-6" />
-                            <span>Adicionar Foto</span>
+                            <span>
+                                {isUploading ? 'Enviando...' : 'Adicionar Foto'}
+                            </span>
                         </button>
 
                         {allPhotos.map((photo) => (
@@ -778,10 +799,12 @@ export default function CreateLocationPage() {
                     <CustomButton
                         icon={<SaveIcon />}
                         type="submit"
-                        disabled={isLoading}
+                        disabled={isLoading || isUploading}
                         className="px-8 py-3"
                     >
-                        {isLoading ? 'Salvando...' : 'Salvar Local'}
+                        {isLoading || isUploading
+                            ? 'Salvando...'
+                            : 'Salvar Local'}
                     </CustomButton>
                 </div>
             </form>
@@ -790,7 +813,7 @@ export default function CreateLocationPage() {
                 isOpen={showPhotoOptionsModal}
                 onClose={() => setShowPhotoOptionsModal(false)}
                 onPhotosAdded={handlePhotosAdded}
-                isLoading={isLoading}
+                isLoading={isLoading || isUploading}
             />
         </div>
     );

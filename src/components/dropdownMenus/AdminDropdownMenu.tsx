@@ -12,7 +12,7 @@ import { CustomRadioGroup } from '../forms/CustomRadioGroup';
 import { DropdownMenu } from './DropdownMenu';
 import { toast } from 'sonner';
 import { AuthService } from '../../services/domains/authService';
-import { ProjectService } from '../../services/domains/projectService'; // Adicione esta importação
+import { ProjectService } from '../../services/domains/projectService';
 import { cameraType } from '../../constants';
 import { CustomReadOnlyFormInput } from '../forms/CustomReadOnlyFormInput';
 import { formatNumberAgency } from '@/utils/formatters/formatNumberAgency';
@@ -193,7 +193,7 @@ export function AdminDropdownMenu({
             action: handleCopyLink,
             icon: <CopyIcon className="w-5 h-5" />,
             className: 'cursor-pointer',
-            disabled: !projectData, // Desabilitar se os dados não carregaram
+            disabled: !projectData,
         },
         ...(!accessKey
             ? [

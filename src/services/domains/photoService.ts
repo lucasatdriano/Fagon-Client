@@ -9,6 +9,10 @@ export interface UpdatePhotoData {
     selectedForPdf: boolean;
 }
 
+export interface GetSignedUrlOptions {
+    signal?: AbortSignal;
+}
+
 export const PhotoService = {
     async upload(
         locationId: string,
@@ -43,6 +47,7 @@ export const PhotoService = {
     async listByLocation(
         locationId: string,
         includeSignedUrls = true,
+        options?: GetSignedUrlOptions,
     ): Promise<ApiResponse<Photo[]>> {
         try {
             const response = await api.get(
@@ -51,6 +56,7 @@ export const PhotoService = {
                     params: {
                         signed: includeSignedUrls,
                     },
+                    signal: options?.signal,
                 },
             );
 
@@ -64,6 +70,7 @@ export const PhotoService = {
                         try {
                             photo.signedUrl = await this.getSignedUrl(
                                 photo.id || '',
+                                options,
                             );
                         } catch (error) {
                             console.error(
@@ -114,10 +121,16 @@ export const PhotoService = {
         }
     },
 
-    async getSignedUrl(photoId: string): Promise<string> {
+    async getSignedUrl(
+        photoId: string,
+        options?: GetSignedUrlOptions,
+    ): Promise<string> {
         try {
             const response = await api.get(
                 API_ROUTES.PHOTOS.SIGNED_URL({ id: photoId }),
+                {
+                    signal: options?.signal,
+                },
             );
 
             if (!response.data?.data.url) {
@@ -126,6 +139,14 @@ export const PhotoService = {
 
             return response.data.data.url;
         } catch (error) {
+            const isCanceled =
+                error instanceof Error &&
+                (error.name === 'CanceledError' || error.name === 'AbortError');
+
+            if (isCanceled) {
+                throw error;
+            }
+
             console.error('Error getting signed URL:', error);
             throw new Error('Error connecting to server');
         }
