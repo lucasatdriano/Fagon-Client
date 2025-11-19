@@ -70,12 +70,17 @@ export const PathologyPhotosService = {
                 },
             );
 
-            if (!includeSignedUrls) return response.data;
+            const photosData = response.data.data || response.data;
 
-            const photos = response.data.data || response.data;
+            if (!includeSignedUrls) {
+                return {
+                    ...response.data,
+                    data: photosData,
+                };
+            }
 
             const photosWithUrls = await Promise.all(
-                photos.map(async (photo: PathologyPhoto) => {
+                photosData.map(async (photo: PathologyPhoto) => {
                     if (!photo.signedUrl) {
                         try {
                             photo.signedUrl = await this.getSignedUrl(photo.id);
@@ -90,10 +95,12 @@ export const PathologyPhotosService = {
                     return photo;
                 }),
             );
-
-            response.data.data = photosWithUrls;
-            return response.data;
+            return {
+                ...response.data,
+                data: photosWithUrls,
+            };
         } catch (error) {
+            console.error('❌ Erro no listByPathology:', error);
             throw new Error(extractAxiosError(error));
         }
     },
@@ -120,13 +127,13 @@ export const PathologyPhotosService = {
     ): Promise<string> {
         try {
             const response = await api.get(
-                `/pathology-photos/${photoId}/signed-url`,
+                API_ROUTES.PATHOLOGY_PHOTOS.SIGNED_URL({ id: photoId }),
                 {
                     signal: options?.signal,
                 },
             );
 
-            if (!response.data?.data.url) {
+            if (!response.data?.data?.url) {
                 throw new Error('Invalid response format from server');
             }
 

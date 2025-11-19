@@ -81,13 +81,11 @@ export default function CreateProjectPage() {
             try {
                 const response = await EngineerService.listAll();
                 const data = response.data.engineers;
-                console.log(data);
                 const formatted = data.map((engineer: engineerProps) => ({
                     id: engineer.id,
                     value: engineer.id,
                     label: engineer.name,
                 }));
-                console.log(formatted);
                 setEngineers(formatted);
             } catch (error) {
                 console.error('Erro ao buscar engenheiros:', error);

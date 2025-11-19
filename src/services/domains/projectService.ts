@@ -131,7 +131,6 @@ export const ProjectService = {
 
     async update(id: string, data: UpdateProjectData): Promise<Project> {
         try {
-            console.log(data);
             const response = await api.patch(
                 API_ROUTES.PROJECTS.UPDATE({ id }),
                 data,

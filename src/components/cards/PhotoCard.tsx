@@ -22,6 +22,7 @@ interface PhotoCardProps {
         filePath?: string;
         file?: File;
         name?: string;
+        signedUrl?: string;
     }>;
 }
 
@@ -174,7 +175,15 @@ export function PhotoCard({
                 file={photo.file || undefined}
                 isPathologyPhoto={isPathologyPhoto}
                 onSaveRotatedPhoto={onSaveRotatedPhoto}
-                allPhotos={allPhotos}
+                allPhotos={
+                    allPhotos?.map((p) => ({
+                        id: p.id,
+                        filePath: p.filePath,
+                        file: p.file,
+                        name: p.name,
+                        signedUrl: p.signedUrl,
+                    })) || []
+                }
                 currentPhotoIndex={index}
             />
         </>

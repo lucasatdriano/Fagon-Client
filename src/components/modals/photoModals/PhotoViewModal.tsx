@@ -31,6 +31,7 @@ interface PhotoViewModalProps {
         filePath?: string;
         file?: File;
         name?: string;
+        signedUrl?: string;
     }>;
     currentPhotoIndex?: number;
 }
@@ -59,11 +60,17 @@ export function PhotoViewModal({
     }, [isOpen, currentPhotoIndex]);
 
     const currentPhoto = useMemo(() => {
-        return allPhotos[currentIndex] || { id: photoId, file };
+        const photo = allPhotos[currentIndex] || { id: photoId, file };
+        return photo;
     }, [allPhotos, currentIndex, photoId, file]);
 
     const loadPhoto = useCallback(
-        async (photo: { id?: string; file?: File }) => {
+        async (photo: {
+            id?: string;
+            file?: File;
+            signedUrl?: string;
+            filePath?: string;
+        }) => {
             if (currentPhotoIdRef.current === photo.id && imageUrlRef.current) {
                 return;
             }
@@ -88,6 +95,21 @@ export function PhotoViewModal({
                     const url = URL.createObjectURL(photo.file);
                     setImageUrl(url);
                     imageUrlRef.current = url;
+                    setIsLoading(false);
+                    return;
+                }
+
+                if (photo.signedUrl) {
+                    const timestamp = Date.now();
+                    const random = Math.random().toString(36).substring(2, 15);
+
+                    const urlWithCacheBust = photo.signedUrl.includes('?')
+                        ? `${photo.signedUrl}&t=${timestamp}&r=${random}`
+                        : `${photo.signedUrl}?t=${timestamp}&r=${random}`;
+
+                    setImageUrl(urlWithCacheBust);
+                    imageUrlRef.current = urlWithCacheBust;
+                    setIsLoading(false);
                     return;
                 }
 
@@ -119,7 +141,7 @@ export function PhotoViewModal({
                 setImageUrl(urlWithCacheBust);
                 imageUrlRef.current = urlWithCacheBust;
             } catch (error) {
-                console.error('Failed to load photo:', error);
+                console.error('❌ Failed to load photo:', error);
                 setImageUrl(null);
             } finally {
                 if (!abortControllerRef.current?.signal.aborted) {
@@ -298,7 +320,9 @@ export function PhotoViewModal({
                                     ) : (
                                         !isLoading && (
                                             <div className="flex items-center justify-center h-full text-white">
-                                                Imagem não encontrada
+                                                {imageUrl
+                                                    ? 'Carregando imagem...'
+                                                    : 'Imagem não encontrada'}
                                             </div>
                                         )
                                     )}

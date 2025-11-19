@@ -53,7 +53,7 @@ export function UpdatePathologyModal({
     isOpen,
     onClose,
     onUpdate,
-    isNormalCamera
+    isNormalCamera,
 }: UpdatePathologyModalProps) {
     const { isVisitor } = useUserRole();
     const [isLoading, setIsLoading] = useState(false);
@@ -77,7 +77,6 @@ export function UpdatePathologyModal({
             if (pathology && isOpen) {
                 try {
                     setIsLoading(true);
-
                     const locs = await LocationService.listAll(
                         pathology.project.id,
                     );
@@ -101,11 +100,18 @@ export function UpdatePathologyModal({
                     const response =
                         await PathologyPhotosService.listByPathology(
                             pathology.id,
+                            true,
                         );
-                    const loadedPhotos = response.data.map((photo) => ({
-                        ...photo,
-                        filePath: photo.signedUrl || photo.filePath,
-                    }));
+
+                    const photosData = response.data || [];
+
+                    const loadedPhotos = photosData.map(
+                        (photo: PathologyPhoto) => ({
+                            ...photo,
+                            signedUrl: photo.signedUrl,
+                        }),
+                    );
+
                     setPhotos(loadedPhotos);
 
                     reset({
@@ -116,7 +122,7 @@ export function UpdatePathologyModal({
                     });
                 } catch (error) {
                     toast.error('Erro ao carregar dados');
-                    console.error(error);
+                    console.error('❌ Erro no loadData:', error);
                 } finally {
                     setIsLoading(false);
                 }
@@ -263,7 +269,9 @@ export function UpdatePathologyModal({
                                 >
                                     <div>
                                         <h3 className="text-lg font-semibold mb-4">
-                                            Fotos {isNormalCamera && ` (${photos.length}/2 mínimo)`}
+                                            Fotos{' '}
+                                            {isNormalCamera &&
+                                                ` (${photos.length}/2 mínimo)`}
                                         </h3>
                                         <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
                                             <button
@@ -278,31 +286,40 @@ export function UpdatePathologyModal({
                                                 <span>Adicionar Foto</span>
                                             </button>
 
-                                            {photos.map((photo, index) => (
-                                                <PhotoCard
-                                                    key={photo.id}
-                                                    photo={{
-                                                        id: photo.id,
-                                                        filePath:
-                                                            photo.tempUrl ||
-                                                            photo.filePath,
-                                                        name: photo.name || '',
-                                                        file: photo.file,
-                                                    }}
-                                                    onDelete={handleRemovePhoto}
-                                                    isPathologyPhoto={true}
-                                                    index={index}
-                                                    isVisitor={isVisitor}
-                                                    disabled={isLoading}
-                                                />
-                                            ))}
+                                            {photos.map((photo, index) => {
+                                                return (
+                                                    <PhotoCard
+                                                        key={photo.id}
+                                                        photo={{
+                                                            id: photo.id,
+                                                            filePath:
+                                                                photo.tempUrl ||
+                                                                photo.filePath,
+                                                            name:
+                                                                photo.name ||
+                                                                '',
+                                                            file: photo.file,
+                                                            signedUrl:
+                                                                photo.signedUrl,
+                                                        }}
+                                                        onDelete={
+                                                            handleRemovePhoto
+                                                        }
+                                                        isPathologyPhoto={true}
+                                                        index={index}
+                                                        isVisitor={isVisitor}
+                                                        disabled={isLoading}
+                                                    />
+                                                );
+                                            })}
                                         </div>
-                                        {isNormalCamera && photos.length < 2 && (
-                                            <p className="text-red-500 text-sm mt-2">
-                                                Pelo menos 2 fotos são
-                                                necessáriasa
-                                            </p>
-                                        )}
+                                        {isNormalCamera &&
+                                            photos.length < 2 && (
+                                                <p className="text-red-500 text-sm mt-2">
+                                                    Pelo menos 2 fotos são
+                                                    necessárias
+                                                </p>
+                                            )}
                                     </div>
 
                                     <div className="space-y-4">
@@ -364,7 +381,9 @@ export function UpdatePathologyModal({
                                                 <SaveIcon className="w-4 h-4" />
                                             }
                                             disabled={
-                                                isLoading || isNormalCamera && photos.length < 2
+                                                isLoading ||
+                                                (isNormalCamera &&
+                                                    photos.length < 2)
                                             }
                                             className="hover:bg-secondary-hover"
                                         >

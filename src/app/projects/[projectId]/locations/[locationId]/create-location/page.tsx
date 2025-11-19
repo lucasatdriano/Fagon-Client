@@ -664,7 +664,7 @@ export default function CreateLocationPage() {
                             defaultValue={location?.height || ''}
                             error={errors.height?.message}
                             id="HeightInput"
-                            inputMode="numeric"
+                            inputMode="decimal"
                             disabled={isLoading}
                             maxLength={6}
                         />
