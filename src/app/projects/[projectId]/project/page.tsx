@@ -101,12 +101,6 @@ export default function ProjectEditPage() {
                 const data = response.data;
                 setProject(data);
 
-                console.log('Data original do backend:', data.inspectionDate);
-                console.log(
-                    'Data formatada para input:',
-                    formatDateForInput(data.inspectionDate),
-                );
-
                 setValue('name', data.name || '');
                 setValue('status', data.status || '');
                 setValue('upeCode', data.upeCode.toString() || '');
@@ -216,19 +210,9 @@ export default function ProjectEditPage() {
         try {
             setIsLoading(true);
 
-            console.log(
-                'Data do form antes da conversão:',
-                formData.inspectionDate,
-            );
-
             const formattedInspectionDate = formData.inspectionDate
                 ? formatDateToISO(formData.inspectionDate)
                 : undefined;
-
-            console.log(
-                'Data após conversão para ISO:',
-                formattedInspectionDate,
-            );
 
             const updateData = {
                 inspectorName: formData.inspectorName || undefined,
