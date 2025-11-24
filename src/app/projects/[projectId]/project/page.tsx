@@ -17,7 +17,10 @@ import {
 import { useParams } from 'next/navigation';
 import { Loader2Icon, SaveIcon } from 'lucide-react';
 import { toast } from 'sonner';
-import { formatDateForInput } from '../../../../utils/formatters/formatDate';
+import {
+    formatDateForInput,
+    formatDateToISO,
+} from '../../../../utils/formatters/formatDate';
 import { getProjectTypeLabel } from '../../../../utils/formatters/formatValues';
 import { EngineerService } from '../../../../services/domains/engineerService';
 import { CustomRadioGroup } from '../../../../components/forms/CustomRadioGroup';
@@ -97,6 +100,12 @@ export default function ProjectEditPage() {
                 const response = await ProjectService.getById(id);
                 const data = response.data;
                 setProject(data);
+
+                console.log('Data original do backend:', data.inspectionDate);
+                console.log(
+                    'Data formatada para input:',
+                    formatDateForInput(data.inspectionDate),
+                );
 
                 setValue('name', data.name || '');
                 setValue('status', data.status || '');
@@ -207,9 +216,19 @@ export default function ProjectEditPage() {
         try {
             setIsLoading(true);
 
+            console.log(
+                'Data do form antes da conversão:',
+                formData.inspectionDate,
+            );
+
             const formattedInspectionDate = formData.inspectionDate
-                ? new Date(formData.inspectionDate).toISOString()
+                ? formatDateToISO(formData.inspectionDate)
                 : undefined;
+
+            console.log(
+                'Data após conversão para ISO:',
+                formattedInspectionDate,
+            );
 
             const updateData = {
                 inspectorName: formData.inspectorName || undefined,

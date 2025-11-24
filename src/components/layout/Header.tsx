@@ -2,6 +2,7 @@
 
 import { ArrowLeftIcon, SearchIcon } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link'; // ← Adicionar este import
 import { CustomFormInput } from '../forms/CustomFormInput';
 import { ReactNode } from 'react';
 
@@ -49,14 +50,16 @@ export function Header({
 
             {type !== 'search' && (
                 <div className="flex w-full justify-center items-center self-center">
-                    <Image
-                        height={50}
-                        width={50}
-                        src="/images/logo-horizontal.svg"
-                        alt="Logo Fagon"
-                        className="items-center w-auto h-12"
-                        priority
-                    />
+                    <Link href="/" className="flex justify-center">
+                        <Image
+                            height={50}
+                            width={50}
+                            src="/images/logo-horizontal.svg"
+                            alt="Logo Fagon"
+                            className="items-center w-auto h-12 cursor-pointer hover:opacity-80 transition-opacity" // ← Adicionar cursor-pointer
+                            priority
+                        />
+                    </Link>
                 </div>
             )}
 
@@ -64,13 +67,15 @@ export function Header({
 
             {type === 'search' && (
                 <div className="flex items-center justify-center gap-8 w-full px-4 md:px-16">
-                    <Image
-                        width={50}
-                        height={50}
-                        src="/icons/logo-icon.svg"
-                        alt="Logo Fagon"
-                        className="md:hidden w-auto h-12"
-                    />
+                    <Link href="/">
+                        <Image
+                            width={50}
+                            height={50}
+                            src="/icons/logo-icon.svg"
+                            alt="Logo Fagon"
+                            className="md:hidden w-auto h-12 cursor-pointer hover:opacity-80 transition-opacity"
+                        />
+                    </Link>
                     <CustomFormInput
                         icon={<SearchIcon />}
                         label="Pesquisar..."
