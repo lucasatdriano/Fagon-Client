@@ -4,7 +4,6 @@ import { Dialog, Transition } from '@headlessui/react';
 import { Fragment, useRef, useState } from 'react';
 import { CameraIcon, ImageIcon, Loader2Icon } from 'lucide-react';
 import { toast } from 'sonner';
-import { fixImageOrientation } from '@/utils/imageOrientation';
 
 interface AddPhotoModalProps {
     isOpen: boolean;
@@ -24,48 +23,11 @@ export function AddPhotoModal({
     const [uploading, setUploading] = useState(false);
 
     const openCamera = () => {
-        if (cameraInputRef.current) {
-            cameraInputRef.current.click();
-        }
+        cameraInputRef.current?.click();
     };
 
     const openGallery = () => {
-        if (fileInputRef.current) {
-            fileInputRef.current.click();
-        }
-    };
-
-    const processImages = async (files: File[]): Promise<File[]> => {
-        const processedFiles: File[] = [];
-
-        for (const file of files) {
-            try {
-                if (!file.type.startsWith('image/')) {
-                    processedFiles.push(file);
-                    continue;
-                }
-
-                if (
-                    file.type === 'image/jpeg' ||
-                    file.type === 'image/jpg' ||
-                    file.name.toLowerCase().endsWith('.heic')
-                ) {
-                    const fixedImage = await fixImageOrientation(file);
-                    processedFiles.push(fixedImage.file);
-                } else {
-                    processedFiles.push(file);
-                }
-            } catch (error) {
-                console.warn(
-                    'Não foi possível corrigir a orientação da imagem:',
-                    file.name,
-                    error,
-                );
-                processedFiles.push(file);
-            }
-        }
-
-        return processedFiles;
+        fileInputRef.current?.click();
     };
 
     const handleAddPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,11 +38,10 @@ export function AddPhotoModal({
 
         try {
             setUploading(true);
+
             const files = Array.from(e.target.files);
 
-            const processedFiles = await processImages(files);
-
-            const validFiles = processedFiles.map((file) => {
+            const validFiles = files.map((file) => {
                 if (!(file instanceof File)) {
                     const fileLike = file as { name?: string; type?: string };
                     return new File(
@@ -95,6 +56,7 @@ export function AddPhotoModal({
             });
 
             onPhotosAdded(validFiles);
+
             toast.success(
                 'Fotos adicionadas com sucesso! O upload começará em background.',
             );
@@ -168,6 +130,7 @@ export function AddPhotoModal({
                                                 : 'Tirar foto'}
                                         </span>
                                     </button>
+
                                     <button
                                         onClick={openGallery}
                                         disabled={isLoading || uploading}
