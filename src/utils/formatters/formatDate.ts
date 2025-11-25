@@ -1,6 +1,13 @@
-export const formatDate = (date: Date | string, locale = 'pt-BR') => {
+export const formatDate = (date: Date | string) => {
     if (!date) return '';
-    return new Date(date).toLocaleDateString(locale);
+
+    const dateObj = new Date(date);
+
+    const day = String(dateObj.getUTCDate()).padStart(2, '0');
+    const month = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+    const year = dateObj.getUTCFullYear();
+
+    return `${day}/${month}/${year}`;
 };
 
 export const formatDateToISO = (dateString: string) => {
