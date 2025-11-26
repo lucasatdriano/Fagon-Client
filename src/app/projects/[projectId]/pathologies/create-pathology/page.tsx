@@ -271,8 +271,7 @@ export default function CreatePathologyPage() {
                 <div className="space-y-4">
                     <div className="w-full relative flex justify-start py-3">
                         <h2 className="text-2xl font-sans bg-background px-2 ml-8">
-                            Fotos{' '}
-                            {isNormalCamera && ` (${photos.length}/5 mínimo)`}
+                            {isNormalCamera && ` (${photos.length}/2 mínimo)`}
                         </h2>
                         <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
                     </div>
