@@ -87,8 +87,8 @@ export default function AgencyEditPage() {
                 setValue('city', data.city || '');
                 setValue('district', data.district || '');
                 setValue('street', data.street || '');
-                setValue('number', data.number);
-                setValue('complement', data.complement);
+                setValue('number', data.number || '');
+                setValue('complement', data.complement || '');
             } catch (error) {
                 console.error(error);
             } finally {
@@ -255,7 +255,7 @@ export default function AgencyEditPage() {
                         <CustomEditInput
                             label="Complemento"
                             registration={register('complement')}
-                            value={watch('complement')}
+                            defaultValue={agency?.complement || ''}
                             error={errors.complement?.message}
                             id="ComplementInput"
                         />

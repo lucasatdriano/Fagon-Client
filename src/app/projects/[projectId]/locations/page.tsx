@@ -12,10 +12,13 @@ import {
 import CreateLocationModal from '../../../../components/modals/locationModals/CreateLocationModal';
 import { toast } from 'sonner';
 import { useUserRole } from '../../../../hooks/useUserRole';
+import { Project, ProjectService } from '@/services/domains/projectService';
+import { formatNumberAgency } from '@/utils/formatters/formatNumberAgency';
 
 export default function DashboardInspectorPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [locations, setLocations] = useState<Location[]>([]);
+    const [project, setProject] = useState<Project | null>(null);
     const [loading, setLoading] = useState(true);
     const { isVisitor } = useUserRole();
     const params = useParams();
@@ -25,9 +28,11 @@ export default function DashboardInspectorPage() {
         const fetchLocations = async () => {
             try {
                 setLoading(true);
-                const response = await LocationService.listAll(projectId);
+                const locations = await LocationService.listAll(projectId);
+                const project = await ProjectService.getById(projectId);
 
-                setLocations(response.data);
+                setProject(project.data);
+                setLocations(locations.data);
             } catch (err) {
                 console.error(err);
             } finally {
@@ -61,11 +66,20 @@ export default function DashboardInspectorPage() {
         }
     };
 
+    if (!project) {
+        return (
+            <div className="flex h-svh items-center justify-center">
+                <p className="text-error">{'Projeto não encontrado'}</p>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-svh flex flex-col items-center pt-16 px-2 md:px-6">
             <div className="w-full relative flex justify-center py-3">
                 <h2 className="text-3xl font-sans bg-background px-2">
-                    Vistoria
+                    Vistoria da AG.{' '}
+                    {formatNumberAgency(project!.agency.agencyNumber)}
                 </h2>
                 <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
             </div>

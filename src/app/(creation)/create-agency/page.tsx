@@ -61,6 +61,7 @@ export default function CreateAgencyPage() {
 
     const onSubmit: SubmitHandler<CreateAgencyFormValues> = async (data) => {
         setIsLoading(true);
+
         try {
             const payload = {
                 name: data.name,
@@ -72,6 +73,7 @@ export default function CreateAgencyPage() {
                 district: data.district,
                 street: data.street,
                 number: data.number,
+                complement: data.complement || '',
             };
 
             await AgencyService.create(payload);
@@ -201,9 +203,9 @@ export default function CreateAgencyPage() {
                             onChange={(e) =>
                                 handleMaskedChange('number', e, setValue)
                             }
+                            value={watch('number')}
                             error={errors.number?.message}
                             id="NumberAgencyInput"
-                            inputMode="numeric"
                         />
 
                         <CustomFormInput

@@ -11,13 +11,7 @@ export const updateLocationSchema = z
 
         pavementId: z.string().optional(),
 
-        height: z
-            .string()
-            .optional()
-            .refine((val) => {
-                if (val === undefined || val === '') return true;
-                return !isNaN(parseFloat(val)) && parseFloat(val) > 0;
-            }, 'A altura deve ser um número maior que zero'),
+        height: z.string().optional(),
 
         floorFinishing: z
             .array(z.string())
@@ -37,7 +31,6 @@ export const updateLocationSchema = z
         facadeObservation: z.string().optional(),
     })
     .superRefine((data, ctx) => {
-        const isFacade = data.name.toLowerCase().includes('fachada');
         const isExternal = data.locationType === 'externo';
 
         if (!isExternal && !data.pavementId) {
@@ -49,7 +42,6 @@ export const updateLocationSchema = z
         }
 
         if (
-            !isFacade &&
             !isExternal &&
             (!data.ceilingFinishing || data.ceilingFinishing.length === 0)
         ) {
@@ -61,12 +53,35 @@ export const updateLocationSchema = z
             });
         }
 
-        if (!isFacade && (!data.height || data.height.trim() === '')) {
-            ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: 'A altura é obrigatória',
-                path: ['height'],
-            });
+        if (!isExternal) {
+            if (!data.height || data.height.trim() === '') {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'A altura é obrigatória',
+                    path: ['height'],
+                });
+            } else {
+                const heightNum = parseFloat(data.height);
+                if (isNaN(heightNum) || heightNum <= 0) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: 'A altura deve ser um número maior que zero',
+                        path: ['height'],
+                    });
+                }
+            }
+        }
+
+        if (isExternal && data.height && data.height.trim() !== '') {
+            const heightNum = parseFloat(data.height);
+            if (isNaN(heightNum) || heightNum <= 0) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message:
+                        'Se informada, a altura deve ser um número maior que zero',
+                    path: ['height'],
+                });
+            }
         }
     });
 

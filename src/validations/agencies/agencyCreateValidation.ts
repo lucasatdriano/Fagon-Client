@@ -31,11 +31,14 @@ export const createAgencySchema = z.object({
     street: z.string().min(1, 'A rua é obrigatória').max(200),
     complement: z.string().max(200).optional(),
 
-    number: z.coerce
-        .number({
-            invalid_type_error: 'Número deve ser um valor numérico',
-        })
-        .min(1, 'Número é obrigatório'),
+    number: z
+        .string()
+        .min(1, 'Número é obrigatório')
+        .max(20, 'Número muito longo')
+        .refine(
+            (val) => /^[A-Za-z0-9/\-\s]+$/.test(val),
+            'Número deve conter apenas letras, números, barras, hífens ou espaços',
+        ),
 });
 
 export type CreateAgencyFormValues = z.infer<typeof createAgencySchema>;

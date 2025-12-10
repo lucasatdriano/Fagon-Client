@@ -2,7 +2,7 @@
 
 import { ArrowLeftIcon, SearchIcon } from 'lucide-react';
 import Image from 'next/image';
-import Link from 'next/link'; // ← Adicionar este import
+import Link from 'next/link';
 import { CustomFormInput } from '../forms/CustomFormInput';
 import { ReactNode } from 'react';
 
@@ -56,7 +56,7 @@ export function Header({
                             width={50}
                             src="/images/logo-horizontal.svg"
                             alt="Logo Fagon"
-                            className="items-center w-auto h-12 cursor-pointer hover:opacity-80 transition-opacity" // ← Adicionar cursor-pointer
+                            className="items-center w-auto h-12 cursor-pointer hover:opacity-80 transition-opacity"
                             priority
                         />
                     </Link>

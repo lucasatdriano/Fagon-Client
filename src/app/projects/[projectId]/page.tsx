@@ -11,6 +11,7 @@ import { ClipboardEditIcon, InfoIcon, Loader2Icon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { parseCookies } from 'nookies';
 import { useUserRole } from '../../../hooks/useUserRole';
+import { formatNumberAgency } from '@/utils/formatters/formatNumberAgency';
 
 export default function DashboardProjectPage() {
     const { projectId } = useParams();
@@ -80,8 +81,8 @@ export default function DashboardProjectPage() {
             <div className="w-full">
                 <div className="relative flex justify-center py-0 md:py-2">
                     <h1 className="text-3xl font-sans bg-background px-2 text-center">
-                        UPE {project.upeCode} - {project.agency.city} -{' '}
-                        {project.agency.district}
+                        AG. {formatNumberAgency(project.agency.agencyNumber)} -{' '}
+                        {project.agency.city} - {project.agency.district}
                     </h1>
                     <hr className="absolute left-0 top-1/2 -z-10 h-px w-full border-foreground" />
                 </div>
