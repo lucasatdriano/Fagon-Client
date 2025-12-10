@@ -69,7 +69,7 @@ export default function DashboardInspectorPage() {
     if (!project) {
         return (
             <div className="flex h-svh items-center justify-center">
-                <p className="text-error">{'Projeto não encontrado'}</p>
+                <Loader2Icon className="animate-spin h-12 w-12 text-primary" />
             </div>
         );
     }
