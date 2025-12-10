@@ -26,14 +26,16 @@ interface PhotoViewModalProps {
     onClose: () => void;
     isPathologyPhoto?: boolean;
     onSaveRotatedPhoto?: (photoId: string, rotation: number) => Promise<void>;
-    allPhotos?: Array<{
-        id: string;
-        filePath?: string;
-        file?: File;
-        name?: string;
-        signedUrl?: string;
-    }>;
+    allPhotos?: Array<PhotoType>;
     currentPhotoIndex?: number;
+}
+
+interface PhotoType {
+    id: string;
+    filePath?: string;
+    file?: File;
+    name?: string;
+    signedUrl?: string;
 }
 
 export function PhotoViewModal({
@@ -51,7 +53,7 @@ export function PhotoViewModal({
     const [currentIndex, setCurrentIndex] = useState(currentPhotoIndex);
     const imageUrlRef = useRef<string | null>(null);
     const abortControllerRef = useRef<AbortController | null>(null);
-    const currentPhotoIdRef = useRef<string | undefined>(null);
+    const currentPhotoIdRef = useRef<string | null>(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -65,12 +67,8 @@ export function PhotoViewModal({
     }, [allPhotos, currentIndex, photoId, file]);
 
     const loadPhoto = useCallback(
-        async (photo: {
-            id?: string;
-            file?: File;
-            signedUrl?: string;
-            filePath?: string;
-        }) => {
+        async (photo: PhotoType) => {
+            // CORREÇÃO: Compare com null
             if (currentPhotoIdRef.current === photo.id && imageUrlRef.current) {
                 return;
             }
@@ -80,7 +78,7 @@ export function PhotoViewModal({
             }
 
             abortControllerRef.current = new AbortController();
-            currentPhotoIdRef.current = photo.id;
+            currentPhotoIdRef.current = photo.id || null;
 
             setIsLoading(true);
 
@@ -155,7 +153,7 @@ export function PhotoViewModal({
     useEffect(() => {
         if (!isOpen) return;
 
-        currentPhotoIdRef.current = undefined;
+        currentPhotoIdRef.current = null;
         loadPhoto(currentPhoto);
 
         return () => {
@@ -221,7 +219,7 @@ export function PhotoViewModal({
             imageUrlRef.current = null;
         }
 
-        currentPhotoIdRef.current = undefined;
+        currentPhotoIdRef.current = null;
         setImageUrl(null);
     }, []);
 
