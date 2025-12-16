@@ -68,7 +68,6 @@ export function PhotoViewModal({
 
     const loadPhoto = useCallback(
         async (photo: PhotoType) => {
-            // CORREÇÃO: Compare com null
             if (currentPhotoIdRef.current === photo.id && imageUrlRef.current) {
                 return;
             }
