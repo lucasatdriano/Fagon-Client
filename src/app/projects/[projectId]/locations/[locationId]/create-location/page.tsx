@@ -241,7 +241,7 @@ export default function CreateLocationPage() {
     }, [allPhotos]);
 
     const handlePhotosAdded = useCallback(
-        (files: File[]) => {
+        async (files: File[]) => {
             if (isUploading) {
                 toast.error('Aguarde o upload atual terminar');
                 return;
@@ -263,45 +263,124 @@ export default function CreateLocationPage() {
 
             (async () => {
                 try {
-                    const response = await PhotoService.upload(
+                    const uploadResponse = await PhotoService.upload(
                         locationId as string,
                         files,
                     );
 
-                    const uploadedPhotos = response.data.map((photo) => ({
-                        id: photo.id,
-                        name: photo.name,
-                        filePath: photo.filePath.startsWith('http')
-                            ? photo.filePath
-                            : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/sign/${process.env.NEXT_PUBLIC_SUPABASE_BUCKET_NAME}/${photo.filePath}`,
-                        selectedForPdf: false,
-                        isTemp: false,
-                    }));
+                    const { processId, message } = uploadResponse;
+                    toast.success(message);
 
-                    setAllPhotos((prev) => {
-                        const withoutTemps = prev.filter((p) => !p.isTemp);
+                    const maxAttempts = 120;
+                    let attempts = 0;
 
-                        const allRealPhotos = [
-                            ...withoutTemps,
-                            ...uploadedPhotos,
-                        ];
+                    const checkStatus = async () => {
+                        try {
+                            const status = await PhotoService.checkUploadStatus(
+                                processId,
+                            );
 
-                        return allRealPhotos.sort(
-                            (a, b) =>
-                                extractPhotoNumber(a.name) -
-                                extractPhotoNumber(b.name),
-                        );
-                    });
+                            if (status.status === 'completed') {
+                                const tempIds = tempPhotos.map(
+                                    (temp) => temp.id,
+                                );
+                                setAllPhotos((prev) =>
+                                    prev.filter(
+                                        (p) => p.id && !tempIds.includes(p.id),
+                                    ),
+                                );
+
+                                const updatedPhotos =
+                                    await PhotoService.listByLocation(
+                                        locationId as string,
+                                        true,
+                                    );
+
+                                const newPhotos = updatedPhotos.data.map(
+                                    (photo) => ({
+                                        id: photo.id,
+                                        name: photo.name,
+                                        filePath: photo.filePath.startsWith(
+                                            'http',
+                                        )
+                                            ? photo.filePath
+                                            : `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/sign/${process.env.NEXT_PUBLIC_SUPABASE_BUCKET_NAME}/${photo.filePath}`,
+                                        selectedForPdf: false,
+                                        isTemp: false,
+                                    }),
+                                );
+
+                                setAllPhotos((prev) => {
+                                    const existingPhotos = prev.filter(
+                                        (p) => !p.isTemp,
+                                    );
+                                    const allPhotos = [
+                                        ...existingPhotos,
+                                        ...newPhotos,
+                                    ];
+
+                                    return allPhotos.sort(
+                                        (a, b) =>
+                                            extractPhotoNumber(a.name) -
+                                            extractPhotoNumber(b.name),
+                                    );
+                                });
+
+                                toast.success('Fotos processadas com sucesso!');
+                                setIsUploading(false);
+                            } else if (status.status === 'failed') {
+                                toast.error('Falha no processamento das fotos');
+                                setIsUploading(false);
+
+                                const tempIds = tempPhotos.map(
+                                    (temp) => temp.id,
+                                );
+                                setAllPhotos((prev) =>
+                                    prev.filter(
+                                        (p) => p.id && !tempIds.includes(p.id),
+                                    ),
+                                );
+                            } else if (attempts >= maxAttempts) {
+                                toast.warning(
+                                    'Processamento está demorando. As fotos aparecerão em breve.',
+                                );
+                                setIsUploading(false);
+
+                                const tempIds = tempPhotos.map(
+                                    (temp) => temp.id,
+                                );
+                                setAllPhotos((prev) =>
+                                    prev.filter(
+                                        (p) => p.id && !tempIds.includes(p.id),
+                                    ),
+                                );
+                            } else {
+                                attempts++;
+                                setTimeout(checkStatus, 1000);
+                            }
+                        } catch (error) {
+                            console.error('Erro ao verificar status:', error);
+                            setIsUploading(false);
+
+                            const tempIds = tempPhotos.map((temp) => temp.id);
+                            setAllPhotos((prev) =>
+                                prev.filter(
+                                    (p) => p.id && !tempIds.includes(p.id),
+                                ),
+                            );
+
+                            toast.error('Erro ao verificar status do upload');
+                        }
+                    };
+
+                    setTimeout(checkStatus, 2000);
                 } catch (error) {
                     console.error('Upload failed:', error);
                     const tempIds = tempPhotos.map((temp) => temp.id);
                     setAllPhotos((prev) =>
-                        prev.filter((p) =>
-                            p.id ? !tempIds.includes(p.id) : true,
-                        ),
+                        prev.filter((p) => p.id && !tempIds.includes(p.id)),
                     );
-                    toast.error('Falha no upload das fotos');
-                } finally {
+                    toast.error('Falha no envio das fotos');
                     setIsUploading(false);
                 }
             })();

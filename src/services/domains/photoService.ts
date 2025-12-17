@@ -17,16 +17,43 @@ export interface GetSignedUrlOptions {
     signal?: AbortSignal;
 }
 
+export interface UploadProcessResponse {
+    processId: string;
+    message: string;
+    fileCount: number;
+    locationId: string;
+    estimatedTime: string;
+    status: string;
+}
+
+export interface UploadStatusResponse {
+    status: string;
+    progress: { completed: number; total: number; percentage: number };
+    message: string;
+    results?: Array<{
+        id: string;
+        name: string;
+        filePath: string;
+        photoNumber: number;
+        locationName: string;
+        sizeKB: number;
+    }>;
+    errors?: Array<{
+        photoIndex: number;
+        fileName: string;
+        error: string;
+    }>;
+}
+
 export const PhotoService = {
     async upload(
         locationId: string,
         files: File[],
         enableCompression: boolean = true,
-    ): Promise<ApiResponse<Photo[]>> {
+    ): Promise<UploadProcessResponse> {
         try {
             console.log('📸 Iniciando upload de', files.length, 'fotos');
 
-            // Log tamanho original
             const originalTotalMB =
                 files.reduce((sum, f) => sum + f.size, 0) / 1024 / 1024;
             console.log(
@@ -35,13 +62,12 @@ export const PhotoService = {
 
             let filesToUpload = files;
 
-            // Aplica compressão se habilitado
             if (enableCompression) {
                 console.log('🔧 Aplicando compressão...');
                 try {
                     filesToUpload = await compressImages(files, {
                         ...DEFAULT_COMPRESSION_OPTIONS,
-                        maxSizeMB: 2, // Reduz para 2MB para celular
+                        maxSizeMB: 2,
                     });
 
                     const compressedTotalMB =
@@ -66,7 +92,6 @@ export const PhotoService = {
             }
 
             const formData = new FormData();
-
             filesToUpload.forEach((file, index) => {
                 formData.append(
                     'files',
@@ -81,10 +106,8 @@ export const PhotoService = {
                 API_ROUTES.PHOTOS.UPLOAD({ locationId }),
                 formData,
                 {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
-                    timeout: 60000, // Aumenta para 60s para fotos grandes
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                    timeout: 15000,
                     onUploadProgress: (progressEvent) => {
                         if (progressEvent.total) {
                             const percent = Math.round(
@@ -101,30 +124,25 @@ export const PhotoService = {
                                 1024 /
                                 1024
                             ).toFixed(2);
-
                             console.log(
                                 `📤 Upload: ${percent}% (${loadedMB}MB de ${totalMB}MB)`,
                             );
-
-                            if (
-                                percent < 10 &&
-                                progressEvent.loaded < 1024 * 1024
-                            ) {
-                                console.warn(
-                                    '⚠️ Upload lento. Verifique conexão.',
-                                );
-                            }
                         }
                     },
                 },
             );
 
-            console.log('✅ Upload concluído com sucesso');
+            console.log('✅ Upload aceito para processamento');
             return response.data;
         } catch (error) {
             console.error('❌ Erro no upload:', error);
             throw new Error(extractAxiosError(error));
         }
+    },
+
+    async checkUploadStatus(processId: string): Promise<UploadStatusResponse> {
+        const response = await api.get(`/photos/upload-status/${processId}`);
+        return response.data;
     },
 
     async listByLocation(
@@ -136,9 +154,7 @@ export const PhotoService = {
             const response = await api.get(
                 API_ROUTES.PHOTOS.BY_LOCATION({ locationId }),
                 {
-                    params: {
-                        signed: includeSignedUrls,
-                    },
+                    params: { signed: includeSignedUrls },
                     signal: options?.signal,
                 },
             );
@@ -211,9 +227,7 @@ export const PhotoService = {
         try {
             const response = await api.get(
                 API_ROUTES.PHOTOS.SIGNED_URL({ id: photoId }),
-                {
-                    signal: options?.signal,
-                },
+                { signal: options?.signal },
             );
 
             if (!response.data?.data.url) {
@@ -226,9 +240,7 @@ export const PhotoService = {
                 error instanceof Error &&
                 (error.name === 'CanceledError' || error.name === 'AbortError');
 
-            if (isCanceled) {
-                throw error;
-            }
+            if (isCanceled) throw error;
 
             console.error('Error getting signed URL:', error);
             throw new Error('Error connecting to server');
