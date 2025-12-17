@@ -140,11 +140,6 @@ export const PhotoService = {
         }
     },
 
-    async checkUploadStatus(processId: string): Promise<UploadStatusResponse> {
-        const response = await api.get(`/photos/upload-status/${processId}`);
-        return response.data;
-    },
-
     async listByLocation(
         locationId: string,
         includeSignedUrls = true,
