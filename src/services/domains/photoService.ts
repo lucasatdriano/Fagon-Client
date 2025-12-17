@@ -107,7 +107,7 @@ export const PhotoService = {
                 formData,
                 {
                     headers: { 'Content-Type': 'multipart/form-data' },
-                    timeout: 15000,
+                    timeout: 30000,
                     onUploadProgress: (progressEvent) => {
                         if (progressEvent.total) {
                             const percent = Math.round(
