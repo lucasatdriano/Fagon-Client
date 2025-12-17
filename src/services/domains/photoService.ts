@@ -2,6 +2,10 @@ import { Photo } from '../../interfaces/photo';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
 import { ApiResponse } from '../../types/api';
+import {
+    compressImages,
+    DEFAULT_COMPRESSION_OPTIONS,
+} from '@/utils/helpers/imageCompressor';
 
 export interface UpdatePhotoData {
     locationId?: string;
@@ -17,17 +21,61 @@ export const PhotoService = {
     async upload(
         locationId: string,
         files: File[],
+        enableCompression: boolean = true,
     ): Promise<ApiResponse<Photo[]>> {
         try {
+            console.log('📸 Iniciando upload de', files.length, 'fotos');
+
+            // Log tamanho original
+            const originalTotalMB =
+                files.reduce((sum, f) => sum + f.size, 0) / 1024 / 1024;
+            console.log(
+                `📊 Tamanho total original: ${originalTotalMB.toFixed(2)}MB`,
+            );
+
+            let filesToUpload = files;
+
+            // Aplica compressão se habilitado
+            if (enableCompression) {
+                console.log('🔧 Aplicando compressão...');
+                try {
+                    filesToUpload = await compressImages(files, {
+                        ...DEFAULT_COMPRESSION_OPTIONS,
+                        maxSizeMB: 2, // Reduz para 2MB para celular
+                    });
+
+                    const compressedTotalMB =
+                        filesToUpload.reduce((sum, f) => sum + f.size, 0) /
+                        1024 /
+                        1024;
+                    console.log(
+                        `✅ Compressão aplicada: ${compressedTotalMB.toFixed(
+                            2,
+                        )}MB (${(
+                            (compressedTotalMB / originalTotalMB) *
+                            100
+                        ).toFixed(1)}% do original)`,
+                    );
+                } catch (compressionError) {
+                    console.warn(
+                        '⚠️ Compressão falhou, usando arquivos originais:',
+                        compressionError,
+                    );
+                    filesToUpload = files;
+                }
+            }
+
             const formData = new FormData();
 
-            files.forEach((file) => {
+            filesToUpload.forEach((file, index) => {
                 formData.append(
                     'files',
                     file,
-                    file.name || `photo-${Date.now()}.jpg`,
+                    file.name || `photo-${Date.now()}-${index}.jpg`,
                 );
             });
+
+            console.log('🚀 Enviando para API...');
 
             const response = await api.post(
                 API_ROUTES.PHOTOS.UPLOAD({ locationId }),
@@ -36,10 +84,45 @@ export const PhotoService = {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                     },
+                    timeout: 60000, // Aumenta para 60s para fotos grandes
+                    onUploadProgress: (progressEvent) => {
+                        if (progressEvent.total) {
+                            const percent = Math.round(
+                                (progressEvent.loaded * 100) /
+                                    progressEvent.total,
+                            );
+                            const loadedMB = (
+                                progressEvent.loaded /
+                                1024 /
+                                1024
+                            ).toFixed(2);
+                            const totalMB = (
+                                progressEvent.total /
+                                1024 /
+                                1024
+                            ).toFixed(2);
+
+                            console.log(
+                                `📤 Upload: ${percent}% (${loadedMB}MB de ${totalMB}MB)`,
+                            );
+
+                            if (
+                                percent < 10 &&
+                                progressEvent.loaded < 1024 * 1024
+                            ) {
+                                console.warn(
+                                    '⚠️ Upload lento. Verifique conexão.',
+                                );
+                            }
+                        }
+                    },
                 },
             );
+
+            console.log('✅ Upload concluído com sucesso');
             return response.data;
         } catch (error) {
+            console.error('❌ Erro no upload:', error);
             throw new Error(extractAxiosError(error));
         }
     },
