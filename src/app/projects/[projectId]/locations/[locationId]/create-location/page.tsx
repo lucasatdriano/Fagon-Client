@@ -76,6 +76,11 @@ export default function CreateLocationPage() {
         Record<string, NodeJS.Timeout>
     >({});
     const [isUploading, setIsUploading] = useState(false);
+    const [batchUploading] = useState(false);
+    const [uploadProgress] = useState({
+        current: 0,
+        total: 0,
+    });
 
     const {
         register,
@@ -249,37 +254,46 @@ export default function CreateLocationPage() {
 
             setIsUploading(true);
 
-            const tempPhotos = files.map((file) => ({
-                file,
-                tempUrl: URL.createObjectURL(file),
-                filePath: `temp-${crypto.randomUUID()}-${file.name}`,
+            const tempPhotos = files.map((file, index) => ({
+                id: `temp-${Date.now()}-${index}`,
+                name: `Carregando...`,
+                filePath: URL.createObjectURL(file),
                 selectedForPdf: false,
-                id: `temp-${crypto.randomUUID()}`,
-                name: `Uploading-${file.name}`,
                 isTemp: true,
             }));
 
             setAllPhotos((prev) => [...prev, ...tempPhotos]);
 
-            (async () => {
-                try {
-                    const uploadResponse = await PhotoService.upload(
-                        locationId as string,
-                        files,
-                    );
+            try {
+                await PhotoService.upload(locationId as string, files, true, 2);
 
-                    const { message } = uploadResponse;
-                    toast.success(message);
-                } catch (error) {
-                    console.error('Upload failed:', error);
-                    const tempIds = tempPhotos.map((temp) => temp.id);
-                    setAllPhotos((prev) =>
-                        prev.filter((p) => p.id && !tempIds.includes(p.id)),
-                    );
-                    toast.error('Falha no envio das fotos');
-                    setIsUploading(false);
-                }
-            })();
+                toast.success(`${files.length} fotos enviadas!`);
+
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+
+                const response = await PhotoService.listByLocation(
+                    locationId as string,
+                    true,
+                );
+
+                setAllPhotos(
+                    response.data.sort(
+                        (a, b) =>
+                            extractPhotoNumber(a.name) -
+                            extractPhotoNumber(b.name),
+                    ),
+                );
+            } catch (error) {
+                console.error('Erro no upload:', error);
+                toast.error('Falha ao enviar fotos');
+
+                const tempIds = tempPhotos.map((p) => p.id);
+                setAllPhotos((prev) =>
+                    prev.filter((p) => !tempIds.includes(p.id || '')),
+                );
+            } finally {
+                setIsUploading(false);
+            }
         },
         [locationId, isUploading],
     );
@@ -392,6 +406,7 @@ export default function CreateLocationPage() {
 
             if (isNormalCamera && allPhotos.length < 5) {
                 toast.error('É necessário enviar pelo menos 5 fotos');
+                setIsLoading(false);
                 return;
             }
 
@@ -502,7 +517,7 @@ export default function CreateLocationPage() {
                         defaultValue={location?.name || ''}
                         error={errors.name?.message}
                         id="NameLocationInput"
-                        disabled={isLoading}
+                        disabled={isLoading || isUploading || batchUploading}
                     />
 
                     <CustomRadioGroup
@@ -533,6 +548,9 @@ export default function CreateLocationPage() {
                             Fotos{' '}
                             {isNormalCamera &&
                                 ` (${allPhotos.length}/5 mínimo)`}
+                            {batchUploading &&
+                                uploadProgress.total > 0 &&
+                                ` - Enviando lote ${uploadProgress.current} de ${uploadProgress.total}`}
                         </h2>
                         <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
                     </div>
@@ -541,16 +559,20 @@ export default function CreateLocationPage() {
                         <button
                             type="button"
                             className={`bg-white flex items-center justify-center gap-2 rounded-md shadow-sm text-primary py-4 px-6 hover:shadow-md cursor-pointer ${
-                                isLoading || isUploading
+                                isLoading || isUploading || batchUploading
                                     ? 'opacity-50 cursor-not-allowed'
                                     : ''
                             }`}
                             onClick={() => setShowPhotoOptionsModal(true)}
-                            disabled={isLoading || isUploading}
+                            disabled={
+                                isLoading || isUploading || batchUploading
+                            }
                         >
                             <CameraIcon className="w-6 h-6" />
                             <span>
-                                {isUploading ? 'Enviando...' : 'Adicionar Foto'}
+                                {isUploading || batchUploading
+                                    ? 'Enviando...'
+                                    : 'Adicionar Foto'}
                             </span>
                         </button>
 
@@ -569,7 +591,9 @@ export default function CreateLocationPage() {
                                 onDelete={handleDeletePhoto}
                                 index={allPhotos.indexOf(photo)}
                                 isVisitor={isVisitor}
-                                disabled={isLoading}
+                                disabled={
+                                    isLoading || isUploading || batchUploading
+                                }
                                 onSaveRotatedPhoto={handleSaveRotatedPhoto}
                                 allPhotos={allPhotos.map((p) => ({
                                     id: p.id || '',
@@ -624,7 +648,9 @@ export default function CreateLocationPage() {
                             defaultValue={location?.facadeObservation || ''}
                             error={errors.facadeObservation?.message}
                             id="FacadeObservationInput"
-                            disabled={isLoading}
+                            disabled={
+                                isLoading || isUploading || batchUploading
+                            }
                         />
                     </div>
                 )}
@@ -652,7 +678,9 @@ export default function CreateLocationPage() {
                             error={errors.height?.message}
                             id="HeightInput"
                             inputMode="decimal"
-                            disabled={isLoading}
+                            disabled={
+                                isLoading || isUploading || batchUploading
+                            }
                             maxLength={6}
                         />
                         <p className="text-sm text-gray-500 mt-1">
@@ -789,10 +817,10 @@ export default function CreateLocationPage() {
                     <CustomButton
                         icon={<SaveIcon />}
                         type="submit"
-                        disabled={isLoading || isUploading}
+                        disabled={isLoading || isUploading || batchUploading}
                         className="px-8 py-3"
                     >
-                        {isLoading || isUploading
+                        {isLoading || isUploading || batchUploading
                             ? 'Salvando...'
                             : 'Salvar Local'}
                     </CustomButton>
@@ -803,7 +831,7 @@ export default function CreateLocationPage() {
                 isOpen={showPhotoOptionsModal}
                 onClose={() => setShowPhotoOptionsModal(false)}
                 onPhotosAdded={handlePhotosAdded}
-                isLoading={isLoading || isUploading}
+                isLoading={isLoading || isUploading || batchUploading}
             />
         </div>
     );

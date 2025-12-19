@@ -1,11 +1,11 @@
-export interface CompressionOptions {
+interface CompressionOptions {
     maxWidth?: number;
     maxHeight?: number;
     quality?: number;
     maxSizeMB?: number;
 }
 
-export const DEFAULT_COMPRESSION_OPTIONS: Required<CompressionOptions> = {
+const DEFAULT_COMPRESSION_OPTIONS: Required<CompressionOptions> = {
     maxWidth: 1920,
     maxHeight: 1080,
     quality: 0.8,

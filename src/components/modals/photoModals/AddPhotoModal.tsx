@@ -50,12 +50,20 @@ export function AddPhotoModal({
                 return;
             }
 
-            const validFiles = files.map((file) => {
+            const isFromCamera = e.target === cameraInputRef.current;
+
+            console.log(
+                `📱 Origem: ${isFromCamera ? 'Câmera' : 'Galeria'}, Total: ${
+                    files.length
+                } fotos`,
+            );
+
+            const validFiles = files.map((file, index) => {
                 if (!(file instanceof File)) {
                     const fileLike = file as { name?: string; type?: string };
                     return new File(
                         [file as BlobPart],
-                        fileLike.name || `photo-${Date.now()}.jpg`,
+                        fileLike.name || `photo-${Date.now()}-${index}.jpg`,
                         {
                             type: fileLike.type || 'image/jpeg',
                         },
@@ -66,9 +74,15 @@ export function AddPhotoModal({
 
             onPhotosAdded(validFiles);
 
-            toast.success(
-                'Fotos adicionadas com sucesso! O upload começará em background.',
-            );
+            if (validFiles.length > 2 && !isFromCamera) {
+                toast.info(
+                    `Processando ${validFiles.length} fotos em lotes de 2...`,
+                );
+            } else {
+                toast.success(
+                    'Foto(s) adicionada(s) com sucesso! O upload começará em background.',
+                );
+            }
 
             if (fileInputRef.current) fileInputRef.current.value = '';
             if (cameraInputRef.current) cameraInputRef.current.value = '';

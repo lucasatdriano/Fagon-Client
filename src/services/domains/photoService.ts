@@ -2,10 +2,7 @@ import { Photo } from '../../interfaces/photo';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
 import { ApiResponse } from '../../types/api';
-import {
-    compressImages,
-    DEFAULT_COMPRESSION_OPTIONS,
-} from '@/utils/helpers/imageCompressor';
+import { compressImages } from '@/utils/helpers/imageCompressor';
 
 export interface UpdatePhotoData {
     locationId?: string;
@@ -50,57 +47,63 @@ export const PhotoService = {
         locationId: string,
         files: File[],
         enableCompression: boolean = true,
-    ): Promise<UploadProcessResponse> {
+        batchSize: number = 2,
+    ): Promise<UploadProcessResponse[]> {
         try {
-            console.log('📸 Iniciando upload de', files.length, 'fotos');
-
-            const originalTotalMB =
-                files.reduce((sum, f) => sum + f.size, 0) / 1024 / 1024;
             console.log(
-                `📊 Tamanho total original: ${originalTotalMB.toFixed(2)}MB`,
+                `📤 Enviando ${files.length} fotos em lotes de ${batchSize}`,
             );
 
-            let filesToUpload = files;
+            const responses = [];
 
+            for (let i = 0; i < files.length; i += batchSize) {
+                const batch = files.slice(i, i + batchSize);
+                const batchNumber = Math.floor(i / batchSize) + 1;
+
+                console.log(`🔄 Enviando lote ${batchNumber}`);
+
+                const response = await this.uploadBatch(
+                    locationId,
+                    batch,
+                    enableCompression,
+                );
+
+                responses.push(response);
+
+                if (i + batchSize < files.length) {
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+                }
+            }
+
+            return responses;
+        } catch (error) {
+            console.error('❌ Erro no upload:', error);
+            throw new Error(extractAxiosError(error));
+        }
+    },
+
+    async uploadBatch(
+        locationId: string,
+        files: File[],
+        enableCompression: boolean = true,
+    ): Promise<UploadProcessResponse> {
+        try {
+            let filesToUpload = files;
             if (enableCompression) {
-                console.log('🔧 Aplicando compressão...');
                 try {
                     filesToUpload = await compressImages(files, {
-                        ...DEFAULT_COMPRESSION_OPTIONS,
                         maxSizeMB: 2,
+                        quality: 0.8,
                     });
-
-                    const compressedTotalMB =
-                        filesToUpload.reduce((sum, f) => sum + f.size, 0) /
-                        1024 /
-                        1024;
-                    console.log(
-                        `✅ Compressão aplicada: ${compressedTotalMB.toFixed(
-                            2,
-                        )}MB (${(
-                            (compressedTotalMB / originalTotalMB) *
-                            100
-                        ).toFixed(1)}% do original)`,
-                    );
-                } catch (compressionError) {
-                    console.warn(
-                        '⚠️ Compressão falhou, usando arquivos originais:',
-                        compressionError,
-                    );
+                } catch {
                     filesToUpload = files;
                 }
             }
 
             const formData = new FormData();
-            filesToUpload.forEach((file, index) => {
-                formData.append(
-                    'files',
-                    file,
-                    file.name || `photo-${Date.now()}-${index}.jpg`,
-                );
+            filesToUpload.forEach((file) => {
+                formData.append('files', file);
             });
-
-            console.log('🚀 Enviando para API...');
 
             const response = await api.post(
                 API_ROUTES.PHOTOS.UPLOAD({ locationId }),
@@ -108,34 +111,11 @@ export const PhotoService = {
                 {
                     headers: { 'Content-Type': 'multipart/form-data' },
                     timeout: 30000,
-                    onUploadProgress: (progressEvent) => {
-                        if (progressEvent.total) {
-                            const percent = Math.round(
-                                (progressEvent.loaded * 100) /
-                                    progressEvent.total,
-                            );
-                            const loadedMB = (
-                                progressEvent.loaded /
-                                1024 /
-                                1024
-                            ).toFixed(2);
-                            const totalMB = (
-                                progressEvent.total /
-                                1024 /
-                                1024
-                            ).toFixed(2);
-                            console.log(
-                                `📤 Upload: ${percent}% (${loadedMB}MB de ${totalMB}MB)`,
-                            );
-                        }
-                    },
                 },
             );
 
-            console.log('✅ Upload aceito para processamento');
             return response.data;
         } catch (error) {
-            console.error('❌ Erro no upload:', error);
             throw new Error(extractAxiosError(error));
         }
     },
