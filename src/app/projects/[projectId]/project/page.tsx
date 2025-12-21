@@ -172,15 +172,15 @@ export default function ProjectEditPage() {
                 currentValues.engineer?.id !== project.engineer.id;
 
             const pavementsChanged = () => {
-                if (!currentValues.pavements || !project.pavements)
-                    return currentValues.pavements !== project.pavements;
+                const currentPavements = currentValues.pavements || [];
+                const projectPavements = project.pavements || [];
 
-                if (currentValues.pavements.length !== project.pavements.length)
+                if (currentPavements.length !== projectPavements.length)
                     return true;
 
-                for (let i = 0; i < currentValues.pavements.length; i++) {
-                    const currentPavement = currentValues.pavements[i];
-                    const originalPavement = project.pavements[i];
+                for (let i = 0; i < currentPavements.length; i++) {
+                    const currentPavement = currentPavements[i];
+                    const originalPavement = projectPavements[i];
 
                     if (
                         currentPavement.pavement !==
