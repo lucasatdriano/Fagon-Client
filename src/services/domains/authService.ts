@@ -34,7 +34,7 @@ interface RevokeAccessKeyData {
     message: string;
 }
 
-export interface UserData {
+interface UserData {
     id: string;
     name: string;
     email?: string;

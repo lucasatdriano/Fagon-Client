@@ -16,7 +16,7 @@ export interface Pathology {
     pathologyPhoto?: PathologyPhoto[];
 }
 
-export type CreatePathologyData =
+type CreatePathologyData =
     | {
           projectId: string;
           locationId: string;
@@ -27,13 +27,13 @@ export type CreatePathologyData =
       }
     | FormData;
 
-export interface ListPathologiesParams {
+interface ListPathologiesParams {
     projectId?: string;
     page?: number;
     limit?: number;
 }
 
-export interface SearchPathologiesParams {
+interface SearchPathologiesParams {
     title?: string;
     description?: string;
     startDate?: string;

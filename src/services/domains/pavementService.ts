@@ -1,14 +1,7 @@
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
 import { ApiResponse } from '../../types/api';
-
-export interface Pavement {
-    id: string;
-    projectId: string;
-    pavement: string;
-    height: number;
-    area: number;
-}
+import { Pavement } from '@/interfaces/pavement';
 
 export interface PavementItem {
     pavement: string;
@@ -16,7 +9,7 @@ export interface PavementItem {
     area?: number;
 }
 
-export interface CreatePavementData {
+interface CreatePavementData {
     projectId: string;
     pavement: string;
     height?: number;

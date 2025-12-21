@@ -4,42 +4,23 @@ import API_ROUTES from '../api/routes';
 import { ApiResponse } from '../../types/api';
 import { compressImages } from '@/utils/helpers/imageCompressor';
 
-export interface UpdatePhotoData {
+interface UpdatePhotoData {
     locationId?: string;
     filePath?: string;
     selectedForPdf: boolean;
 }
 
-export interface GetSignedUrlOptions {
+interface GetSignedUrlOptions {
     signal?: AbortSignal;
 }
 
-export interface UploadProcessResponse {
+interface UploadProcessResponse {
     processId: string;
     message: string;
     fileCount: number;
     locationId: string;
     estimatedTime: string;
     status: string;
-}
-
-export interface UploadStatusResponse {
-    status: string;
-    progress: { completed: number; total: number; percentage: number };
-    message: string;
-    results?: Array<{
-        id: string;
-        name: string;
-        filePath: string;
-        photoNumber: number;
-        locationName: string;
-        sizeKB: number;
-    }>;
-    errors?: Array<{
-        photoIndex: number;
-        fileName: string;
-        error: string;
-    }>;
 }
 
 export const PhotoService = {

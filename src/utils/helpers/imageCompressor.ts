@@ -12,7 +12,7 @@ const DEFAULT_COMPRESSION_OPTIONS: Required<CompressionOptions> = {
     maxSizeMB: 5,
 };
 
-export async function compressImage(
+async function compressImage(
     file: File,
     options: CompressionOptions = {},
 ): Promise<File> {
@@ -144,34 +144,4 @@ export async function compressImages(
   `);
 
     return compressedFiles;
-}
-
-export function needsCompression(
-    file: File,
-    maxSizeMB: number = DEFAULT_COMPRESSION_OPTIONS.maxSizeMB,
-): boolean {
-    return file.size > maxSizeMB * 1024 * 1024;
-}
-
-export function getFileInfo(file: File): string {
-    return `${file.name} - ${(file.size / 1024 / 1024).toFixed(2)}MB - ${
-        file.type
-    }`;
-}
-
-export function isImageCompressionSupported(): boolean {
-    return (
-        typeof document !== 'undefined' &&
-        typeof HTMLCanvasElement !== 'undefined' &&
-        typeof FileReader !== 'undefined'
-    );
-}
-
-export function getMobileCompressionOptions(): CompressionOptions {
-    return {
-        maxWidth: 1280,
-        maxHeight: 720,
-        quality: 0.7,
-        maxSizeMB: 2,
-    };
 }

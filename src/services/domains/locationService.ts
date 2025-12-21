@@ -1,7 +1,8 @@
-import { LocationType, SurfaceType } from '../../types/location';
+import { LocationType } from '../../types/location';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
 import { ApiResponse } from '../../types/api';
+import { MaterialFinishing } from '@/interfaces/materialFinishing';
 
 export interface Location {
     id: string;
@@ -23,12 +24,7 @@ export interface Location {
         selectedForPdf: boolean;
         signedUrl: string;
     }>;
-    materialFinishing: Array<{
-        id: string;
-        locationId: string;
-        surface: SurfaceType;
-        materialFinishing: string;
-    }>;
+    materialFinishing: MaterialFinishing[];
 }
 
 export interface CreateLocationData {

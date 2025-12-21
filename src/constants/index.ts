@@ -1,4 +1,3 @@
-export * from './userRole';
 export * from './cameraType';
 
 export * from './pavements';
