@@ -73,6 +73,7 @@ export default function AddInfoToPdfModal({
 
                 const formattedPavements = pavementsData.map((p) => ({
                     id: p.id,
+                    projectId: p.projectId,
                     pavement: p.pavement,
                     area: p.area ? Number(p.area) : 0,
                     height: p.height ? Number(p.height) : 0,
