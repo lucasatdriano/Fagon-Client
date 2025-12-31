@@ -28,7 +28,6 @@ import {
 import { LocationService } from '../../../../../services/domains/locationService';
 import { useUserRole } from '../../../../../hooks/useUserRole';
 import { AddPhotoModal } from '../../../../../components/modals/photoModals/AddPhotoModal';
-import { PathologyPhoto } from '../../../../../interfaces/pathologyPhoto';
 import {
     formatWithCapitals,
     getLocationLabelByValue,
@@ -43,6 +42,8 @@ import { AuthService } from '@/services/domains/authService';
 import { Pagination } from '@/components/layout/Pagination';
 import { ITEMS_PER_PAGE } from '@/constants/pagination';
 import { ApiResponse, PathologiesApiResponse } from '@/types/api';
+import { PathologyPhotosService } from '@/services/domains/pathologyPhotoService';
+import { PathologyPhoto } from '@/interfaces/pathologyPhoto';
 
 export default function CreatePathologyPage() {
     const router = useRouter();
@@ -50,6 +51,7 @@ export default function CreatePathologyPage() {
     const { isVisitor } = useUserRole();
     const [isLoading, setIsLoading] = useState(false);
     const [isLoadingPathologies, setIsLoadingPathologies] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [photos, setPhotos] = useState<PathologyPhoto[]>([]);
     const [locations, setLocations] = useState<DropdownOption[]>([]);
     const [pathologies, setPathologies] = useState<Pathology[]>([]);
@@ -64,6 +66,8 @@ export default function CreatePathologyPage() {
         page: 1,
         totalPages: 1,
     });
+    const [batchUploading] = useState(false);
+
     const searchParams = useSearchParams();
     const currentPage = Number(searchParams.get('page')) || 1;
 
@@ -158,7 +162,11 @@ export default function CreatePathologyPage() {
 
     useEffect(() => {
         return () => {
-            photos.forEach((p) => URL.revokeObjectURL(p.tempUrl));
+            photos.forEach((p) => {
+                if (p.tempUrl) {
+                    URL.revokeObjectURL(p.tempUrl);
+                }
+            });
         };
     }, [photos]);
 
@@ -176,20 +184,69 @@ export default function CreatePathologyPage() {
         }
     };
 
-    const handleAddPhotos = useCallback((files: File[]) => {
-        const newPhotos = files.map((file) => ({
-            id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-            file,
-            tempUrl: URL.createObjectURL(file),
-            name: file.name,
-        }));
-        setPhotos((prev) => [...prev, ...newPhotos]);
-    }, []);
+    const handleAddPhotos = useCallback(
+        async (files: File[]) => {
+            if (isUploading || batchUploading) {
+                toast.error('Aguarde o upload atual terminar');
+                return;
+            }
+
+            setIsUploading(true);
+
+            const tempPhotos: PathologyPhoto[] = files.map((file, index) => ({
+                id: `temp-${Date.now()}-${index}`,
+                file,
+                tempUrl: URL.createObjectURL(file),
+                name: `Foto-Patologia...`,
+                isTemp: true,
+            }));
+
+            setPhotos((prev) => [...prev, ...tempPhotos]);
+
+            try {
+                toast.success(`${files.length} fotos adicionadas!`);
+
+                setPhotos((prev) =>
+                    prev
+                        .filter((p) => !p.isTemp)
+                        .concat(
+                            tempPhotos.map((p) => ({
+                                ...p,
+                                isTemp: false,
+                            })),
+                        ),
+                );
+            } catch (error) {
+                console.error('Erro ao processar fotos:', error);
+                toast.error('Falha ao processar fotos');
+
+                const tempIds = tempPhotos.map((p) => p.id);
+                setPhotos((prev) =>
+                    prev.filter((p) => !tempIds.includes(p.id)),
+                );
+            } finally {
+                setIsUploading(false);
+            }
+        },
+        [isUploading, batchUploading],
+    );
 
     const handleRemovePhoto = useCallback(async (id: string) => {
         try {
             setIsLoading(true);
-            setPhotos((prev) => prev.filter((p) => p.id !== id));
+
+            if (!id.startsWith('temp-')) {
+                await PathologyPhotosService.delete(id);
+                toast.success('Foto removida com sucesso');
+            }
+
+            setPhotos((prev) => {
+                const photoToRemove = prev.find((p) => p.id === id);
+                if (photoToRemove?.tempUrl) {
+                    URL.revokeObjectURL(photoToRemove.tempUrl);
+                }
+                return prev.filter((p) => p.id !== id);
+            });
         } catch (error) {
             toast.error('Erro ao remover foto');
             console.error(error);
@@ -220,6 +277,13 @@ export default function CreatePathologyPage() {
 
             if (isNormalCamera && photos.length < 2) {
                 toast.error('Pelo menos 2 fotos são necessárias');
+                setIsLoading(false);
+                return;
+            }
+
+            if (!selectedLocationId) {
+                toast.error('Selecione um local');
+                setIsLoading(false);
                 return;
             }
 
@@ -233,17 +297,25 @@ export default function CreatePathologyPage() {
             formData.append('description', data.description);
 
             photos.forEach((photo) => {
-                formData.append(
-                    'photos',
-                    photo.file,
-                    photo.name || `photo-${Date.now()}`,
-                );
+                if (photo.file) {
+                    formData.append(
+                        'photos',
+                        photo.file,
+                        photo.name || `photo-${Date.now()}.jpg`,
+                    );
+                }
             });
 
             await PathologyService.create(formData);
             toast.success('Patologia criada com sucesso!');
+
             setPhotos([]);
             setSelectedLocationId('');
+            setValue('title', '');
+            setValue('description', '');
+
+            await loadPathologies();
+
             router.push(`/projects/${projectId}/pathologies/create-pathology`);
         } catch (error) {
             toast.error('Erro ao criar patologia');
@@ -271,6 +343,7 @@ export default function CreatePathologyPage() {
                 <div className="space-y-4">
                     <div className="w-full relative flex justify-start py-3">
                         <h2 className="text-2xl font-sans bg-background px-2 ml-8">
+                            Fotos
                             {isNormalCamera && ` (${photos.length}/2 mínimo)`}
                         </h2>
                         <hr className="w-full h-px absolute border-foreground top-1/2 left-0 -z-10" />
@@ -279,21 +352,32 @@ export default function CreatePathologyPage() {
                     <div className="grid gap-4 grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                         <button
                             type="button"
-                            className="bg-white flex items-center justify-center gap-2 rounded-md shadow-sm text-primary py-4 px-6 hover:shadow-md cursor-pointer"
+                            className={`bg-white flex items-center justify-center gap-2 rounded-md shadow-sm text-primary py-4 px-6 hover:shadow-md cursor-pointer ${
+                                isLoading || isUploading || batchUploading
+                                    ? 'opacity-50 cursor-not-allowed'
+                                    : ''
+                            }`}
                             onClick={() => setShowPhotoModal(true)}
-                            disabled={isLoading}
+                            disabled={
+                                isLoading || isUploading
+                            }
                         >
                             <CameraIcon className="w-6 h-6" />
-                            <span>Adicionar Foto</span>
+                            <span>
+                                {isUploading || batchUploading
+                                    ? 'Enviando...'
+                                    : 'Adicionar Foto'}
+                            </span>
                         </button>
 
                         {photos.map((photo, index) => (
                             <PhotoCard
-                                key={photo.id}
+                                key={photo.id || `temp-${index}`}
                                 photo={{
-                                    id: photo.id,
+                                    id: photo.id || '',
                                     name: photo.name || '',
-                                    filePath: photo.tempUrl || photo.filePath,
+                                    filePath:
+                                        photo.tempUrl || photo.filePath || '',
                                     file: photo.file,
                                     tempUrl: photo.tempUrl,
                                 }}
@@ -301,7 +385,15 @@ export default function CreatePathologyPage() {
                                 isPathologyPhoto={true}
                                 index={index}
                                 isVisitor={isVisitor}
-                                disabled={isLoading}
+                                disabled={
+                                    isLoading || isUploading
+                                }
+                                allPhotos={photos.map((p) => ({
+                                    id: p.id || '',
+                                    filePath: p.tempUrl || p.filePath || '',
+                                    file: p.file,
+                                    name: p.name || '',
+                                }))}
                             />
                         ))}
                     </div>
@@ -368,11 +460,18 @@ export default function CreatePathologyPage() {
                         type="submit"
                         icon={<SaveIcon />}
                         disabled={
-                            isLoading || (isNormalCamera && photos.length < 2)
+                            isLoading ||
+                            isUploading ||
+                            batchUploading ||
+                            (isNormalCamera && photos.length < 2) ||
+                            !selectedLocationId ||
+                            !photos.length
                         }
                         className="px-8 py-3"
                     >
-                        {isLoading ? 'Salvando...' : 'Salvar Patologia'}
+                        {isLoading || isUploading
+                            ? 'Salvando...'
+                            : 'Criar Patologia'}
                     </CustomButton>
                 </div>
             </form>
@@ -381,7 +480,7 @@ export default function CreatePathologyPage() {
                 isOpen={showPhotoModal}
                 onClose={() => setShowPhotoModal(false)}
                 onPhotosAdded={handleAddPhotos}
-                isLoading={isLoading}
+                isLoading={isLoading || isUploading}
             />
 
             <div className="mt-12">
@@ -411,7 +510,10 @@ export default function CreatePathologyPage() {
                                         photoCount={p.pathologyPhoto?.length}
                                         onClick={() => handleCardClick(p)}
                                         onDelete={handleDeletePathology}
-                                        disabled={isLoading}
+                                        disabled={
+                                            isLoading ||
+                                            isUploading
+                                        }
                                         isVisitor={isVisitor}
                                     />
                                 </div>

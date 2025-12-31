@@ -1,5 +1,5 @@
 export interface PathologyPhoto {
-    id: string;
+    id?: string;
     pathologyId?: string;
     name?: string;
     filePath?: string;
@@ -10,4 +10,5 @@ export interface PathologyPhoto {
         id: string;
         title: string;
     };
+    isTemp?: boolean;
 }

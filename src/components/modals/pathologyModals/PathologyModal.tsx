@@ -1,7 +1,7 @@
 'use client';
 
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment, useState, useEffect } from 'react';
+import { Fragment, useState, useEffect, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -34,6 +34,7 @@ import {
     UpdatePathologyFormValues,
     updatePathologySchema,
 } from '../../../validations';
+import { extractPhotoNumber } from '@/utils/sorts/sortPhotos';
 
 interface UpdatePathologyModalProps {
     pathology: Pathology;
@@ -46,6 +47,7 @@ interface UpdatePathologyModalProps {
 interface PhotoState extends Omit<PathologyPhoto, 'pathology'> {
     tempUrl?: string;
     file?: File;
+    isTemp?: boolean;
 }
 
 export function UpdatePathologyModal({
@@ -57,10 +59,12 @@ export function UpdatePathologyModal({
 }: UpdatePathologyModalProps) {
     const { isVisitor } = useUserRole();
     const [isLoading, setIsLoading] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [photos, setPhotos] = useState<PhotoState[]>([]);
     const [showPhotoModal, setShowPhotoModal] = useState(false);
     const [locations, setLocations] = useState<DropdownOption[]>([]);
     const [selectedLocationId, setSelectedLocationId] = useState<string>('');
+    const [batchUploading] = useState(false);
 
     const {
         register,
@@ -105,12 +109,16 @@ export function UpdatePathologyModal({
 
                     const photosData = response.data || [];
 
-                    const loadedPhotos = photosData.map(
-                        (photo: PathologyPhoto) => ({
+                    const loadedPhotos = photosData
+                        .map((photo: PathologyPhoto) => ({
                             ...photo,
                             signedUrl: photo.signedUrl,
-                        }),
-                    );
+                        }))
+                        .sort(
+                            (a, b) =>
+                                extractPhotoNumber(a.name || '') -
+                                extractPhotoNumber(b.name || ''),
+                        );
 
                     setPhotos(loadedPhotos);
 
@@ -132,6 +140,16 @@ export function UpdatePathologyModal({
         loadData();
     }, [pathology, isOpen, reset, setValue]);
 
+    useEffect(() => {
+        return () => {
+            photos.forEach((p) => {
+                if (p.tempUrl) {
+                    URL.revokeObjectURL(p.tempUrl);
+                }
+            });
+        };
+    }, [photos]);
+
     const handleLocationSelect = (id: string | null) => {
         if (id === null) {
             setSelectedLocationId('');
@@ -147,34 +165,123 @@ export function UpdatePathologyModal({
         }
     };
 
-    const handleAddPhotos = (files: File[]) => {
-        const newPhotos = files.map((file) => ({
-            id: `temp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-            file,
-            tempUrl: URL.createObjectURL(file),
-            name: file.name,
-            pathologyId: pathology.id,
-            createdAt: new Date().toISOString(),
-            filePath: '',
-        }));
-        setPhotos((prev) => [...prev, ...newPhotos]);
+    const handleAddPhotos = useCallback(
+        async (files: File[]) => {
+            if (isUploading || batchUploading) {
+                toast.error('Aguarde o upload atual terminar');
+                return;
+            }
+
+            setIsUploading(true);
+
+            const tempPhotos = files.map((file, index) => ({
+                id: `temp-${Date.now()}-${index}`,
+                file,
+                tempUrl: URL.createObjectURL(file),
+                name: `Carregando...`,
+                pathologyId: pathology.id,
+                isTemp: true,
+                createdAt: new Date().toISOString(),
+                filePath: '',
+            }));
+
+            setPhotos((prev) => [...prev, ...tempPhotos]);
+
+            try {
+                await PathologyPhotosService.upload(
+                    pathology.id,
+                    files,
+                    true,
+                    2,
+                );
+
+                toast.success(`${files.length} fotos enviadas!`);
+
+                const response = await PathologyPhotosService.listByPathology(
+                    pathology.id,
+                    true,
+                );
+
+                const updatedPhotos = (response.data || [])
+                    .map((photo: PathologyPhoto) => ({
+                        ...photo,
+                        signedUrl: photo.signedUrl,
+                    }))
+                    .sort(
+                        (a, b) =>
+                            extractPhotoNumber(a.name || '') -
+                            extractPhotoNumber(b.name || ''),
+                    );
+
+                setPhotos(updatedPhotos);
+            } catch (error) {
+                console.error('Erro no upload:', error);
+                toast.error('Falha ao enviar fotos');
+
+                const tempIds = tempPhotos.map((p) => p.id);
+                setPhotos((prev) => {
+                    const filtered = prev.filter(
+                        (p) => !tempIds.includes(p.id),
+                    );
+                    return filtered;
+                });
+            } finally {
+                setIsUploading(false);
+            }
+        },
+        [pathology.id, isUploading, batchUploading],
+    );
+
+    const handleSaveRotatedPhoto = async (
+        photoId: string,
+        rotation: number,
+    ) => {
+        try {
+            await PathologyPhotosService.rotatePhoto(photoId, rotation);
+
+            const updatedPhotosResponse =
+                await PathologyPhotosService.listByPathology(
+                    pathology.id,
+                    true,
+                );
+            setPhotos(
+                updatedPhotosResponse.data.map((photo: PathologyPhoto) => ({
+                    ...photo,
+                    signedUrl: photo.signedUrl,
+                })),
+            );
+
+            toast.success('Foto rotacionada e salva com sucesso!');
+        } catch (error) {
+            console.error('Erro ao rotacionar foto:', error);
+            toast.error('Erro ao rotacionar a foto');
+            throw error;
+        }
     };
 
-    const handleRemovePhoto = async (id: string) => {
+    const handleRemovePhoto = useCallback(async (id: string) => {
         try {
             setIsLoading(true);
+
             if (!id.startsWith('temp-')) {
                 await PathologyPhotosService.delete(id);
                 toast.success('Foto removida com sucesso');
             }
-            setPhotos((prev) => prev.filter((p) => p.id !== id));
+
+            setPhotos((prev) => {
+                const photoToRemove = prev.find((p) => p.id === id);
+                if (photoToRemove?.tempUrl) {
+                    URL.revokeObjectURL(photoToRemove.tempUrl);
+                }
+                return prev.filter((p) => p.id !== id);
+            });
         } catch (error) {
             toast.error('Erro ao remover foto');
             console.error(error);
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
 
     const onSubmit = async (data: UpdatePathologyFormValues) => {
         try {
@@ -190,6 +297,8 @@ export function UpdatePathologyModal({
                 await PathologyPhotosService.upload(
                     pathology.id,
                     newPhotos.map((photo) => photo.file!),
+                    true,
+                    2,
                 );
             }
 
@@ -249,7 +358,11 @@ export function UpdatePathologyModal({
                                         title="Fechar Modal"
                                         onClick={onClose}
                                         className="text-gray-500 hover:text-gray-700 hover:bg-gray-200 p-2 rounded-full"
-                                        disabled={isLoading}
+                                        disabled={
+                                            isLoading ||
+                                            isUploading ||
+                                            batchUploading
+                                        }
                                     >
                                         <XIcon className="w-6 h-6" />
                                     </button>
@@ -276,14 +389,29 @@ export function UpdatePathologyModal({
                                         <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 md:grid-cols-4">
                                             <button
                                                 type="button"
-                                                className="bg-white flex items-center justify-center gap-2 rounded-md shadow-sm border border-gray-200 text-primary py-4 px-6 hover:shadow-md cursor-pointer"
+                                                className={`bg-white flex items-center justify-center gap-2 rounded-md shadow-sm border border-gray-200 text-primary py-4 px-6 hover:shadow-md cursor-pointer ${
+                                                    isLoading ||
+                                                    isUploading ||
+                                                    batchUploading
+                                                        ? 'opacity-50 cursor-not-allowed'
+                                                        : ''
+                                                }`}
                                                 onClick={() =>
                                                     setShowPhotoModal(true)
                                                 }
-                                                disabled={isLoading}
+                                                disabled={
+                                                    isLoading ||
+                                                    isUploading ||
+                                                    batchUploading
+                                                }
                                             >
                                                 <CameraIcon className="w-6 h-6" />
-                                                <span>Adicionar Foto</span>
+                                                <span>
+                                                    {isUploading ||
+                                                    batchUploading
+                                                        ? 'Enviando...'
+                                                        : 'Adicionar Foto'}
+                                                </span>
                                             </button>
 
                                             {photos.map((photo, index) => {
@@ -294,7 +422,8 @@ export function UpdatePathologyModal({
                                                             id: photo.id,
                                                             filePath:
                                                                 photo.tempUrl ||
-                                                                photo.filePath,
+                                                                photo.filePath ||
+                                                                '',
                                                             name:
                                                                 photo.name ||
                                                                 '',
@@ -308,7 +437,28 @@ export function UpdatePathologyModal({
                                                         isPathologyPhoto={true}
                                                         index={index}
                                                         isVisitor={isVisitor}
-                                                        disabled={isLoading}
+                                                        disabled={
+                                                            isLoading ||
+                                                            isUploading
+                                                        }
+                                                        onSaveRotatedPhoto={
+                                                            handleSaveRotatedPhoto
+                                                        }
+                                                        allPhotos={photos.map(
+                                                            (p) => ({
+                                                                id: p.id || '',
+                                                                filePath:
+                                                                    p.tempUrl ||
+                                                                    p.filePath ||
+                                                                    '',
+                                                                file: p.file,
+                                                                name:
+                                                                    p.name ||
+                                                                    '',
+                                                                signedUrl:
+                                                                    p.signedUrl,
+                                                            }),
+                                                        )}
                                                     />
                                                 );
                                             })}
@@ -347,7 +497,11 @@ export function UpdatePathologyModal({
                                             {...register('title')}
                                             error={errors.title?.message}
                                             id="PathologyTitleInput"
-                                            disabled={isLoading}
+                                            disabled={
+                                                isLoading ||
+                                                isUploading ||
+                                                batchUploading
+                                            }
                                             defaultValue={pathology.title}
                                         />
 
@@ -357,7 +511,11 @@ export function UpdatePathologyModal({
                                             {...register('description')}
                                             error={errors.description?.message}
                                             id="PathologyDescriptionInput"
-                                            disabled={isLoading}
+                                            disabled={
+                                                isLoading ||
+                                                isUploading ||
+                                                batchUploading
+                                            }
                                             defaultValue={
                                                 pathology.description || ''
                                             }
@@ -368,7 +526,11 @@ export function UpdatePathologyModal({
                                         <CustomButton
                                             type="button"
                                             onClick={onClose}
-                                            disabled={isLoading}
+                                            disabled={
+                                                isLoading ||
+                                                isUploading ||
+                                                batchUploading
+                                            }
                                             color="bg-white"
                                             textColor="text-foreground"
                                             className="rounded-md border border-foreground text-gray-700 hover:bg-zinc-200"
@@ -382,12 +544,16 @@ export function UpdatePathologyModal({
                                             }
                                             disabled={
                                                 isLoading ||
+                                                isUploading ||
+                                                batchUploading ||
                                                 (isNormalCamera &&
                                                     photos.length < 2)
                                             }
                                             className="hover:bg-secondary-hover"
                                         >
-                                            {isLoading
+                                            {isLoading ||
+                                            isUploading ||
+                                            batchUploading
                                                 ? 'Salvando...'
                                                 : 'Salvar Alterações'}
                                         </CustomButton>
@@ -402,7 +568,7 @@ export function UpdatePathologyModal({
                     isOpen={showPhotoModal}
                     onClose={() => setShowPhotoModal(false)}
                     onPhotosAdded={handleAddPhotos}
-                    isLoading={isLoading}
+                    isLoading={isLoading || isUploading || batchUploading}
                 />
             </Dialog>
         </Transition>

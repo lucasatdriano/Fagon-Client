@@ -31,17 +31,10 @@ export const PhotoService = {
         batchSize: number = 2,
     ): Promise<UploadProcessResponse[]> {
         try {
-            console.log(
-                `📤 Enviando ${files.length} fotos em lotes de ${batchSize}`,
-            );
-
             const responses = [];
 
             for (let i = 0; i < files.length; i += batchSize) {
                 const batch = files.slice(i, i + batchSize);
-                const batchNumber = Math.floor(i / batchSize) + 1;
-
-                console.log(`🔄 Enviando lote ${batchNumber}`);
 
                 const response = await this.uploadBatch(
                     locationId,

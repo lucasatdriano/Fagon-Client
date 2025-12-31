@@ -100,6 +100,7 @@ const API_ROUTES = {
         BY_PATHOLOGY: ({ pathologyId }: Params) =>
             `/pathology-photos/pathology/${pathologyId}`,
         DELETE: ({ id }: Params) => `/pathology-photos/${id}`,
+        ROTATE: ({ id }: Params) => `/pathology-photos/${id}/rotate`,
     },
 
     PAVEMENTS: {

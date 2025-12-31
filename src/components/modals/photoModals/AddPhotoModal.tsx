@@ -52,12 +52,6 @@ export function AddPhotoModal({
 
             const isFromCamera = e.target === cameraInputRef.current;
 
-            console.log(
-                `📱 Origem: ${isFromCamera ? 'Câmera' : 'Galeria'}, Total: ${
-                    files.length
-                } fotos`,
-            );
-
             const validFiles = files.map((file, index) => {
                 if (!(file instanceof File)) {
                     const fileLike = file as { name?: string; type?: string };

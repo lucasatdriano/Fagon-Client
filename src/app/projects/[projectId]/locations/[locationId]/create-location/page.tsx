@@ -123,7 +123,7 @@ export default function CreateLocationPage() {
             ]);
 
             const locationData = locationResponse.data;
-            console.log(locationData);
+
             const mappedPavements = mapPavementToDropdownOptions(
                 pavementsResponse.data,
             );
@@ -401,7 +401,6 @@ export default function CreateLocationPage() {
 
     const onSubmit = async (data: UpdateLocationFormSchema) => {
         try {
-            console.log(data);
             setIsLoading(true);
 
             if (isNormalCamera && allPhotos.length < 5) {
@@ -591,9 +590,7 @@ export default function CreateLocationPage() {
                                 onDelete={handleDeletePhoto}
                                 index={allPhotos.indexOf(photo)}
                                 isVisitor={isVisitor}
-                                disabled={
-                                    isLoading || isUploading || batchUploading
-                                }
+                                disabled={isLoading}
                                 onSaveRotatedPhoto={handleSaveRotatedPhoto}
                                 allPhotos={allPhotos.map((p) => ({
                                     id: p.id || '',
@@ -648,9 +645,7 @@ export default function CreateLocationPage() {
                             defaultValue={location?.facadeObservation || ''}
                             error={errors.facadeObservation?.message}
                             id="FacadeObservationInput"
-                            disabled={
-                                isLoading || isUploading || batchUploading
-                            }
+                            disabled={isLoading}
                         />
                     </div>
                 )}
@@ -678,9 +673,7 @@ export default function CreateLocationPage() {
                             error={errors.height?.message}
                             id="HeightInput"
                             inputMode="decimal"
-                            disabled={
-                                isLoading || isUploading || batchUploading
-                            }
+                            disabled={isLoading}
                             maxLength={6}
                         />
                         <p className="text-sm text-gray-500 mt-1">

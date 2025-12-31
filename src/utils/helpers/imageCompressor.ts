@@ -24,9 +24,6 @@ async function compressImage(
         options.maxSizeMB ?? DEFAULT_COMPRESSION_OPTIONS.maxSizeMB;
 
     if (file.size <= maxSizeMB * 1024 * 1024) {
-        console.log(
-            `Arquivo já pequeno: ${(file.size / 1024 / 1024).toFixed(2)}MB`,
-        );
         return file;
     }
 
@@ -78,14 +75,6 @@ async function compressImage(
                             },
                         );
 
-                        console.log(`✅ Compressão concluída:
-              Original: ${(file.size / 1024 / 1024).toFixed(2)}MB
-              Comprimido: ${(compressedFile.size / 1024 / 1024).toFixed(2)}MB
-              Redução: ${((1 - compressedFile.size / file.size) * 100).toFixed(
-                  1,
-              )}%
-            `);
-
                         resolve(compressedFile);
                     },
                     'image/jpeg',
@@ -110,8 +99,6 @@ export async function compressImages(
     files: File[],
     options?: CompressionOptions,
 ): Promise<File[]> {
-    console.log(`📦 Iniciando compressão de ${files.length} arquivos...`);
-
     const results = await Promise.allSettled(
         files.map((file) => compressImage(file, options)),
     );
@@ -134,14 +121,8 @@ export async function compressImages(
         console.warn('⚠️ Algumas compressões falharam:', errors);
     }
 
-    const originalTotal = files.reduce((sum, f) => sum + f.size, 0);
-    const compressedTotal = compressedFiles.reduce((sum, f) => sum + f.size, 0);
-
-    console.log(`📊 Resumo compressão:
-    Total original: ${(originalTotal / 1024 / 1024).toFixed(2)}MB
-    Total comprimido: ${(compressedTotal / 1024 / 1024).toFixed(2)}MB
-    Redução total: ${((1 - compressedTotal / originalTotal) * 100).toFixed(1)}%
-  `);
+    files.reduce((sum, f) => sum + f.size, 0);
+    compressedFiles.reduce((sum, f) => sum + f.size, 0);
 
     return compressedFiles;
 }

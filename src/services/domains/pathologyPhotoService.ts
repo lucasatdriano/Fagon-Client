@@ -2,6 +2,7 @@ import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
 import { ApiResponse } from '../../types/api';
 import { GetSignedUrlOptions } from '@/interfaces/signedUrlOptions';
+import { compressImages } from '@/utils/helpers/imageCompressor';
 
 export interface PathologyPhoto {
     id: string;
@@ -25,31 +26,85 @@ export interface PathologyPhoto {
     };
 }
 
+interface UploadProcessResponse {
+    processId: string;
+    message: string;
+    fileCount: number;
+    pathologyId: string;
+    estimatedTime: string;
+    status: string;
+}
+
 export const PathologyPhotosService = {
     async upload(
         pathologyId: string,
         files: File[],
-    ): Promise<ApiResponse<PathologyPhoto[]>> {
+        enableCompression: boolean = true,
+        batchSize: number = 2,
+    ): Promise<UploadProcessResponse[]> {
         try {
-            const formData = new FormData();
+            const responses = [];
 
-            files.forEach((file) => {
-                formData.append(
-                    'files',
-                    file,
-                    file.name || `pathology-photo-${Date.now()}.jpg`,
+            for (let i = 0; i < files.length; i += batchSize) {
+                const batch = files.slice(i, i + batchSize);
+
+                const response = await this.uploadBatch(
+                    pathologyId,
+                    batch,
+                    enableCompression,
                 );
+
+                responses.push(response);
+
+                if (i + batchSize < files.length) {
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
+                }
+            }
+
+            return responses;
+        } catch (error) {
+            console.error('❌ Erro no upload das fotos de patologia:', error);
+            throw new Error(extractAxiosError(error));
+        }
+    },
+
+    async uploadBatch(
+        pathologyId: string,
+        files: File[],
+        enableCompression: boolean = true,
+    ): Promise<UploadProcessResponse> {
+        try {
+            let filesToUpload = files;
+
+            if (enableCompression) {
+                try {
+                    filesToUpload = await compressImages(files, {
+                        maxSizeMB: 2,
+                        quality: 0.8,
+                    });
+                } catch (compressionError) {
+                    console.warn(
+                        'Compressão falhou, usando arquivos originais:',
+                        compressionError,
+                    );
+                    filesToUpload = files;
+                }
+            }
+
+            const formData = new FormData();
+            filesToUpload.forEach((file) => {
+                formData.append('files', file);
             });
 
             const response = await api.post(
                 API_ROUTES.PATHOLOGY_PHOTOS.UPLOAD({ pathologyId }),
                 formData,
                 {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                    },
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                    timeout: 30000,
                 },
             );
+
             return response.data;
         } catch (error) {
             throw new Error(extractAxiosError(error));
@@ -59,34 +114,37 @@ export const PathologyPhotosService = {
     async listByPathology(
         pathologyId: string,
         includeSignedUrls = true,
+        options?: GetSignedUrlOptions,
     ): Promise<ApiResponse<PathologyPhoto[]>> {
         try {
             const response = await api.get(
                 API_ROUTES.PATHOLOGY_PHOTOS.BY_PATHOLOGY({ pathologyId }),
                 {
-                    params: {
-                        signed: includeSignedUrls,
-                    },
+                    params: { signed: includeSignedUrls },
+                    signal: options?.signal,
                 },
             );
 
-            const photosData = response.data.data || response.data;
+            const photos = response.data.data || response.data;
 
             if (!includeSignedUrls) {
                 return {
                     ...response.data,
-                    data: photosData,
+                    data: photos,
                 };
             }
 
             const photosWithUrls = await Promise.all(
-                photosData.map(async (photo: PathologyPhoto) => {
+                photos.map(async (photo: PathologyPhoto) => {
                     if (!photo.signedUrl) {
                         try {
-                            photo.signedUrl = await this.getSignedUrl(photo.id);
+                            photo.signedUrl = await this.getSignedUrl(
+                                photo.id,
+                                options,
+                            );
                         } catch (error) {
                             console.error(
-                                `Error getting signed URL for pathology photo ${photo.id}:`,
+                                `Erro ao obter URL assinada para foto ${photo.id}:`,
                                 error,
                             );
                             photo.signedUrl = '/fallback-image.jpg';
@@ -95,24 +153,34 @@ export const PathologyPhotosService = {
                     return photo;
                 }),
             );
+
             return {
                 ...response.data,
                 data: photosWithUrls,
             };
         } catch (error) {
-            console.error('❌ Erro no listByPathology:', error);
+            console.error('❌ Erro ao listar fotos da patologia:', error);
             throw new Error(extractAxiosError(error));
         }
     },
 
-    async getById(id: string): Promise<ApiResponse<PathologyPhoto>> {
+    async getById(
+        id: string,
+        options?: GetSignedUrlOptions,
+    ): Promise<ApiResponse<PathologyPhoto>> {
         try {
             const response = await api.get(
                 API_ROUTES.PATHOLOGY_PHOTOS.BY_ID({ id }),
+                {
+                    signal: options?.signal,
+                },
             );
 
             if (response.data.data && !response.data.data.signedUrl) {
-                response.data.data.signedUrl = await this.getSignedUrl(id);
+                response.data.data.signedUrl = await this.getSignedUrl(
+                    id,
+                    options,
+                );
             }
 
             return response.data;
@@ -128,13 +196,11 @@ export const PathologyPhotosService = {
         try {
             const response = await api.get(
                 API_ROUTES.PATHOLOGY_PHOTOS.SIGNED_URL({ id: photoId }),
-                {
-                    signal: options?.signal,
-                },
+                { signal: options?.signal },
             );
 
             if (!response.data?.data?.url) {
-                throw new Error('Invalid response format from server');
+                throw new Error('Formato de resposta inválido do servidor');
             }
 
             return response.data.data.url;
@@ -147,11 +213,23 @@ export const PathologyPhotosService = {
                 throw error;
             }
 
-            console.error(
-                'Error getting signed URL for pathology photo:',
-                error,
+            console.error('Erro ao obter URL assinada:', error);
+            throw new Error('Erro ao conectar ao servidor');
+        }
+    },
+
+    async rotatePhoto(
+        photoId: string,
+        rotation: number,
+    ): Promise<ApiResponse<PathologyPhoto>> {
+        try {
+            const response = await api.put(
+                API_ROUTES.PATHOLOGY_PHOTOS.ROTATE({ id: photoId }),
+                { rotation },
             );
-            throw new Error('Error connecting to server');
+            return response.data;
+        } catch (error) {
+            throw new Error(extractAxiosError(error));
         }
     },
 
