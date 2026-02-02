@@ -1,4 +1,4 @@
-export const locationType = [
+export const locationTypes = [
     {
         id: 'externo',
         value: 'externo',
@@ -13,7 +13,7 @@ export const locationType = [
     },
 ] as const;
 
-export const mappedLocationTypeOptions = locationType.map((option) => ({
+export const mappedLocationTypeOptions = locationTypes.map((option) => ({
     ...option,
     value: option.value as 'externo' | 'interno',
 }));

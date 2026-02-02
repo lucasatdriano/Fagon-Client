@@ -32,10 +32,7 @@ import {
     UpdateLocationFormSchema,
     updateLocationSchema,
 } from '../../../../../../validations';
-import {
-    locationType as locationTypes,
-    surfaceType,
-} from '../../../../../../constants';
+import { locationTypes, surfaceTypes } from '../../../../../../constants';
 import {
     CustomDropdownInput,
     DropdownOption,
@@ -158,13 +155,13 @@ export default function CreateLocationPage() {
                 locationData.facadeObservation?.toString() || '',
             );
 
-            const pisoValue = surfaceType.find(
+            const pisoValue = surfaceTypes.find(
                 (st) => st.label === 'Piso',
             )?.value;
-            const paredeValue = surfaceType.find(
+            const paredeValue = surfaceTypes.find(
                 (st) => st.label === 'Parede',
             )?.value;
-            const forroValue = surfaceType.find(
+            const forroValue = surfaceTypes.find(
                 (st) => st.label === 'Forro',
             )?.value;
 

@@ -1,4 +1,4 @@
-export const surfaceType = [
+export const surfaceTypes = [
     {
         id: 'piso',
         value: 'piso',

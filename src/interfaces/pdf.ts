@@ -1,10 +1,10 @@
-import { pdfType } from '../constants';
+import { pdfTypes } from '../constants';
 
-export type PdfType = (typeof pdfType)[number]['value'];
+export type PdfTypes = (typeof pdfTypes)[number]['value'];
 
 export interface PDF {
     id?: string;
-    type: PdfType;
+    type: PdfTypes;
     generated: boolean;
     signed: boolean;
     filePath?: string | null;
@@ -16,7 +16,7 @@ export interface PdfDocument {
     projectId: string;
     name?: string;
     filePath: string;
-    pdfType: PdfType;
+    pdfType: PdfTypes;
     signedFilePath?: string | null;
     generatedAt: string;
 }

@@ -1,8 +1,8 @@
-import { PdfType } from '../../interfaces/pdf';
+import { PdfTypes } from '../../interfaces/pdf';
 import { formatNumberAgency } from '../formatters/formatNumberAgency';
 
 export const getPdfFileName = (
-    pdfType: PdfType,
+    pdfType: PdfTypes,
     agencyNumber: string,
 ): string => {
     switch (pdfType) {

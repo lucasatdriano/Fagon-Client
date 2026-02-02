@@ -1,4 +1,4 @@
-import { projectType } from '../../constants';
+import { projectTypes } from '../../constants';
 import { z } from 'zod';
 
 export const createProjectSchema = z.object({
@@ -8,7 +8,7 @@ export const createProjectSchema = z.object({
             invalid_type_error: 'Deve ser uma string',
         })
         .min(1, 'Tipo do projeto é obrigatório')
-        .refine((val) => projectType.some((type) => type.value === val), {
+        .refine((val) => projectTypes.some((type) => type.value === val), {
             message: 'Tipo de projeto inválido',
         }),
 

@@ -1,4 +1,4 @@
-import { PdfType, PdfDocument } from '../../interfaces/pdf';
+import { PdfTypes, PdfDocument } from '../../interfaces/pdf';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
 import { ApiResponse } from '../../types/api';
@@ -7,7 +7,7 @@ import { getPdfFileName } from '../../utils/helpers/pdfNaming';
 
 interface GeneratePdfData {
     projectId: string;
-    pdfType: PdfType;
+    pdfType: PdfTypes;
 }
 
 interface SignPdfData {

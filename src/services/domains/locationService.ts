@@ -1,4 +1,4 @@
-import { LocationType } from '../../types/location';
+import { LocationTypes } from '../../types/location';
 import { api, extractAxiosError } from '../api';
 import API_ROUTES from '../api/routes';
 import { ApiResponse } from '../../types/api';
@@ -9,7 +9,7 @@ export interface Location {
     projectId: string;
     pavementId?: string;
     name: string;
-    locationType: LocationType;
+    locationType: LocationTypes;
     facadeObservation?: string;
     height?: number;
     pavement: {
@@ -30,7 +30,7 @@ export interface Location {
 export interface CreateLocationData {
     projectId: string;
     name: string;
-    locationType: LocationType;
+    locationType: LocationTypes;
 }
 
 export const LocationService = {

@@ -1,6 +1,6 @@
 'use client';
 
-import { PdfType, PDF } from '../../interfaces/pdf';
+import { PdfTypes, PDF } from '../../interfaces/pdf';
 import {
     BadgeCheckIcon,
     MoreVerticalIcon,
@@ -15,7 +15,7 @@ import { useRef, useState } from 'react';
 import { DeletePdfModal } from '../modals/pdfModals/DeletePdfModal';
 import { Loader2Icon } from 'lucide-react';
 
-const PDF_TITLES: Record<PdfType, string> = {
+const PDF_TITLES: Record<PdfTypes, string> = {
     atestado: 'Atestado de Emprego dos Materiais de Acabamento e Revestimento',
     anexo_m3:
         'Anexo M.3 - Laudo Técnico de Segurança Estrutural em Situação de Incêndio',
@@ -38,15 +38,15 @@ interface PdfCardProps {
             | 'uploadSigned'
             | 'load'
             | 'projectInfo';
-        pdfType?: PdfType;
+        pdfType?: PdfTypes;
         pdfId?: string;
     } | null;
-    onGenerate: (type: PdfType) => Promise<void>;
+    onGenerate: (type: PdfTypes) => Promise<void>;
     onView: (pdfId: string) => void;
     onDownload: (pdfId: string) => void;
-    onPreview: (type: PdfType) => void;
-    onDelete: (type: PdfType) => Promise<void>;
-    onUploadSigned: (type: PdfType, file: File) => Promise<void>;
+    onPreview: (type: PdfTypes) => void;
+    onDelete: (type: PdfTypes) => Promise<void>;
+    onUploadSigned: (type: PdfTypes, file: File) => Promise<void>;
     setPdfDocuments: (newPdfs: PDF[]) => void;
 }
 
@@ -62,9 +62,9 @@ export function PdfCard({
     setPdfDocuments,
 }: PdfCardProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [pdfToDelete, setPdfToDelete] = useState<PdfType | null>(null);
+    const [pdfToDelete, setPdfToDelete] = useState<PdfTypes | null>(null);
 
-    const handleUploadClick = (type: PdfType) => {
+    const handleUploadClick = (type: PdfTypes) => {
         if (fileInputRef.current) {
             fileInputRef.current.setAttribute('data-pdf-type', type);
             fileInputRef.current.click();
@@ -75,7 +75,7 @@ export function PdfCard({
         const files = e.target.files;
         if (!files || files.length === 0) return;
 
-        const type = e.target.getAttribute('data-pdf-type') as PdfType;
+        const type = e.target.getAttribute('data-pdf-type') as PdfTypes;
         await onUploadSigned(type, files[0]);
 
         if (fileInputRef.current) {
@@ -120,10 +120,10 @@ export function PdfCard({
         return items;
     };
 
-    const isGenerating = (type: PdfType) =>
+    const isGenerating = (type: PdfTypes) =>
         loadingState?.action === 'generate' && loadingState.pdfType === type;
 
-    const isDeleting = (type: PdfType) =>
+    const isDeleting = (type: PdfTypes) =>
         loadingState?.action === 'delete' && loadingState.pdfType === type;
 
     return (

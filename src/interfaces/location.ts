@@ -1,11 +1,11 @@
-import { LocationType } from '../types/location';
+import { LocationTypes } from '../types/location';
 
 export interface LocationProps {
     href: string;
     relative?: boolean;
     id: string;
     name: string;
-    locationType: LocationType;
+    locationType: LocationTypes;
     pavement?: string;
     height?: number;
     hasPhotosSelected?: boolean;

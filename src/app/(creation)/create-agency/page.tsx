@@ -26,6 +26,8 @@ import { fetchAddressByCep } from '../../../utils/viacep';
 import { AgencyService } from '../../../services/domains/agencyService';
 import { handleMaskedChange } from '../../../utils/helpers/handleMaskedInput';
 import axios from 'axios';
+import { CustomDropdownInput } from '@/components/forms/CustomDropdownInput';
+import { states } from '@/constants';
 
 export default function CreateAgencyPage() {
     const router = useRouter();
@@ -49,7 +51,29 @@ export default function CreateAgencyPage() {
             if (cleanedCep.length === 8) {
                 const address = await fetchAddressByCep(cepValue);
                 if (address) {
-                    setValue('state', address.state);
+                    const foundState = states.find(
+                        (state) => state.label === address.state,
+                    );
+
+                    if (foundState) {
+                        setValue('state', foundState.value);
+                    } else {
+                        const stateWithoutAccents = address.state
+                            .normalize('NFD')
+                            .replace(/[\u0300-\u036f]/g, '');
+
+                        const alternativeState = states.find(
+                            (state) =>
+                                state.label === address.state ||
+                                state.value.toLowerCase() ===
+                                    stateWithoutAccents.toLowerCase(),
+                        );
+
+                        if (alternativeState) {
+                            setValue('state', alternativeState.value);
+                        }
+                    }
+
                     setValue('city', address.city);
                     setValue('district', address.district);
                     setValue('street', address.street);
@@ -160,13 +184,16 @@ export default function CreateAgencyPage() {
                             id="CEPInput"
                         />
 
-                        <CustomFormInput
+                        <CustomDropdownInput
                             icon={<PinIcon />}
-                            label="Estado*"
-                            registration={register('state')}
-                            value={watch('state')}
+                            placeholder="Selecione o Estado da Agência*"
+                            options={states}
+                            selectedOptionValue={watch('state')}
+                            onOptionSelected={(val) => {
+                                setValue('state', val || '');
+                            }}
                             error={errors.state?.message}
-                            id="StateInput"
+                            className="col-span-2 md:col-span-1"
                         />
 
                         <CustomFormInput

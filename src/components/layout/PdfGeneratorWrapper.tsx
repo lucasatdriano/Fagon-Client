@@ -1,7 +1,7 @@
 'use client';
 
-import { pdfType } from '../../constants';
-import { PdfType, PDF, PdfDocument } from '../../interfaces/pdf';
+import { pdfTypes } from '../../constants';
+import { PdfTypes, PDF, PdfDocument } from '../../interfaces/pdf';
 import { PdfService } from '../../services/domains/pdfService';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -21,7 +21,7 @@ type LoadingState = {
         | 'uploadSigned'
         | 'load'
         | 'projectInfo';
-    pdfType?: PdfType;
+    pdfType?: PdfTypes;
     pdfId?: string;
 } | null;
 
@@ -54,12 +54,12 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
         loadPdfs();
     }, [projectId]);
 
-    const pdfs: PDF[] = pdfType.map((type) => {
+    const pdfs: PDF[] = pdfTypes.map((type) => {
         const existingPdf = pdfDocuments.find(
             (pdf) => pdf.pdfType === type.value,
         );
         return {
-            type: type.value as PdfType,
+            type: type.value as PdfTypes,
             generated: !!existingPdf && !existingPdf.signedFilePath,
             signed: !!existingPdf?.signedFilePath,
             filePath: existingPdf?.filePath ?? null,
@@ -70,12 +70,12 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
 
     const updateProjectStatus = async () => {
         try {
-            const allPdfsGenerated = pdfType.every((type) => {
+            const allPdfsGenerated = pdfTypes.every((type) => {
                 const pdf = pdfs.find((p) => p.type === type.value);
                 return pdf?.generated || pdf?.signed;
             });
 
-            const allPdfsSigned = pdfType.every((type) => {
+            const allPdfsSigned = pdfTypes.every((type) => {
                 const pdf = pdfs.find((p) => p.type === type.value);
                 return pdf?.signed;
             });
@@ -99,7 +99,7 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
         }
     };
 
-    const handleGenerate = async (type: PdfType) => {
+    const handleGenerate = async (type: PdfTypes) => {
         setLoadingState({ action: 'generate', pdfType: type });
         try {
             const projectResponse = await ProjectService.getById(projectId);
@@ -168,8 +168,8 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
         }
     };
 
-    const handlePreview = (type: PdfType) => {
-        const pdfFileMap: Record<PdfType, string> = {
+    const handlePreview = (type: PdfTypes) => {
+        const pdfFileMap: Record<PdfTypes, string> = {
             atestado: 'docs/atestado.pdf',
             anexo_m3: 'docs/anexo_m3.pdf',
             anexo_m4: 'docs/anexo_m4.pdf',
@@ -204,7 +204,7 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
         }
     };
 
-    const handleDelete = async (type: PdfType) => {
+    const handleDelete = async (type: PdfTypes) => {
         setLoadingState({ action: 'delete', pdfType: type });
         try {
             const pdfToDelete = pdfDocuments.find(
@@ -226,7 +226,7 @@ export default function PDFGeneratorWrapper({ projectId }: PdfGeneratorProps) {
         }
     };
 
-    const handleUploadSigned = async (type: PdfType, file: File) => {
+    const handleUploadSigned = async (type: PdfTypes, file: File) => {
         setLoadingState({ action: 'uploadSigned', pdfType: type });
         try {
             const pdfToUpdate = pdfDocuments.find(

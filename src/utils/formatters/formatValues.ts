@@ -1,8 +1,8 @@
 import {
     locationOptions,
     pavements,
-    pdfType,
-    projectType,
+    pdfTypes,
+    projectTypes,
 } from '../../constants';
 
 export const getLocationLabelByValue = (value: string): string => {
@@ -30,11 +30,11 @@ export const getLocationValueByLabel = (label: string): string => {
 };
 
 export const getPdfLabel = (type: string): string => {
-    return pdfType.find((item) => item.value === type)?.label || type;
+    return pdfTypes.find((item) => item.value === type)?.label || type;
 };
 
 export const getProjectTypeLabel = (value: string) => {
-    return projectType.find((type) => type.value === value)?.label || value;
+    return projectTypes.find((type) => type.value === value)?.label || value;
 };
 
 export const getPavementValueByLabel = (pavementValue: string): string => {

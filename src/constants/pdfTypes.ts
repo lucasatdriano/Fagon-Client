@@ -1,4 +1,4 @@
-export const pdfType = [
+export const pdfTypes = [
     { value: 'atestado', label: 'Atestado' },
     { value: 'anexo_m3', label: 'Anexo M.3' },
     { value: 'anexo_m4', label: 'Anexo M.4' },

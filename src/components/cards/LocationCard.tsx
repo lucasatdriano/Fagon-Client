@@ -1,8 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { locationOptions } from '../../constants';
-import { locationType as locationTypeOptions } from '../../constants/locationType';
+import { locationOptions, locationTypes as locationTypesOptions } from '../../constants';
 import { LocationProps } from '../../interfaces/location';
 import {
     getLocationLabelByValue,
@@ -32,7 +31,7 @@ export function LocationCard({
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const longPressTimer = useRef<NodeJS.Timeout | null>(null);
 
-    const locationTypeData = locationTypeOptions.find(
+    const locationTypeData = locationTypesOptions.find(
         (type) => type.value === locationType,
     );
 

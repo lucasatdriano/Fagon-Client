@@ -16,12 +16,12 @@ import {
     createProjectSchema,
     CreateProjectFormValues,
 } from '../../../validations';
-import { pavements, projectType } from '../../../constants';
+import { pavements, projectTypes } from '../../../constants';
 import { EngineerService } from '../../../services/domains/engineerService';
 import { engineerProps } from '../../../interfaces/engineer';
 import { ProjectService } from '../../../services/domains/projectService';
 import { toast } from 'sonner';
-import { ProjectType } from '../../../types/project';
+import { ProjectTypes } from '../../../types/project';
 import { CustomCheckboxGroup } from '../../../components/forms/CustomCheckbox';
 import { handleMaskedChange } from '../../../utils/helpers/handleMaskedInput';
 import { PavementItem } from '../../../services/domains/pavementService';
@@ -50,7 +50,7 @@ export default function CreateProjectPage() {
                 : [];
 
             const payload = {
-                projectType: data.projectType as ProjectType,
+                projectType: data.projectType as ProjectTypes,
                 upeCode: Number(data.upeCode),
                 pavements: pavementsArray.map((p) => ({
                     pavement:
@@ -111,7 +111,7 @@ export default function CreateProjectPage() {
                     <div className="grid md:grid-cols-2 w-full gap-4">
                         <CustomDropdownInput
                             placeholder="Selecione o Tipo do projeto*"
-                            options={projectType}
+                            options={projectTypes}
                             selectedOptionValue={watch('projectType')}
                             onOptionSelected={(val) => {
                                 if (val) {

@@ -1,7 +1,7 @@
 'use client';
 
 import { CustomButton } from '../../../components/forms/CustomButton';
-import { PdfType, PDF } from '../../../interfaces/pdf';
+import { PdfTypes, PDF } from '../../../interfaces/pdf';
 import { getPdfLabel } from '../../../utils/formatters/formatValues';
 import { Dialog, Transition } from '@headlessui/react';
 import { Trash2Icon } from 'lucide-react';
@@ -9,7 +9,7 @@ import { Fragment } from 'react';
 import { toast } from 'sonner';
 
 interface DeletePdfModalProps {
-    pdfType: PdfType;
+    pdfType: PdfTypes;
     pdfs: PDF[];
     setPdfs: (newPdfs: PDF[]) => void;
     onClose: () => void;

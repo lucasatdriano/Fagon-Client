@@ -3,14 +3,14 @@ import API_ROUTES from '../api/routes';
 import { Pavement } from '../../interfaces/pavement';
 import { PathologyProps } from '../../interfaces/pathology';
 import { ApiResponse, ProjectsApiResponse } from '../../types/api';
-import { ProjectType, ProjectStatus } from '../../types/project';
+import { ProjectTypes, ProjectStatus } from '../../types/project';
 import { PavementItem } from './pavementService';
 
 export interface Project {
     id: string;
     name: string;
     upeCode: number;
-    projectType: ProjectType;
+    projectType: ProjectTypes;
     projectDate: string;
     status: string;
     structureType: string;
@@ -39,7 +39,7 @@ export interface Project {
 }
 
 interface CreateProjectData {
-    projectType: ProjectType;
+    projectType: ProjectTypes;
     upeCode: number;
     pavements: PavementItem[];
     agencyId: string;
@@ -59,7 +59,7 @@ interface UpdateProjectData {
 
 interface SearchProjectsParams {
     status?: ProjectStatus;
-    projectType?: ProjectType;
+    projectType?: ProjectTypes;
     upeCode?: string;
     inspectorName?: string;
     agencyNumber?: number;
@@ -70,7 +70,7 @@ interface SearchProjectsParams {
 
 interface ListProjectsParams {
     status?: ProjectStatus;
-    projectType?: ProjectType;
+    projectType?: ProjectTypes;
     agencyId?: string;
     engineerId?: string;
     page?: number;

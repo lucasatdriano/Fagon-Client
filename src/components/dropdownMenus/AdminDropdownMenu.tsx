@@ -13,7 +13,7 @@ import { DropdownMenu } from './DropdownMenu';
 import { toast } from 'sonner';
 import { AuthService } from '../../services/domains/authService';
 import { ProjectService } from '../../services/domains/projectService';
-import { cameraType } from '../../constants';
+import { cameraTypes } from '../../constants';
 import { CustomReadOnlyFormInput } from '../forms/CustomReadOnlyFormInput';
 import { formatNumberAgency } from '@/utils/formatters/formatNumberAgency';
 
@@ -203,7 +203,7 @@ export function AdminDropdownMenu({
                       customContent: (
                           <div className="px-2 py-1">
                               <CustomRadioGroup
-                                  options={cameraType}
+                                  options={cameraTypes}
                                   selectedValue={cameraOption}
                                   onChange={setCameraOption}
                                   name="camera-options"

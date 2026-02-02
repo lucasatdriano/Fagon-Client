@@ -1,10 +1,10 @@
-import { ProjectType, ProjectStatus } from '../types/project';
+import { ProjectTypes, ProjectStatus } from '../types/project';
 
 export interface ProjectProps {
     id: string;
     agencyNumber: string;
     upeCode: string;
-    projectType: ProjectType;
+    projectType: ProjectTypes;
     technicalResponsibilityNumber?: string;
     state: string;
     city: string;

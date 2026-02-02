@@ -49,9 +49,19 @@ export function CustomDropdownInput({
                     onClick={toggleDropdown}
                     className="w-full px-4 py-3 text-left border-2 border-gray-200 rounded-lg shadow-sm bg-white focus:outline-none flex justify-between items-center"
                 >
-                    <span className="text-gray-700 flex items-center gap-2">
+                    <span className="flex items-center gap-2">
                         {icon && <span>{icon}</span>}
-                        {selectedOption ? selectedOption.label : placeholder}
+                        <span
+                            className={
+                                selectedOption
+                                    ? 'text-gray-700'
+                                    : 'text-gray-400'
+                            }
+                        >
+                            {selectedOption
+                                ? selectedOption.label
+                                : placeholder}
+                        </span>
                     </span>
                     {isOpen ? (
                         <ChevronUpIcon className="h-5 w-5 text-gray-500" />
