@@ -391,7 +391,7 @@ export default function CreateLocationPage() {
                     setCustomCeilingFinishing(newCustomValues.join(', '));
                     break;
             }
-        }, 500);
+        }, 3 * 1000); // 3s
 
         setDebounceTimers((prev) => ({ ...prev, [type]: timer }));
     };
