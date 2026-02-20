@@ -32,6 +32,7 @@ export default function CreateProjectPage() {
     const [engineers, setEngineers] = useState<
         { id: string; value: string; label: string }[]
     >([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const {
         register,
@@ -44,6 +45,8 @@ export default function CreateProjectPage() {
     });
 
     const onSubmit = async (data: CreateProjectFormValues) => {
+        setIsLoading(true);
+
         try {
             const pavementsArray = Array.isArray(data.pavements)
                 ? data.pavements
@@ -73,6 +76,8 @@ export default function CreateProjectPage() {
 
                 toast.error(errorMessage);
             }
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -180,9 +185,12 @@ export default function CreateProjectPage() {
                     <CustomButton
                         type="submit"
                         fontSize="text-lg"
+                        disabled={isLoading}
                         className="hover:bg-secondary-hover"
                     >
-                        Adicionar Projeto
+                        {isLoading
+                            ? 'Adicionando Projeto...'
+                            : 'Adicionar Projeto'}
                     </CustomButton>
                 </div>
             </form>
