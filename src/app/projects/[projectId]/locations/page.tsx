@@ -32,7 +32,9 @@ export default function DashboardInspectorPage() {
                 const project = await ProjectService.getById(projectId);
 
                 setProject(project.data);
-                setLocations(locations.data);
+
+                const sortedLocations = sortLocations(locations.data);
+                setLocations(sortedLocations);
             } catch (err) {
                 console.error(err);
             } finally {
@@ -45,10 +47,25 @@ export default function DashboardInspectorPage() {
         }
     }, [projectId]);
 
+    const sortLocations = (locations: Location[]): Location[] => {
+        return [...locations].sort((a, b) => {
+            const aHasSelectedPhoto =
+                a.photo?.some((p) => p.selectedForPdf) || false;
+            const bHasSelectedPhoto =
+                b.photo?.some((p) => p.selectedForPdf) || false;
+
+            if (aHasSelectedPhoto && !bHasSelectedPhoto) return 1;
+            if (!aHasSelectedPhoto && bHasSelectedPhoto) return -1;
+
+            return a.name.localeCompare(b.name, 'pt-BR');
+        });
+    };
+
     const handleLocationCreated = async () => {
         try {
             const response = await LocationService.listAll(projectId);
-            setLocations(response.data);
+            const sortedLocations = sortLocations(response.data);
+            setLocations(sortedLocations);
         } catch (err) {
             console.error(err);
         }
@@ -59,7 +76,8 @@ export default function DashboardInspectorPage() {
             await LocationService.delete(locationId);
             toast.success('Local deletado com sucesso');
             const response = await LocationService.listAll(projectId);
-            setLocations(response.data);
+            const sortedLocations = sortLocations(response.data);
+            setLocations(sortedLocations);
         } catch (err) {
             toast.error('Erro ao deletar local');
             console.error(err);

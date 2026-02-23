@@ -1,7 +1,10 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { locationOptions, locationTypes as locationTypesOptions } from '../../constants';
+import {
+    locationOptions,
+    locationTypes as locationTypesOptions,
+} from '../../constants';
 import { LocationProps } from '../../interfaces/location';
 import {
     getLocationLabelByValue,
@@ -61,7 +64,7 @@ export function LocationCard({
             }
 
             setShowDeleteModal(true);
-        }, 1000);
+        }, 2500);
     };
 
     const handlePressEnd = () => {

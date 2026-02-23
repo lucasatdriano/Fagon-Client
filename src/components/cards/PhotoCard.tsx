@@ -125,8 +125,8 @@ export function PhotoCard({
                     isSelected && !isVisitor ? 'border-primary' : ''
                 }
                     ${!isSelected ? 'border-gray-200' : ''} ${
-                    disabled ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
+                        disabled ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                 onClick={handleClick}
                 onTouchStart={handlePressStart}
                 onTouchEnd={handlePressEnd}
