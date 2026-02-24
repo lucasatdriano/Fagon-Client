@@ -11,11 +11,11 @@ export const createAgencySchema = z.object({
 
     cnpj: z
         .string()
+        .min(1, 'O CNPJ é obrigatório')
         .refine(
             (val) => val === '' || val.replace(/\D/g, '').length === 14,
             'CNPJ deve ter 14 dígitos',
-        )
-        .optional(),
+        ),
 
     cep: z
         .string()
@@ -33,8 +33,8 @@ export const createAgencySchema = z.object({
 
     number: z
         .string()
-        .min(1, 'Número é obrigatório')
-        .max(20, 'Número muito longo')
+        .refine((val) => val.trim().length > 0, 'Número é obrigatório')
+        .refine((val) => val.trim().length < 10, 'Número muito longo')
         .refine(
             (val) => /^[A-Za-z0-9/\-\s]+$/.test(val),
             'Número deve conter apenas letras, números, barras, hífens ou espaços',

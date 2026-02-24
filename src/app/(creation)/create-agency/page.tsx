@@ -149,7 +149,7 @@ export default function CreateAgencyPage() {
 
                         <CustomFormInput
                             icon={<FileTextIcon />}
-                            label="CNPJ"
+                            label="CNPJ*"
                             registration={register('cnpj')}
                             value={watch('cnpj')}
                             onChange={(e) =>
@@ -190,8 +190,11 @@ export default function CreateAgencyPage() {
                             options={states}
                             selectedOptionValue={watch('state')}
                             onOptionSelected={(val) => {
-                                setValue('state', val || '');
+                                setValue('state', val || '', {
+                                    shouldValidate: true,
+                                });
                             }}
+                            registration={register('state')}
                             error={errors.state?.message}
                             className="col-span-2 md:col-span-1"
                         />
@@ -227,9 +230,6 @@ export default function CreateAgencyPage() {
                             icon={<HashIcon />}
                             label="Número*"
                             registration={register('number')}
-                            onChange={(e) =>
-                                handleMaskedChange('number', e, setValue)
-                            }
                             value={watch('number')}
                             error={errors.number?.message}
                             id="NumberAgencyInput"
